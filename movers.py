@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 import os
 import requests
 import uuid
+import base64
+from requests.auth import HTTPBasicAuth
 app = Flask(__name__)
 
 load_dotenv()
@@ -16,16 +18,30 @@ app.config['SECRET_KEY'] = 'supersecretkey'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///moving_app.db'
 db = SQLAlchemy(app)
 
-INTASEND_PUBLIC_KEY = os.getenv('INTASEND_PUBLIC_KEY')
-INTASEND_SECRET_KEY = os.getenv('INTASEND_SECRET_KEY')
-INTASEND_API_BASE = 'https://sandbox.intasend.com/api/v1'
+# M-Pesa Daraja API Configuration
+MPESA_CONSUMER_KEY = os.getenv('MPESA_CONSUMER_KEY')
+MPESA_CONSUMER_SECRET = os.getenv('MPESA_CONSUMER_SECRET')
+MPESA_BUSINESS_SHORT_CODE = os.getenv('MPESA_BUSINESS_SHORT_CODE', '174379')
+MPESA_PASSKEY = os.getenv('MPESA_PASSKEY')
+MPESA_ENVIRONMENT = os.getenv('MPESA_ENVIRONMENT', 'sandbox')
+MPESA_CALLBACK_URL = os.getenv('MPESA_CALLBACK_URL', 'https://yourdomain.com/api/mpesa/callback')
+
+# M-Pesa API URLs
+if MPESA_ENVIRONMENT == 'sandbox':
+    MPESA_API_BASE = 'https://sandbox.safaricom.co.ke'
+else:
+    MPESA_API_BASE = 'https://api.safaricom.co.ke'
+
 # Models
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     transaction_id = db.Column(db.String(100), unique=True, nullable=False)
-    intasend_id = db.Column(db.String(100), nullable=True)
+    mpesa_receipt_number = db.Column(db.String(100), nullable=True)
+    checkout_request_id = db.Column(db.String(100), nullable=True)
+    merchant_request_id = db.Column(db.String(100), nullable=True)
     amount = db.Column(db.Float, nullable=False)
+    phone_number = db.Column(db.String(20), nullable=True)
     type = db.Column(db.String(50), nullable=False)  # deposit, payment, withdrawal
     status = db.Column(db.String(50), default='pending')  # pending, completed, failed
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -343,30 +359,39 @@ def create_deposit():
         'message': 'Deposit initiated',
         'transaction_id': transaction_id
     })
-@app.route('/api/user/update-transaction', methods=['POST'])
-def update_transaction():
-    data = request.get_json()
-    transaction_id = data.get('transaction_id')
-    intasend_id = data.get('intasend_id')
-    
-    if not transaction_id or not intasend_id:
-        return jsonify({'error': 'Transaction ID and IntaSend ID are required'}), 400
-    
-    transaction = Transaction.query.filter_by(transaction_id=transaction_id).first()
-    if not transaction:
-        return jsonify({'error': 'Transaction not found'}), 404
-    
-    transaction.intasend_id = intasend_id
-    db.session.commit()
-    
-    return jsonify({
-        'message': 'Transaction updated successfully'
-    })
 
-# M-Pesa Integration via IntaSend
+# M-Pesa Daraja API Helper Functions
+def get_mpesa_access_token():
+    """Generate OAuth access token for M-Pesa Daraja API"""
+    try:
+        url = f'{MPESA_API_BASE}/oauth/v1/generate?grant_type=client_credentials'
+        response = requests.get(url, auth=HTTPBasicAuth(MPESA_CONSUMER_KEY, MPESA_CONSUMER_SECRET))
+        
+        if response.status_code == 200:
+            json_response = response.json()
+            return json_response.get('access_token')
+        else:
+            print(f"Failed to get access token: {response.text}")
+            return None
+    except Exception as e:
+        print(f"Error getting access token: {str(e)}")
+        return None
+
+def generate_password_and_timestamp():
+    """Generate password and timestamp for STK Push"""
+    from datetime import datetime
+    import base64
+    
+    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+    password_str = f"{MPESA_BUSINESS_SHORT_CODE}{MPESA_PASSKEY}{timestamp}"
+    password = base64.b64encode(password_str.encode()).decode('utf-8')
+    
+    return password, timestamp
+
+# M-Pesa Daraja API Endpoints
 @app.route('/api/mpesa/stk-push', methods=['POST'])
 def mpesa_stk_push():
-    """Initiate M-Pesa STK Push payment"""
+    """Initiate M-Pesa STK Push payment using Daraja API"""
     data = request.get_json()
     user_id = data.get('user_id')
     amount = data.get('amount')
@@ -377,7 +402,7 @@ def mpesa_stk_push():
     
     # Validate amount
     try:
-        amount = float(amount)
+        amount = int(float(amount))
         if amount <= 0:
             return jsonify({'error': 'Amount must be greater than 0'}), 400
     except ValueError:
@@ -401,6 +426,7 @@ def mpesa_stk_push():
         user_id=user_id,
         transaction_id=transaction_id,
         amount=amount,
+        phone_number=phone_number,
         type='deposit',
         status='pending'
     )
@@ -409,22 +435,43 @@ def mpesa_stk_push():
     db.session.commit()
     
     try:
-        # Make request to IntaSend API for STK Push
+        # Get OAuth access token
+        access_token = get_mpesa_access_token()
+        
+        if not access_token:
+            transaction.status = 'failed'
+            db.session.commit()
+            return jsonify({
+                'success': False,
+                'error': 'Failed to authenticate with M-Pesa API',
+                'transaction_id': transaction_id
+            }), 500
+        
+        # Generate password and timestamp
+        password, timestamp = generate_password_and_timestamp()
+        
+        # Prepare STK Push request
         headers = {
             'Content-Type': 'application/json',
-            'Authorization': f'Bearer {INTASEND_SECRET_KEY}'
+            'Authorization': f'Bearer {access_token}'
         }
         
         payload = {
-            'public_key': INTASEND_PUBLIC_KEY,
-            'amount': amount,
-            'phone_number': phone_number,
-            'api_ref': transaction_id,
-            'narrative': f'Wallet deposit for user {user.name}'
+            'BusinessShortCode': MPESA_BUSINESS_SHORT_CODE,
+            'Password': password,
+            'Timestamp': timestamp,
+            'TransactionType': 'CustomerPayBillOnline',
+            'Amount': amount,
+            'PartyA': phone_number,
+            'PartyB': MPESA_BUSINESS_SHORT_CODE,
+            'PhoneNumber': phone_number,
+            'CallBackURL': MPESA_CALLBACK_URL,
+            'AccountReference': f'Wallet-{user_id}',
+            'TransactionDesc': f'Wallet deposit for {user.name}'
         }
         
         response = requests.post(
-            f'{INTASEND_API_BASE}/payment/mpesa-stk-push/',
+            f'{MPESA_API_BASE}/mpesa/stkpush/v1/processrequest',
             json=payload,
             headers=headers,
             timeout=30
@@ -432,26 +479,28 @@ def mpesa_stk_push():
         
         response_data = response.json()
         
-        if response.status_code == 200 or response.status_code == 201:
-            # Update transaction with IntaSend ID
-            if 'id' in response_data:
-                transaction.intasend_id = response_data['id']
-                db.session.commit()
+        if response.status_code == 200 and response_data.get('ResponseCode') == '0':
+            # STK Push initiated successfully
+            transaction.checkout_request_id = response_data.get('CheckoutRequestID')
+            transaction.merchant_request_id = response_data.get('MerchantRequestID')
+            db.session.commit()
             
             return jsonify({
                 'success': True,
                 'message': 'STK Push sent. Please check your phone to complete payment.',
                 'transaction_id': transaction_id,
-                'intasend_data': response_data
+                'checkout_request_id': response_data.get('CheckoutRequestID')
             }), 200
         else:
             # STK Push failed
             transaction.status = 'failed'
             db.session.commit()
             
+            error_message = response_data.get('errorMessage') or response_data.get('ResponseDescription') or 'Failed to initiate payment'
+            
             return jsonify({
                 'success': False,
-                'error': response_data.get('error', 'Failed to initiate payment'),
+                'error': error_message,
                 'transaction_id': transaction_id
             }), 400
             
@@ -475,84 +524,117 @@ def mpesa_stk_push():
 
 @app.route('/api/mpesa/callback', methods=['POST'])
 def mpesa_callback():
-    """Handle M-Pesa payment callback from IntaSend"""
+    """Handle M-Pesa payment callback from Daraja API"""
     try:
         data = request.get_json()
         
-        # Extract transaction details from callback
-        api_ref = data.get('api_ref')  # This is our transaction_id
-        status = data.get('status')  # COMPLETE, FAILED, PENDING
-        intasend_id = data.get('id')
+        # Daraja callback structure
+        body = data.get('Body', {})
+        stk_callback = body.get('stkCallback', {})
         
-        if not api_ref:
-            return jsonify({'error': 'api_ref is required'}), 400
+        merchant_request_id = stk_callback.get('MerchantRequestID')
+        checkout_request_id = stk_callback.get('CheckoutRequestID')
+        result_code = stk_callback.get('ResultCode')
+        result_desc = stk_callback.get('ResultDesc')
+        
+        if not checkout_request_id:
+            return jsonify({'error': 'CheckoutRequestID is required'}), 400
         
         # Find the transaction
-        transaction = Transaction.query.filter_by(transaction_id=api_ref).first()
+        transaction = Transaction.query.filter_by(checkout_request_id=checkout_request_id).first()
         
         if not transaction:
             return jsonify({'error': 'Transaction not found'}), 404
         
-        # Update transaction status
-        if status == 'COMPLETE' or status == 'COMPLETED':
+        # Update transaction status based on result code
+        if result_code == 0:
+            # Transaction successful
             transaction.status = 'completed'
+            
+            # Extract callback metadata
+            callback_metadata = stk_callback.get('CallbackMetadata', {})
+            items = callback_metadata.get('Item', [])
+            
+            # Extract M-Pesa receipt number and phone number
+            for item in items:
+                if item.get('Name') == 'MpesaReceiptNumber':
+                    transaction.mpesa_receipt_number = item.get('Value')
+                elif item.get('Name') == 'PhoneNumber':
+                    transaction.phone_number = str(item.get('Value'))
             
             # Update user balance
             user = User.query.get(transaction.user_id)
             if user:
                 user.balance += transaction.amount
                 
-        elif status == 'FAILED':
-            transaction.status = 'failed'
         else:
-            transaction.status = 'pending'
-        
-        # Update IntaSend ID if provided
-        if intasend_id:
-            transaction.intasend_id = intasend_id
+            # Transaction failed or cancelled
+            transaction.status = 'failed'
         
         db.session.commit()
         
         return jsonify({
-            'success': True,
-            'message': 'Callback processed successfully'
+            'ResultCode': 0,
+            'ResultDesc': 'Callback processed successfully'
         }), 200
         
     except Exception as e:
         print(f"Callback error: {str(e)}")
         return jsonify({
-            'success': False,
-            'error': str(e)
+            'ResultCode': 1,
+            'ResultDesc': f'Error: {str(e)}'
         }), 500
 
 @app.route('/api/mpesa/check-status/<transaction_id>', methods=['GET'])
 def check_mpesa_status(transaction_id):
-    """Check the status of an M-Pesa transaction"""
+    """Check the status of an M-Pesa transaction using Daraja API"""
     transaction = Transaction.query.filter_by(transaction_id=transaction_id).first()
     
     if not transaction:
         return jsonify({'error': 'Transaction not found'}), 404
     
-    # If we have an IntaSend ID, we can query their API for the latest status
-    if transaction.intasend_id and INTASEND_SECRET_KEY:
+    # If we have a checkout request ID, we can query the STK Push status
+    if transaction.checkout_request_id:
         try:
+            access_token = get_mpesa_access_token()
+            
+            if not access_token:
+                return jsonify({
+                    'transaction_id': transaction.transaction_id,
+                    'amount': transaction.amount,
+                    'status': transaction.status,
+                    'type': transaction.type,
+                    'created_at': transaction.created_at
+                }), 200
+            
+            # Generate password and timestamp
+            password, timestamp = generate_password_and_timestamp()
+            
             headers = {
-                'Authorization': f'Bearer {INTASEND_SECRET_KEY}'
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {access_token}'
             }
             
-            response = requests.get(
-                f'{INTASEND_API_BASE}/payment/status/?id={transaction.intasend_id}',
+            payload = {
+                'BusinessShortCode': MPESA_BUSINESS_SHORT_CODE,
+                'Password': password,
+                'Timestamp': timestamp,
+                'CheckoutRequestID': transaction.checkout_request_id
+            }
+            
+            response = requests.post(
+                f'{MPESA_API_BASE}/mpesa/stkpushquery/v1/query',
+                json=payload,
                 headers=headers,
                 timeout=10
             )
             
             if response.status_code == 200:
                 status_data = response.json()
+                result_code = status_data.get('ResultCode')
                 
-                # Update transaction status based on IntaSend response
-                intasend_status = status_data.get('status', '').upper()
-                
-                if intasend_status == 'COMPLETE' or intasend_status == 'COMPLETED':
+                # Update transaction status based on M-Pesa response
+                if result_code == '0':
                     if transaction.status != 'completed':
                         transaction.status = 'completed'
                         
@@ -563,7 +645,8 @@ def check_mpesa_status(transaction_id):
                         
                         db.session.commit()
                         
-                elif intasend_status == 'FAILED':
+                elif result_code in ['1032', '1037']:
+                    # Transaction cancelled or timeout
                     transaction.status = 'failed'
                     db.session.commit()
                     
@@ -575,7 +658,8 @@ def check_mpesa_status(transaction_id):
         'amount': transaction.amount,
         'status': transaction.status,
         'type': transaction.type,
-        'created_at': transaction.created_at
+        'created_at': transaction.created_at,
+        'mpesa_receipt_number': transaction.mpesa_receipt_number
     }), 200
 
 @app.route('/api/user/<int:user_id>', methods=['GET'])
@@ -722,76 +806,18 @@ def reply_support_ticket(ticket_id):
 
 @app.route('/api/user/transaction-status/<transaction_id>', methods=['GET'])
 def check_transaction_status(transaction_id):
+    """Check transaction status - simplified version for backward compatibility"""
     transaction = Transaction.query.filter_by(transaction_id=transaction_id).first()
     if not transaction:
         return jsonify({'error': 'Transaction not found'}), 404
     
-    # If the transaction already has a final status, return it
-    if transaction.status in ['completed', 'failed']:
-        return jsonify({'status': transaction.status})
-    
-    # If we have an IntaSend ID, check with IntaSend
-    if transaction.intasend_id:
-        try:
-            # Make a request to IntaSend to check the status
-            headers = {
-                'Authorization': f'Bearer {INTASEND_SECRET_KEY}',
-                'Content-Type': 'application/json'
-            }
-            
-            response = requests.get(
-                f'{INTASEND_API_BASE}/payment/status/{transaction.intasend_id}/',
-                headers=headers
-            )
-            
-            if response.status_code == 200:
-                intasend_status = response.json().get('status')
-                
-                # Map IntaSend status to our status
-                if intasend_status == 'COMPLETE':
-                    transaction.status = 'completed'
-                    
-                    # Update user balance
-                    user = User.query.get(transaction.user_id)
-                    user.balance += transaction.amount
-                    
-                elif intasend_status == 'FAILED':
-                    transaction.status = 'failed'
-                
-                db.session.commit()
-        
-        except Exception as e:
-            print(f"Error checking IntaSend status: {e}")
-    
-    return jsonify({'status': transaction.status})
+    return jsonify({
+        'status': transaction.status,
+        'amount': transaction.amount,
+        'type': transaction.type,
+        'mpesa_receipt_number': transaction.mpesa_receipt_number
+    })
 
-# Callback URL for IntaSend
-@app.route('/api/callback/deposit/<transaction_id>', methods=['POST'])
-def intasend_callback(transaction_id):
-    data = request.get_json()
-    
-    # Verify the request is coming from IntaSend (you should implement proper verification)
-    # For now, just log the callback data
-    print(f"IntaSend Callback for {transaction_id}: {data}")
-    
-    # Find the transaction
-    transaction = Transaction.query.filter_by(transaction_id=transaction_id).first()
-    if not transaction:
-        return jsonify({'error': 'Transaction not found'}), 404
-    
-    if data.get('status') == 'COMPLETE':
-        transaction.status = 'completed'
-        
-        # Update user balance
-        user = User.query.get(transaction.user_id)
-        user.balance += transaction.amount
-        
-    elif data.get('status') == 'FAILED':
-        transaction.status = 'failed'
-    
-    db.session.commit()
-    
-    return jsonify({'message': 'Callback processed successfully'})
 # GET all support tickets for a specific user
 @app.route('/api/user/support-tickets', methods=['GET'])
 def get_user_support_tickets():

@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { AuthContext } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 const UserWallet = () => {
-  const { user } = useContext(AuthContext);
+  const { currentUser } = useAuth();
   
   const initialDummyTransactions = [
     {
@@ -42,11 +42,11 @@ const UserWallet = () => {
   useEffect(() => {
     setLoading(true);
     // Load user phone number if available
-    if (user && user.phone) {
-      setPhoneNumber(user.phone);
+    if (currentUser && currentUser.phone) {
+      setPhoneNumber(currentUser.phone);
     }
     setTimeout(() => setLoading(false), 1000);
-  }, [user]);
+  }, [currentUser]);
 
   const checkTransactionStatus = async (transactionId) => {
     try {
@@ -120,7 +120,7 @@ const UserWallet = () => {
       return;
     }
 
-    if (!user || !user.id) {
+    if (!currentUser || !currentUser.id) {
       toast.error('User session not found. Please login again.');
       return;
     }
@@ -135,7 +135,7 @@ const UserWallet = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          user_id: user.id,
+          user_id: currentUser.id,
           amount: parseFloat(amount),
           phone_number: cleanPhone,
         }),
