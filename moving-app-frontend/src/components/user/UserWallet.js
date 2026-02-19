@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { toast } from 'react-toastify';
+import { AuthContext } from '../../context/AuthContext';
 
 const UserWallet = () => {
+  const { user } = useContext(AuthContext);
+  
   const initialDummyTransactions = [
     {
       id: "txn_001",
@@ -31,14 +34,71 @@ const UserWallet = () => {
 
   const [balance, setBalance] = useState(150.50);
   const [amount, setAmount] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [transactions, setTransactions] = useState(initialDummyTransactions);
   const [loading, setLoading] = useState(false);
   const [isDepositing, setIsDepositing] = useState(false);
 
   useEffect(() => {
     setLoading(true);
+    // Load user phone number if available
+    if (user && user.phone) {
+      setPhoneNumber(user.phone);
+    }
     setTimeout(() => setLoading(false), 1000);
-  }, []);
+  }, [user]);
+
+  const checkTransactionStatus = async (transactionId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/mpesa/check-status/${transactionId}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        return data.status;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error checking status:', error);
+      return null;
+    }
+  };
+
+  const pollTransactionStatus = async (transactionId, maxAttempts = 20) => {
+    let attempts = 0;
+    
+    const poll = async () => {
+      attempts++;
+      const status = await checkTransactionStatus(transactionId);
+      
+      if (status === 'completed') {
+        setTransactions(prev => prev.map(t =>
+          t.transaction_id === transactionId ? { ...t, status: 'completed' } : t
+        ));
+        setBalance(prev => prev + parseFloat(amount));
+        toast.success('Payment completed successfully!');
+        setAmount('');
+        setIsDepositing(false);
+        return;
+      } else if (status === 'failed') {
+        setTransactions(prev => prev.map(t =>
+          t.transaction_id === transactionId ? { ...t, status: 'failed' } : t
+        ));
+        toast.error('Payment failed. Please try again.');
+        setIsDepositing(false);
+        return;
+      } else if (attempts < maxAttempts) {
+        // Still pending, check again in 3 seconds
+        setTimeout(poll, 3000);
+      } else {
+        // Max attempts reached, stop polling
+        toast.warning('Payment is taking longer than expected. Check back later.');
+        setIsDepositing(false);
+      }
+    };
+    
+    // Start polling after 5 seconds (give time for user to enter PIN)
+    setTimeout(poll, 5000);
+  };
 
   const handleDeposit = async (e) => {
     e.preventDefault();
@@ -48,45 +108,65 @@ const UserWallet = () => {
       return;
     }
 
+    if (!phoneNumber) {
+      toast.error('Please enter your M-Pesa phone number');
+      return;
+    }
+
+    // Validate phone number format
+    const cleanPhone = phoneNumber.replace(/\s+/g, '').replace(/[^0-9+]/g, '');
+    if (cleanPhone.length < 10) {
+      toast.error('Please enter a valid phone number');
+      return;
+    }
+
+    if (!user || !user.id) {
+      toast.error('User session not found. Please login again.');
+      return;
+    }
+
     try {
       setIsDepositing(true);
-      const transaction_id = "txn_" + Math.random().toString(36).substr(2, 9);
 
-      const newTransaction = {
-        id: transaction_id,
-        transaction_id,
-        type: 'deposit',
-        amount: parseFloat(amount),
-        created_at: new Date().toISOString(),
-        status: 'pending'
-      };
+      // Call the backend M-Pesa STK Push endpoint
+      const response = await fetch('http://localhost:5000/api/mpesa/stk-push', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          amount: parseFloat(amount),
+          phone_number: cleanPhone,
+        }),
+      });
 
-      setTransactions([newTransaction, ...transactions]);
-      toast.success('Deposit initiated! Simulating M-Pesa transaction...');
+      const data = await response.json();
 
-      setTimeout(() => {
-        const success = Math.random() < 0.8;
+      if (response.ok && data.success) {
+        const newTransaction = {
+          id: data.transaction_id,
+          transaction_id: data.transaction_id,
+          type: 'deposit',
+          amount: parseFloat(amount),
+          created_at: new Date().toISOString(),
+          status: 'pending'
+        };
 
-        if (success) {
-          setTransactions(prev => prev.map(t =>
-            t.transaction_id === transaction_id ? { ...t, status: 'completed' } : t
-          ));
-          setBalance(prev => prev + parseFloat(amount));
-          toast.success('Deposit completed successfully!');
-        } else {
-          setTransactions(prev => prev.map(t =>
-            t.transaction_id === transaction_id ? { ...t, status: 'failed' } : t
-          ));
-          toast.error('Deposit failed. Please try again.');
-        }
+        setTransactions([newTransaction, ...transactions]);
+        toast.success('STK Push sent! Please check your phone and enter your M-Pesa PIN.');
 
-        setAmount('');
+        // Start polling for transaction status
+        pollTransactionStatus(data.transaction_id);
+
+      } else {
+        toast.error(data.error || 'Failed to initiate M-Pesa payment');
         setIsDepositing(false);
-      }, 3000);
+      }
 
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Something went wrong.');
+      toast.error('Failed to connect to payment server. Please try again.');
       setIsDepositing(false);
     }
   };
@@ -103,13 +183,28 @@ const UserWallet = () => {
       <div className="bg-white rounded-lg shadow-md p-6 mb-6 text-center">
         <div className="flex flex-col md:flex-row justify-center md:justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Current Balance</h2>
-          <span className="text-2xl font-bold text-green-600">${balance.toFixed(2)}</span>
+          <span className="text-2xl font-bold text-green-600">KES {balance.toFixed(2)}</span>
         </div>
 
         <form onSubmit={handleDeposit} className="mt-4 text-center">
           <div className="mb-4">
+            <label htmlFor="phoneNumber" className="block text-gray-700 mb-2">
+              M-Pesa Phone Number
+            </label>
+            <input
+              type="tel"
+              id="phoneNumber"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500 text-center"
+              placeholder="e.g., 0712345678 or 254712345678"
+              required
+            />
+            <p className="text-xs text-gray-500 mt-1">Enter your Safaricom M-Pesa number</p>
+          </div>
+          <div className="mb-4">
             <label htmlFor="amount" className="block text-gray-700 mb-2">
-              Deposit Amount
+              Deposit Amount (KES)
             </label>
             <input
               type="number"
@@ -118,8 +213,8 @@ const UserWallet = () => {
               onChange={(e) => setAmount(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500 text-center"
               placeholder="Enter amount"
-              min="0.01"
-              step="0.01"
+              min="1"
+              step="1"
               required
             />
           </div>
@@ -128,8 +223,13 @@ const UserWallet = () => {
             disabled={isDepositing || loading}
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-blue-300"
           >
-            {isDepositing ? 'Processing...' : 'Deposit via M-Pesa'}
+            {isDepositing ? 'Processing...' : 'Pay via M-Pesa'}
           </button>
+          {isDepositing && (
+            <p className="text-sm text-gray-600 mt-2">
+              Please check your phone and enter your M-Pesa PIN to complete the payment...
+            </p>
+          )}
         </form>
       </div>
 
@@ -160,7 +260,7 @@ const UserWallet = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">{transaction.type}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <span className={transaction.type === 'deposit' ? 'text-green-600' : 'text-red-600'}>
-                        {transaction.type === 'deposit' ? '+' : '-'}${Math.abs(transaction.amount).toFixed(2)}
+                        {transaction.type === 'deposit' ? '+' : '-'}KES {Math.abs(transaction.amount).toFixed(2)}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">

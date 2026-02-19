@@ -363,6 +363,221 @@ def update_transaction():
         'message': 'Transaction updated successfully'
     })
 
+# M-Pesa Integration via IntaSend
+@app.route('/api/mpesa/stk-push', methods=['POST'])
+def mpesa_stk_push():
+    """Initiate M-Pesa STK Push payment"""
+    data = request.get_json()
+    user_id = data.get('user_id')
+    amount = data.get('amount')
+    phone_number = data.get('phone_number')
+    
+    if not user_id or not amount or not phone_number:
+        return jsonify({'error': 'User ID, amount, and phone number are required'}), 400
+    
+    # Validate amount
+    try:
+        amount = float(amount)
+        if amount <= 0:
+            return jsonify({'error': 'Amount must be greater than 0'}), 400
+    except ValueError:
+        return jsonify({'error': 'Invalid amount'}), 400
+    
+    # Check if user exists
+    user = User.query.get_or_404(user_id)
+    
+    # Format phone number (remove + and spaces, ensure it starts with 254)
+    phone_number = phone_number.replace('+', '').replace(' ', '').replace('-', '')
+    if phone_number.startswith('0'):
+        phone_number = '254' + phone_number[1:]
+    elif not phone_number.startswith('254'):
+        phone_number = '254' + phone_number
+    
+    # Generate a unique transaction ID
+    transaction_id = str(uuid.uuid4())
+    
+    # Create a new transaction
+    transaction = Transaction(
+        user_id=user_id,
+        transaction_id=transaction_id,
+        amount=amount,
+        type='deposit',
+        status='pending'
+    )
+    
+    db.session.add(transaction)
+    db.session.commit()
+    
+    try:
+        # Make request to IntaSend API for STK Push
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {INTASEND_SECRET_KEY}'
+        }
+        
+        payload = {
+            'public_key': INTASEND_PUBLIC_KEY,
+            'amount': amount,
+            'phone_number': phone_number,
+            'api_ref': transaction_id,
+            'narrative': f'Wallet deposit for user {user.name}'
+        }
+        
+        response = requests.post(
+            f'{INTASEND_API_BASE}/payment/mpesa-stk-push/',
+            json=payload,
+            headers=headers,
+            timeout=30
+        )
+        
+        response_data = response.json()
+        
+        if response.status_code == 200 or response.status_code == 201:
+            # Update transaction with IntaSend ID
+            if 'id' in response_data:
+                transaction.intasend_id = response_data['id']
+                db.session.commit()
+            
+            return jsonify({
+                'success': True,
+                'message': 'STK Push sent. Please check your phone to complete payment.',
+                'transaction_id': transaction_id,
+                'intasend_data': response_data
+            }), 200
+        else:
+            # STK Push failed
+            transaction.status = 'failed'
+            db.session.commit()
+            
+            return jsonify({
+                'success': False,
+                'error': response_data.get('error', 'Failed to initiate payment'),
+                'transaction_id': transaction_id
+            }), 400
+            
+    except requests.exceptions.Timeout:
+        transaction.status = 'failed'
+        db.session.commit()
+        return jsonify({
+            'success': False,
+            'error': 'Payment request timed out. Please try again.',
+            'transaction_id': transaction_id
+        }), 500
+        
+    except Exception as e:
+        transaction.status = 'failed'
+        db.session.commit()
+        return jsonify({
+            'success': False,
+            'error': f'An error occurred: {str(e)}',
+            'transaction_id': transaction_id
+        }), 500
+
+@app.route('/api/mpesa/callback', methods=['POST'])
+def mpesa_callback():
+    """Handle M-Pesa payment callback from IntaSend"""
+    try:
+        data = request.get_json()
+        
+        # Extract transaction details from callback
+        api_ref = data.get('api_ref')  # This is our transaction_id
+        status = data.get('status')  # COMPLETE, FAILED, PENDING
+        intasend_id = data.get('id')
+        
+        if not api_ref:
+            return jsonify({'error': 'api_ref is required'}), 400
+        
+        # Find the transaction
+        transaction = Transaction.query.filter_by(transaction_id=api_ref).first()
+        
+        if not transaction:
+            return jsonify({'error': 'Transaction not found'}), 404
+        
+        # Update transaction status
+        if status == 'COMPLETE' or status == 'COMPLETED':
+            transaction.status = 'completed'
+            
+            # Update user balance
+            user = User.query.get(transaction.user_id)
+            if user:
+                user.balance += transaction.amount
+                
+        elif status == 'FAILED':
+            transaction.status = 'failed'
+        else:
+            transaction.status = 'pending'
+        
+        # Update IntaSend ID if provided
+        if intasend_id:
+            transaction.intasend_id = intasend_id
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Callback processed successfully'
+        }), 200
+        
+    except Exception as e:
+        print(f"Callback error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/mpesa/check-status/<transaction_id>', methods=['GET'])
+def check_mpesa_status(transaction_id):
+    """Check the status of an M-Pesa transaction"""
+    transaction = Transaction.query.filter_by(transaction_id=transaction_id).first()
+    
+    if not transaction:
+        return jsonify({'error': 'Transaction not found'}), 404
+    
+    # If we have an IntaSend ID, we can query their API for the latest status
+    if transaction.intasend_id and INTASEND_SECRET_KEY:
+        try:
+            headers = {
+                'Authorization': f'Bearer {INTASEND_SECRET_KEY}'
+            }
+            
+            response = requests.get(
+                f'{INTASEND_API_BASE}/payment/status/?id={transaction.intasend_id}',
+                headers=headers,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                status_data = response.json()
+                
+                # Update transaction status based on IntaSend response
+                intasend_status = status_data.get('status', '').upper()
+                
+                if intasend_status == 'COMPLETE' or intasend_status == 'COMPLETED':
+                    if transaction.status != 'completed':
+                        transaction.status = 'completed'
+                        
+                        # Update user balance
+                        user = User.query.get(transaction.user_id)
+                        if user:
+                            user.balance += transaction.amount
+                        
+                        db.session.commit()
+                        
+                elif intasend_status == 'FAILED':
+                    transaction.status = 'failed'
+                    db.session.commit()
+                    
+        except Exception as e:
+            print(f"Error checking status: {str(e)}")
+    
+    return jsonify({
+        'transaction_id': transaction.transaction_id,
+        'amount': transaction.amount,
+        'status': transaction.status,
+        'type': transaction.type,
+        'created_at': transaction.created_at
+    }), 200
+
 @app.route('/api/user/<int:user_id>', methods=['GET'])
 def get_user(user_id):
     user = User.query.get_or_404(user_id)
