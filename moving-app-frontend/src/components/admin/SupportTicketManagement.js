@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useAuth } from '../../context/AuthContext';
 
 const SupportTicketManagement = () => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [adminReply, setAdminReply] = useState('');
-  const { currentUser } = useAuth();
 
   useEffect(() => {
     fetchSupportTickets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchSupportTickets = async () => {

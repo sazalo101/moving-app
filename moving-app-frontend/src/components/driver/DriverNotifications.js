@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
 const DriverNotifications = () => {
-  // Dummy user data (simulating auth context)
-  const user = { id: 'driver123', name: 'John Driver' };
-  
   // Initial dummy notifications data
   const initialNotifications = [
     {
@@ -55,6 +52,7 @@ const DriverNotifications = () => {
     }, 1000);
     
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   const fetchNotifications = () => {

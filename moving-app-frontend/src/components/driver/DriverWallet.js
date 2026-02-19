@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { useAuth } from '../../context/AuthContext';
 
 const DriverWallet = () => {
-  const { user } = useAuth();
   const [walletData, setWalletData] = useState({
     earnings: 0,
     pendingPayments: [],
@@ -88,6 +86,7 @@ const DriverWallet = () => {
   useEffect(() => {
     fetchWalletData();
     fetchTransactionHistory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchWalletData = async () => {

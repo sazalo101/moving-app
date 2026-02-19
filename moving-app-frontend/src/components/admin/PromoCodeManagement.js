@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useAuth } from '../../context/AuthContext';
 
 const PromoCodeManagement = () => {
   const [promoCodes, setPromoCodes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newCode, setNewCode] = useState('');
   const [newDiscount, setNewDiscount] = useState('');
-  const { user } = useAuth();
 
   useEffect(() => {
     const fetchPromoCodes = async () => {

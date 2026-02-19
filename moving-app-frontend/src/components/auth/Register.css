@@ -54,12 +54,30 @@
   margin-bottom: 1rem;
 }
 
+/* Make Account Type selection more prominent */
+.form-group:has(select[name="role"]) {
+  background-color: rgba(127, 255, 212, 0.15);
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #00ced1;
+  margin-bottom: 1.5rem;
+}
+
 /* === Labels === */
 .form-label {
   font-size: 0.9rem;
   font-weight: bold;
   color: #007f7f; /* Aqua marine for labels */
   margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* Highlight the Account Type label */
+.form-group:has(select[name="role"]) .form-label {
+  font-size: 1rem;
+  color: #00ced1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* === Input and Select Fields === */
@@ -67,13 +85,14 @@
 .form-select {
   width: 100%;
   padding: 12px 15px;
-  border: 1px solid #7fffd4; /* Aqua marine border */
+  border: 2px solid #7fffd4; /* Aqua marine border */
   border-radius: 8px;
   font-size: 0.95rem;
   box-sizing: border-box;
-  transition: border 0.3s, box-shadow 0.3s;
-  color: #007f7f; /* Aqua marine for text */
+  transition: border 0.3s, box-shadow 0.3s, background-color 0.3s;
+  color: #005555; /* Darker teal for better readability */
   background-color: #e0ffff; /* Light aqua marine for input background */
+  font-weight: 500;
 }
 
 /* Placeholder text styling */
@@ -87,10 +106,32 @@
   border-color: #00ced1; /* Darker aqua marine for focus */
   box-shadow: 0px 4px 8px rgba(0, 206, 209, 0.2); /* Aqua marine shadow */
   outline: none;
+  background-color: #ffffff; /* White background on focus */
 }
 
+/* Select dropdown with custom arrow */
 .form-select {
   appearance: none; /* Removes default browser styling */
+  background-color: #e0ffff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23007f7f' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  padding-right: 40px;
+  cursor: pointer;
+  font-weight: 600; /* Make select text bold */
+  border: 2px solid #00ced1; /* More prominent border */
+}
+
+.form-select:hover {
+  border-color: #20b2aa;
+  background-color: #f0ffff;
+}
+
+.form-select option {
+  background-color: #ffffff;
+  color: #005555;
+  padding: 10px;
+  font-weight: 500;
 }
 
 /* === Submit Button === */

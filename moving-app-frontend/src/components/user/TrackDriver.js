@@ -77,6 +77,7 @@ const TrackDriver = () => {
         clearInterval(simulationIntervalRef.current);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookingId]);
 
   const formatDateTime = (isoString) => {

@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useAuth } from '../../context/AuthContext';
 
 const AdminDashboard = () => {
-  const { user } = useAuth();
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalDrivers: 0,

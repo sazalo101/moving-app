@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const UserOrderHistory = () => {
-  const dummyUser = { id: 1, name: 'John Doe' };
-
   const dummyOrders = [
     {
       id: 1001,
@@ -45,7 +43,6 @@ const UserOrderHistory = () => {
   ];
 
   const [orders, setOrders] = useState(dummyOrders);
-  const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState('all');
 
   const filteredOrders = filter === 'all'
@@ -96,11 +93,7 @@ const UserOrderHistory = () => {
         </div>
       </div>
 
-      {loading ? (
-        <div className="text-center py-8">
-          <p>Loading order history...</p>
-        </div>
-      ) : filteredOrders.length === 0 ? (
+      {filteredOrders.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-8 text-center">
           <p className="text-gray-600 mb-4">
             No {filter !== 'all' ? filter : ''} orders found.

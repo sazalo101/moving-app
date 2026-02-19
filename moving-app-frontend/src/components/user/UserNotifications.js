@@ -2,12 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
 const UserNotifications = () => {
-  const dummyUser = {
-    id: "usr_123456",
-    name: "John Doe",
-    email: "john.doe@example.com"
-  };
-
   const initialNotifications = [
     {
       id: 1,
@@ -45,6 +39,7 @@ const UserNotifications = () => {
     }, 1000);
 
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const markAsRead = (notificationId) => {

@@ -2,13 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
 const UserWallet = () => {
-  const dummyUser = {
-    id: "usr_123456",
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+254712345678"
-  };
-
   const initialDummyTransactions = [
     {
       id: "txn_001",

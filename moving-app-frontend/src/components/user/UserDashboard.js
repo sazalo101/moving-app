@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Navigate } from "react-router-dom";
+import AuthContext from "../../context/AuthContext";
 
 const UserDashboard = () => {
-  // Dummy user data
-  const currentUser = { id: "user456", email: "currentuser@gmail.com" };
+  // Get current user from AuthContext
+  const { currentUser } = useContext(AuthContext);
 
   // State variables
   const [recentBookings, setRecentBookings] = useState([]);
@@ -30,6 +31,19 @@ const UserDashboard = () => {
       fontSize: "28px",
       fontWeight: "bold",
       color: "#2c3e50",
+      marginBottom: "30px",
+      textAlign: "center",
+    },
+    welcomeEmail: {
+      fontSize: "32px",
+      fontWeight: "bold",
+      color: "#00ced1",
+      marginBottom: "10px",
+      textAlign: "center",
+    },
+    welcomeSubtitle: {
+      fontSize: "18px",
+      color: "#7f8c8d",
       marginBottom: "30px",
       textAlign: "center",
     },
@@ -233,6 +247,7 @@ const UserDashboard = () => {
     }, 1000);
 
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle support navigation - MODIFIED TO OPEN GMAIL
@@ -252,7 +267,11 @@ const UserDashboard = () => {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.welcomeTitle}>Welcome, {currentUser.email}!</h1>
+      <div style={{ textAlign: "center", marginBottom: "20px" }}>
+        <h1 style={styles.welcomeTitle}>Welcome Back!</h1>
+        <p style={styles.welcomeEmail}>{currentUser?.email}</p>
+        <p style={styles.welcomeSubtitle}>Here's an overview of your moving activities</p>
+      </div>
 
       {/* Statistics */}
       <div style={styles.card}>

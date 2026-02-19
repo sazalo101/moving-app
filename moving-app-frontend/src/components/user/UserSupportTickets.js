@@ -16,6 +16,7 @@ const UserSupportTickets = () => {
     if (currentUser) {
       fetchTickets();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser]);
 
   const fetchTickets = async () => {

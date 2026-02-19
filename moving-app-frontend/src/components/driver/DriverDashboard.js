@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const DriverDashboard = () => {
@@ -255,6 +254,7 @@ const DriverDashboard = () => {
     }, 1000);
     
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const toggleAvailability = () => {

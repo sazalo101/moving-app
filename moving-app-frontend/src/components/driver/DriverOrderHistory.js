@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 
 const DriverOrderHistory = () => {
-  const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, completed, accepted, cancelled
@@ -74,6 +72,7 @@ const DriverOrderHistory = () => {
   
   useEffect(() => {
     fetchOrderHistory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   const fetchOrderHistory = async () => {

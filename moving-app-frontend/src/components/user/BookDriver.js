@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAuth } from "../../context/AuthContext";
 import {
   MapContainer,
   TileLayer,
@@ -207,7 +206,6 @@ const hintTextStyles = {
 };
 
 const BookDriver = () => {
-  const { user } = useAuth() || { user: { id: 1, name: "Test User" } }; // Fallback for testing
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     pickup_location: "",
