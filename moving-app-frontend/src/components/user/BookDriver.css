@@ -1,15 +1,231 @@
+/* === Book Driver Container === */
+.book-driver-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.book-driver-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+  border-bottom: 2px solid #e67e22;
+  padding-bottom: 10px;
+}
+
+/* === Step Indicators === */
+.step-indicator-container {
+  display: flex;
+  margin-bottom: 30px;
+}
+
+.step-indicator {
+  flex: 1;
+  text-align: center;
+  padding: 12px;
+  font-weight: normal;
+  border-bottom: 3px solid #ddd;
+  color: #888;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.step-indicator.active {
+  font-weight: bold;
+  border-bottom-color: #e67e22;
+  color: #e67e22;
+}
+
+/* === Card Styles === */
+.booking-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  margin-bottom: 25px;
+}
+
+/* === Form Styles === */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  color: #444;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+  background-color: #f9f9f9;
+  color: black;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #e67e22;
+}
+
+.form-input-focused {
+  border-color: #e67e22;
+}
+
+/* === Suggestion Dropdown === */
+.suggestions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: black;
+  color: orange;
+  border: 1px solid #ddd;
+  border-radius: 0 0 6px 6px;
+  z-index: 10;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s ease;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background-color: #f5f5f5;
+}
+
+.hint-text {
+  font-size: 12px;
+  color: #777;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+/* === Button Styles === */
+.btn-primary {
+  background-color: #e67e22;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: bold;
+  width: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #d35400;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: #e67e22;
+  padding: 10px 16px;
+  border: 1px solid #e67e22;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #e67e22;
+  color: white;
+}
+
+.btn-secondary.filled {
+  background-color: #e67e22;
+  color: white;
+}
+
+.btn-back {
+  background: none;
+  border: none;
+  color: #e67e22;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 10px 0;
+  display: flex;
+  align-items: center;
+}
+
+.btn-back:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-confirm {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-confirm:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn-confirm:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* === Map Container === */
+.map-wrapper {
+  margin-bottom: 20px;
+}
+
 .map-container {
+  height: 300px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  margin-bottom: 20px;
   position: relative;
   width: 100%;
-  height: 400px;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  box-shadow: 0px 4px 15px rgba(199, 111, 111, 0.3);
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
 .map-container:hover {
@@ -17,67 +233,507 @@
   box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.4);
 }
 
-/* === Leaflet Map Styles === */
-.leaflet-container {
-  height: 100%;
+.map-container.compact {
+  height: 200px;
+}
+
+/* === Trip Details === */
+.trip-details-card {
+  background-color: #f8f4e5;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid #e67e22;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #444;
+}
+
+.section-subtitle {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.trip-details-flex {
+  display: flex;
+  justify-content: space-between;
+}
+
+.trip-detail-item {
+  margin-bottom: 5px;
+}
+
+.trip-detail-label {
+  font-weight: bold;
+  color: black;
+}
+
+.trip-detail-value {
+  color: black;
+}
+
+.price-display {
+  font-size: 28px;
+  font-weight: bold;
+  color: #e67e22;
+  background-color: #fff;
+  padding: 10px 15px;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* === Driver Cards === */
+.drivers-list {
+  margin-top: 15px;
+}
+
+.driver-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+}
+
+.driver-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.driver-card.selected {
+  background-color: #fdf2e9;
+  border-color: #e67e22;
+}
+
+.driver-info {
+  display: flex;
+  align-items: center;
+}
+
+.driver-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 15px;
+  border: 2px solid #e67e22;
+}
+
+.driver-avatar img {
   width: 100%;
-  border-radius: 0.5rem;
+  height: 100%;
+  object-fit: cover;
 }
 
-.leaflet-popup-content-wrapper {
-  border-radius: 0.375rem;
-  background-color: rgba(50, 50, 50, 0.9);
-  color: #ffffff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+.driver-details {
+  flex: 1;
 }
 
-.leaflet-popup-content {
-  margin: 0.5rem 0.75rem;
-  line-height: 1.5;
+.driver-name {
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.verified-badge {
+  background-color: #10b981;
+  color: white;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+.unverified-badge {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.driver-vehicle {
+  color: #666;
   font-size: 14px;
-  text-align: center; /* Center text inside popup */
+  margin-bottom: 4px;
 }
 
-.leaflet-popup-tip {
-  background: rgba(50, 50, 50, 0.9);
+.driver-rating {
+  display: flex;
+  align-items: center;
 }
 
-.leaflet-control-zoom {
-  margin: 15px;
-  padding: 8px;
+.rating-star {
+  color: #f39c12;
+  margin-right: 5px;
+}
+
+.rating-value {
+  font-weight: bold;
+}
+
+.rating-trips {
+  color: #777;
+  font-size: 13px;
+  margin-left: 5px;
+}
+
+.driver-price-section {
+  text-align: right;
+}
+
+.driver-price {
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #e67e22;
+}
+
+/* === No Drivers Message === */
+.no-drivers {
+  color: #666;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+}
+
+/* === Confirmation Section === */
+.confirmation-container {
+  margin-bottom: 25px;
+}
+
+.confirmation-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #444;
+  text-align: center;
+}
+
+.confirmation-details {
+  display: flex;
+  justify-content: space-between;
+  background-color: #f8f4e5;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid #e67e22;
+}
+
+.confirmation-left {
+  flex: 1;
+}
+
+.confirmation-section {
+  margin-bottom: 15px;
+}
+
+.confirmation-section:last-child {
+  margin-bottom: 0;
+}
+
+.confirmation-section-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #555;
+}
+
+.driver-info-compact {
+  display: flex;
+  align-items: center;
+}
+
+.driver-avatar-compact {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 10px;
+  border: 2px solid #e67e22;
+}
+
+.driver-avatar-compact img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.driver-name-compact {
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.driver-meta-compact {
+  font-size: 13px;
+  color: #666;
+}
+
+.confirmation-right {
+  flex: 0 0 auto;
+  margin-left: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.price-box {
+  background-color: #fff;
+  padding: 15px 20px;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+  min-width: 150px;
+}
+
+.price-label {
+  font-size: 14px;
+  color: #777;
+  margin-bottom: 5px;
+}
+
+.price-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: #e67e22;
+}
+
+.promo-applied {
+  background-color: #e8f5e9;
+  border: 1px solid #c8e6c9;
   border-radius: 4px;
-  background-color: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.3s ease;
+  padding: 8px 12px;
+  margin-top: 5px;
+  font-size: 13px;
+  color: #2e7d32;
 }
 
-.leaflet-control-zoom:hover {
-  background-color: rgba(255, 165, 0, 0.9);
+.promo-code {
+  font-weight: bold;
 }
 
-.leaflet-control-attribution {
-  background-color: rgba(255, 255, 255, 0.8) !important;
-  padding: 4px 8px;
-  font-size: 12px;
-  border-radius: 4px;
-  color: #333;
-  text-align: center; /* Center attribution text */
+/* === Promo Code Section === */
+.promo-section {
+  margin-bottom: 25px;
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px dashed #ddd;
 }
 
-/* === Media Queries for Responsiveness === */
+.promo-input-group {
+  display: flex;
+}
+
+.promo-input {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: 0;
+}
+
+.promo-button {
+  background-color: #e67e22;
+  color: white;
+  border: none;
+  padding: 0 20px;
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.promo-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* === Action Buttons === */
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+/* === Booking Info === */
+.booking-info {
+  margin-top: 25px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #666;
+}
+
+.booking-info-title {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.booking-info-list {
+  padding-left: 20px;
+  margin-top: 5px;
+}
+
+.booking-info-list li {
+  margin-bottom: 3px;
+}
+
+.booking-info-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* === Footer === */
+.book-driver-footer {
+  text-align: center;
+  margin-top: 30px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+  color: #888;
+  font-size: 14px;
+}
+
+.footer-text {
+  margin-top: 5px;
+}
+
+/* === Responsive Design === */
 @media (max-width: 768px) {
-  .map-container {
-    height: 300px;
+  .book-driver-container {
+    padding: 15px;
   }
 
-  .leaflet-popup-content {
-    font-size: 12px;
+  .book-driver-title {
+    font-size: 24px;
   }
 
-  .leaflet-control-zoom {
-    margin: 10px;
-    padding: 6px;
+  .step-indicator {
+    font-size: 14px;
+    padding: 10px 8px;
   }
+
+  .booking-card {
+    padding: 20px;
+  }
+
+  .driver-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .driver-price-section {
+    text-align: left;
+    margin-top: 15px;
+    width: 100%;
+  }
+
+  .trip-details-flex {
+    flex-direction: column;
+  }
+
+  .price-display {
+    margin-top: 15px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .confirmation-details {
+    flex-direction: column;
+  }
+
+  .confirmation-right {
+    margin-left: 0;
+    margin-top: 15px;
+    width: 100%;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-confirm,
+  .btn-back {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* === M-Pesa Payment Styles === */
+.payment-summary {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 25px;
+}
+
+.payment-detail {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.payment-detail:last-child {
+  border-bottom: none;
+}
+
+.payment-detail span:first-child {
+  color: #666;
+  font-weight: 500;
+}
+
+.payment-detail span:last-child,
+.payment-detail strong {
+  color: #333;
+  font-weight: 600;
+}
+
+.mpesa-form {
+  margin: 25px 0;
+}
+
+.payment-processing {
+  text-align: center;
+  padding: 30px;
+  background: #fff3cd;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #e67e22;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 15px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 @media (max-width: 480px) {
@@ -85,39 +741,16 @@
     height: 250px;
   }
 
-  .leaflet-popup-content {
-    font-size: 11px;
+  .driver-avatar {
+    width: 50px;
+    height: 50px;
   }
 
-  .leaflet-control-zoom {
-    padding: 5px;
+  .driver-name {
+    font-size: 14px;
   }
-}
 
-/* === Custom Buttons for Map Features === */
-.map-button {
-  position: absolute;
-  top: 10px;
-  left: 50%; /* Center horizontally */
-  transform: translateX(-50%); /* Adjust for exact center */
-  background: linear-gradient(145deg, #ff6600, #ff4500);
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  color: white;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-  box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3);
-}
-
-.map-button:hover {
-  transform: translateX(-50%) translateY(-3px); /* Maintain center while moving up */
-  box-shadow: 0 6px 15px rgba(255, 102, 0, 0.5);
-}
-
-.map-button:active {
-  transform: translateX(-50%) translateY(2px); /* Maintain center while moving down */
-  box-shadow: inset 2px 2px 6px rgba(255, 102, 0, 0.4);
+  .driver-vehicle {
+    font-size: 13px;
+  }
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import './EscrowManagement.css';
 
 const EscrowManagement = () => {
   const [escrowOrders, setEscrowOrders] = useState([]);
@@ -58,60 +59,54 @@ const EscrowManagement = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="loading-container">
+        <div className="loader"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white shadow rounded-lg p-6">
-      <h2 className="text-2xl font-bold mb-6">Escrow Management</h2>
+    <div className="escrow-container">
+      <h2 className="escrow-title">Escrow Management</h2>
       
-      <div className="mb-6">
-        <div className="flex flex-wrap -mx-2">
-          <div className="w-full sm:w-1/2 lg:w-1/4 px-2 mb-4">
-            <div className="bg-blue-100 p-4 rounded-lg">
-              <h3 className="text-lg font-semibold text-blue-800">Total Orders in Escrow</h3>
-              <p className="text-2xl font-bold text-blue-600">{escrowOrders.length}</p>
-            </div>
-          </div>
-          <div className="w-full sm:w-1/2 lg:w-1/4 px-2 mb-4">
-            <div className="bg-green-100 p-4 rounded-lg">
-              <h3 className="text-lg font-semibold text-green-800">Total Value</h3>
-              <p className="text-2xl font-bold text-green-600">
-                ${escrowOrders.reduce((total, order) => total + order.price, 0).toFixed(2)}
-              </p>
-            </div>
-          </div>
+      <div className="escrow-stats">
+        <div className="escrow-stat-card blue">
+          <h3 className="stat-card-title blue">Total Orders in Escrow</h3>
+          <p className="stat-card-value blue">{escrowOrders.length}</p>
+        </div>
+        <div className="escrow-stat-card green">
+          <h3 className="stat-card-title green">Total Value</h3>
+          <p className="stat-card-value green">
+            ${escrowOrders.reduce((total, order) => total + order.price, 0).toFixed(2)}
+          </p>
         </div>
       </div>
       
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white">
+      <div className="table-container">
+        <table className="escrow-table">
           <thead>
-            <tr className="bg-gray-100 text-gray-700 uppercase text-sm leading-normal">
-              <th className="py-3 px-6 text-left">Booking ID</th>
-              <th className="py-3 px-6 text-left">User ID</th>
-              <th className="py-3 px-6 text-left">Driver ID</th>
-              <th className="py-3 px-6 text-left">Price</th>
-              <th className="py-3 px-6 text-left">Date</th>
-              <th className="py-3 px-6 text-center">Actions</th>
+            <tr>
+              <th>Booking ID</th>
+              <th>User ID</th>
+              <th>Driver ID</th>
+              <th>Price</th>
+              <th>Date</th>
+              <th>Actions</th>
             </tr>
           </thead>
-          <tbody className="text-gray-600 text-sm">
+          <tbody>
             {escrowOrders.length > 0 ? (
               escrowOrders.map((order) => (
-                <tr key={order.booking_id} className="border-b border-gray-200 hover:bg-gray-50">
-                  <td className="py-3 px-6 text-left">{order.booking_id}</td>
-                  <td className="py-3 px-6 text-left">{order.user_id}</td>
-                  <td className="py-3 px-6 text-left">{order.driver_id}</td>
-                  <td className="py-3 px-6 text-left">${order.price.toFixed(2)}</td>
-                  <td className="py-3 px-6 text-left">{formatDate(order.created_at)}</td>
-                  <td className="py-3 px-6 text-center">
+                <tr key={order.booking_id}>
+                  <td>{order.booking_id}</td>
+                  <td>{order.user_id}</td>
+                  <td>{order.driver_id}</td>
+                  <td>${order.price.toFixed(2)}</td>
+                  <td>{formatDate(order.created_at)}</td>
+                  <td>
                     <button 
                       onClick={() => handleReleasePayment(order.booking_id, order.driver_id, order.price)}
-                      className="bg-green-500 hover:bg-green-700 text-white py-1 px-3 rounded transform hover:scale-110"
+                      className="release-button"
                     >
                       Release Payment
                     </button>
@@ -120,7 +115,7 @@ const EscrowManagement = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="py-4 px-6 text-center">No orders in escrow</td>
+                <td colspan="6" className="empty-state">No orders in escrow</td>
               </tr>
             )}
           </tbody>

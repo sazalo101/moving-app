@@ -1,52 +1,54 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
+import './UserWallet.css';
 
 const UserWallet = () => {
   const { currentUser } = useAuth();
   
-  const initialDummyTransactions = [
-    {
-      id: "txn_001",
-      transaction_id: "txn_001",
-      type: "deposit",
-      amount: 100.00,
-      created_at: "2025-03-15T14:30:22Z",
-      status: "completed"
-    },
-    {
-      id: "txn_002",
-      transaction_id: "txn_002",
-      type: "withdrawal",
-      amount: 25.50,
-      created_at: "2025-03-12T09:15:43Z",
-      status: "completed"
-    },
-    {
-      id: "txn_003",
-      transaction_id: "txn_003",
-      type: "deposit",
-      amount: 50.00,
-      created_at: "2025-03-10T17:45:10Z",
-      status: "failed"
-    }
-  ];
-
-  const [balance, setBalance] = useState(150.50);
+  const [balance, setBalance] = useState(0);
   const [amount, setAmount] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [transactions, setTransactions] = useState(initialDummyTransactions);
+  const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isDepositing, setIsDepositing] = useState(false);
+  const [paymentTimeout, setPaymentTimeout] = useState(null);
+
+  const fetchWalletData = useCallback(async () => {
+    if (!currentUser || !currentUser.id) return;
+    
+    setLoading(true);
+    try {
+      const response = await fetch(`http://localhost:5000/api/user/balance/${currentUser.id}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        setBalance(data.balance || 0);
+      } else {
+        toast.error('Failed to load wallet balance');
+      }
+    } catch (error) {
+      console.error('Error fetching wallet data:', error);
+      toast.error('Failed to connect to server');
+    } finally {
+      setLoading(false);
+    }
+  }, [currentUser]);
 
   useEffect(() => {
-    setLoading(true);
-    // Load user phone number if available
+    fetchWalletData();
     if (currentUser && currentUser.phone) {
       setPhoneNumber(currentUser.phone);
     }
-    setTimeout(() => setLoading(false), 1000);
-  }, [currentUser]);
+  }, [currentUser, fetchWalletData]);
+
+  useEffect(() => {
+    return () => {
+      if (paymentTimeout) {
+        clearTimeout(paymentTimeout);
+      }
+    };
+  }, [paymentTimeout]);
 
   const checkTransactionStatus = async (transactionId) => {
     try {
@@ -74,8 +76,13 @@ const UserWallet = () => {
         setTransactions(prev => prev.map(t =>
           t.transaction_id === transactionId ? { ...t, status: 'completed' } : t
         ));
-        setBalance(prev => prev + parseFloat(amount));
-        toast.success('Payment completed successfully!');
+        // Refresh balance from server
+        await fetchWalletData();
+        toast.success('Payment completed successfully!', {
+          position: "top-center",
+          autoClose: 4000,
+          hideProgressBar: false,
+        });
         setAmount('');
         setIsDepositing(false);
         return;
@@ -83,20 +90,23 @@ const UserWallet = () => {
         setTransactions(prev => prev.map(t =>
           t.transaction_id === transactionId ? { ...t, status: 'failed' } : t
         ));
-        toast.error('Payment failed. Please try again.');
+        toast.error('Payment failed. Please try again.', {
+          position: "top-center",
+          autoClose: 4000,
+        });
         setIsDepositing(false);
         return;
       } else if (attempts < maxAttempts) {
-        // Still pending, check again in 3 seconds
         setTimeout(poll, 3000);
       } else {
-        // Max attempts reached, stop polling
-        toast.warning('Payment is taking longer than expected. Check back later.');
+        toast.warning('Payment is taking longer than expected. Check back later.', {
+          position: "top-center",
+          autoClose: 5000,
+        });
         setIsDepositing(false);
       }
     };
     
-    // Start polling after 5 seconds (give time for user to enter PIN)
     setTimeout(poll, 5000);
   };
 
@@ -104,31 +114,57 @@ const UserWallet = () => {
     e.preventDefault();
 
     if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
-      toast.error('Please enter a valid amount');
+      toast.error('Please enter a valid amount', {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+      });
       return;
     }
 
     if (!phoneNumber) {
-      toast.error('Please enter your M-Pesa phone number');
+      toast.error('Please enter your M-Pesa phone number', {
+        position: "top-center",
+        autoClose: 3000,
+      });
       return;
     }
 
-    // Validate phone number format
     const cleanPhone = phoneNumber.replace(/\s+/g, '').replace(/[^0-9+]/g, '');
     if (cleanPhone.length < 10) {
-      toast.error('Please enter a valid phone number');
+      toast.error('Please enter a valid phone number', {
+        position: "top-center",
+        autoClose: 3000,
+      });
       return;
     }
 
     if (!currentUser || !currentUser.id) {
-      toast.error('User session not found. Please login again.');
+      toast.error('User session not found. Please login again.', {
+        position: "top-center",
+        autoClose: 3000,
+      });
       return;
     }
 
     try {
       setIsDepositing(true);
+      
+      const loadingToast = toast.loading('Initiating M-Pesa payment...', {
+        position: "top-center",
+      });
 
-      // Call the backend M-Pesa STK Push endpoint
+      const timeout = setTimeout(() => {
+        setIsDepositing(false);
+        toast.dismiss(loadingToast);
+        toast.error('Payment timeout. Please try again and enter your PIN promptly.', {
+          position: "top-center",
+          autoClose: 5000,
+        });
+      }, 10000);
+
+      setPaymentTimeout(timeout);
+
       const response = await fetch('http://localhost:5000/api/mpesa/stk-push', {
         method: 'POST',
         headers: {
@@ -142,6 +178,10 @@ const UserWallet = () => {
       });
 
       const data = await response.json();
+      
+      clearTimeout(timeout);
+      setPaymentTimeout(null);
+      toast.dismiss(loadingToast);
 
       if (response.ok && data.success) {
         const newTransaction = {
@@ -154,19 +194,32 @@ const UserWallet = () => {
         };
 
         setTransactions([newTransaction, ...transactions]);
-        toast.success('STK Push sent! Please check your phone and enter your M-Pesa PIN.');
+        toast.success('Check your phone to complete payment', {
+          position: "top-center",
+          autoClose: 4000,
+          hideProgressBar: false,
+        });
 
-        // Start polling for transaction status
         pollTransactionStatus(data.transaction_id);
 
       } else {
-        toast.error(data.error || 'Failed to initiate M-Pesa payment');
+        toast.error(data.error || 'Failed to initiate M-Pesa payment', {
+          position: "top-center",
+          autoClose: 4000,
+        });
         setIsDepositing(false);
       }
 
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Failed to connect to payment server. Please try again.');
+      if (paymentTimeout) {
+        clearTimeout(paymentTimeout);
+        setPaymentTimeout(null);
+      }
+      toast.error('Failed to connect to payment server. Please try again.', {
+        position: "top-center",
+        autoClose: 4000,
+      });
       setIsDepositing(false);
     }
   };
@@ -177,103 +230,127 @@ const UserWallet = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 text-center">
-      <h1 className="text-2xl font-bold mb-6">My Wallet</h1>
+    <div className="user-wallet-container">
+      <h1 className="user-wallet-title">My Wallet</h1>
 
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6 text-center">
-        <div className="flex flex-col md:flex-row justify-center md:justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Current Balance</h2>
-          <span className="text-2xl font-bold text-green-600">KES {balance.toFixed(2)}</span>
+      <div className="wallet-balance-card">
+        <div className="balance-header">
+          <h2 className="balance-label">Current Balance</h2>
+          <span className="balance-amount">KES {balance.toFixed(2)}</span>
         </div>
 
-        <form onSubmit={handleDeposit} className="mt-4 text-center">
-          <div className="mb-4">
-            <label htmlFor="phoneNumber" className="block text-gray-700 mb-2">
-              M-Pesa Phone Number
-            </label>
-            <input
-              type="tel"
-              id="phoneNumber"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500 text-center"
-              placeholder="e.g., 0712345678 or 254712345678"
-              required
-            />
-            <p className="text-xs text-gray-500 mt-1">Enter your Safaricom M-Pesa number</p>
+        <form onSubmit={handleDeposit} className="deposit-form">
+          <div className="form-fields">
+            <div className="form-group">
+              <label htmlFor="phoneNumber" className="form-label">
+                M-Pesa Phone Number
+              </label>
+              <input
+                type="tel"
+                id="phoneNumber"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className="form-input"
+                placeholder="e.g., 0712345678"
+                required
+              />
+              <p className="form-hint">Enter your Safaricom number</p>
+            </div>
+            <div className="form-group">
+              <label htmlFor="amount" className="form-label">
+                Deposit Amount (KES)
+              </label>
+              <input
+                type="number"
+                id="amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="form-input"
+                placeholder="Enter amount"
+                min="1"
+                step="1"
+                required
+              />
+            </div>
           </div>
-          <div className="mb-4">
-            <label htmlFor="amount" className="block text-gray-700 mb-2">
-              Deposit Amount (KES)
-            </label>
-            <input
-              type="number"
-              id="amount"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500 text-center"
-              placeholder="Enter amount"
-              min="1"
-              step="1"
-              required
-            />
+          <div className="form-button-group">
+            <button
+              type="submit"
+              disabled={isDepositing || loading}
+              className="deposit-button"
+            >
+              {isDepositing ? (
+                <span>
+                  <svg className="spinner-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Processing</span>
+                </span>
+              ) : (
+                <span>Pay via M-Pesa</span>
+              )}
+            </button>
           </div>
-          <button
-            type="submit"
-            disabled={isDepositing || loading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-blue-300"
-          >
-            {isDepositing ? 'Processing...' : 'Pay via M-Pesa'}
-          </button>
           {isDepositing && (
-            <p className="text-sm text-gray-600 mt-2">
-              Please check your phone and enter your M-Pesa PIN to complete the payment...
-            </p>
+            <div className="payment-alert">
+              <p className="payment-alert-text">
+                <span>Check your phone - You have 10 seconds to enter PIN</span>
+              </p>
+            </div>
           )}
         </form>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-6 text-center">
-        <h2 className="text-xl font-semibold mb-4">Transaction History</h2>
+      <div className="transaction-history-card">
+        <h2 className="transaction-title">Transaction History</h2>
 
         {loading ? (
-          <p className="text-center py-4">Loading transactions...</p>
+          <div className="loading-state">
+            <svg className="loading-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p className="loading-text">Loading transactions...</p>
+          </div>
         ) : transactions.length === 0 ? (
-          <p className="text-center py-4 text-gray-500">No transactions found</p>
+          <div className="empty-state">
+            <svg className="empty-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <p className="empty-message">No transactions found</p>
+            <p className="empty-hint">Your transaction history will appear here</p>
+          </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 mx-auto">
-              <thead className="bg-gray-50">
+          <div className="transaction-table-wrapper">
+            <table className="transaction-table">
+              <thead>
                 <tr>
-                  <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction ID</th>
-                  <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                  <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                  <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th>Date</th>
+                  <th>Transaction ID</th>
+                  <th className="text-center">Type</th>
+                  <th className="text-right">Amount</th>
+                  <th className="text-center">Status</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200 text-center">
+              <tbody>
                 {transactions.map((transaction) => (
                   <tr key={transaction.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(transaction.created_at)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{transaction.transaction_id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">{transaction.type}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <span className={transaction.type === 'deposit' ? 'text-green-600' : 'text-red-600'}>
+                    <td className="transaction-date">{formatDate(transaction.created_at)}</td>
+                    <td className="transaction-id">{transaction.transaction_id.substring(0, 15)}...</td>
+                    <td className="transaction-type">
+                      <span className={`type-badge ${transaction.type}`}>
+                        {transaction.type === 'deposit' ? 'Deposit' : 'Withdrawal'}
+                      </span>
+                    </td>
+                    <td className="transaction-amount">
+                      <span className={transaction.type === 'deposit' ? 'amount-positive' : 'amount-negative'}>
                         {transaction.type === 'deposit' ? '+' : '-'}KES {Math.abs(transaction.amount).toFixed(2)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          transaction.status === 'completed'
-                            ? 'bg-green-100 text-green-800'
-                            : transaction.status === 'pending'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}
-                      >
-                        {transaction.status}
+                    <td className="transaction-status">
+                      <span className={`status-badge ${transaction.status}`}>
+                        {transaction.status === 'completed' ? 'Completed' : transaction.status === 'pending' ? 'Pending' : 'Failed'}
                       </span>
                     </td>
                   </tr>

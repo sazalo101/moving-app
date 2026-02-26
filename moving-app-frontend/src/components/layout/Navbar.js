@@ -45,8 +45,8 @@ const Navbar = () => {
                   <Link to="/user/orders" className="navbar-link">
                     My Orders
                   </Link>
-                  <Link to="/user/wallet" className="navbar-link">
-                    Wallet
+                  <Link to="/user/transactions" className="navbar-link">
+                    Transactions
                   </Link>
                   <Link to="/user/notifications" className="navbar-link">
                     Notifications

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import './ManageDrivers.css';
 
 const ManageDrivers = () => {
   const [drivers, setDrivers] = useState([]);
@@ -9,30 +10,9 @@ const ManageDrivers = () => {
   useEffect(() => {
     const fetchDrivers = async () => {
       try {
-        // First get all users
-        const res = await axios.get('http://localhost:5000/api/admin/manage-users');
-        // Filter only driver role users
-        const driverUsers = res.data.users.filter(user => user.role === 'driver');
-        
-        // For each driver user, get additional driver info
-        const driversWithDetails = await Promise.all(
-          driverUsers.map(async (driverUser) => {
-            try {
-              // Assuming there's a driver record for each user with driver role
-              const driverRes = await axios.get(`http://localhost:5000/api/driver/order-history/${driverUser.user_id}`);
-              return {
-                ...driverUser,
-                orders: driverRes.data.orders || [],
-                orderCount: driverRes.data.orders ? driverRes.data.orders.length : 0
-              };
-            } catch (error) {
-              console.error(`Error fetching driver details for ${driverUser.user_id}:`, error);
-              return driverUser;
-            }
-          })
-        );
-        
-        setDrivers(driversWithDetails);
+        // Get all drivers with verification status
+        const res = await axios.get('http://localhost:5000/api/admin/all-drivers-verification');
+        setDrivers(res.data.drivers || []);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching drivers:', error);
@@ -85,67 +65,96 @@ const ManageDrivers = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="loading-container">
+        <div className="loader"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white shadow rounded-lg p-6">
-      <h2 className="text-2xl font-bold mb-6">Manage Drivers</h2>
+    <div className="manage-drivers-container">
+      <h2 className="manage-drivers-title">Manage Drivers</h2>
       
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white">
+      <div className="table-container">
+        <table className="drivers-table">
           <thead>
-            <tr className="bg-gray-100 text-gray-700 uppercase text-sm leading-normal">
-              <th className="py-3 px-6 text-left">ID</th>
-              <th className="py-3 px-6 text-left">Name</th>
-              <th className="py-3 px-6 text-left">Email</th>
-              <th className="py-3 px-6 text-left">Status</th>
-              <th className="py-3 px-6 text-left">Completed Orders</th>
-              <th className="py-3 px-6 text-left">Ratings</th>
-              <th className="py-3 px-6 text-center">Actions</th>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Vehicle</th>
+              <th>Verification</th>
+              <th>Status</th>
+              <th>Completed Orders</th>
+              <th>Ratings</th>
+              <th>Actions</th>
             </tr>
           </thead>
-          <tbody className="text-gray-600 text-sm">
+          <tbody>
             {drivers.length > 0 ? (
               drivers.map((driver) => (
-                <tr key={driver.user_id} className="border-b border-gray-200 hover:bg-gray-50">
-                  <td className="py-3 px-6 text-left">{driver.user_id}</td>
-                  <td className="py-3 px-6 text-left">{driver.name}</td>
-                  <td className="py-3 px-6 text-left">{driver.email}</td>
-                  <td className="py-3 px-6 text-left">
-                    <span className={`px-2 py-1 rounded-full text-xs ${driver.is_banned ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800'}`}>
+                <tr key={driver.driver_id}>
+                  <td>{driver.driver_id}</td>
+                  <td>{driver.name}</td>
+                  <td>{driver.email}</td>
+                  <td>
+                    <div className="vehicle-info">
+                      <span className="vehicle-type">{driver.vehicle_type}</span>
+                      <br />
+                      <span className="license-plate">{driver.license_plate}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span className={`verification-badge ${
+                      driver.is_verified && driver.verification_status === 'approved' 
+                        ? 'approved' 
+                        : driver.verification_status === 'under_review'
+                        ? 'under-review'
+                        : driver.verification_status === 'rejected'
+                        ? 'rejected'
+                        : 'pending'
+                    }`}>
+                      {driver.is_verified && driver.verification_status === 'approved' && '✓ Verified'}
+                      {driver.verification_status === 'under_review' && '🔍 Under Review'}
+                      {driver.verification_status === 'rejected' && '❌ Rejected'}
+                      {driver.verification_status === 'pending' && '⏳ Pending'}
+                      {!driver.verification_status && '⏳ Not Submitted'}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={`driver-status-badge ${driver.is_banned ? 'banned' : 'active'}`}>
                       {driver.is_banned ? 'Banned' : 'Active'}
                     </span>
                   </td>
-                  <td className="py-3 px-6 text-left">{driver.orderCount || 0}</td>
-                  <td className="py-3 px-6 text-left">
-                    {driver.ratings || 'N/A'}
+                  <td>{driver.completed_orders || 0}</td>
+                  <td>
+                    <span className="rating-display">
+                      <span className="rating-star">★</span>
+                      {driver.ratings ? driver.ratings.toFixed(1) : 'N/A'}
+                    </span>
                   </td>
-                  <td className="py-3 px-6 text-center">
-                    <div className="flex item-center justify-center">
+                  <td>
+                    <div className="action-buttons">
                       <button 
                         onClick={() => handleBanDriver(driver.user_id)}
                         disabled={driver.is_banned}
-                        className={`mx-1 transform hover:scale-110 ${driver.is_banned ? 'bg-gray-300 cursor-not-allowed' : 'bg-red-500 hover:bg-red-700'} text-white py-1 px-3 rounded`}
+                        className={`ban-driver-button ${driver.is_banned ? 'banned' : 'active'}`}
                       >
-                        {driver.is_banned ? 'Banned' : 'Ban Driver'}
+                        {driver.is_banned ? 'Banned' : 'Ban'}
                       </button>
-                      <button 
-                        onClick={() => handleToggleDriverAvailability(driver.id, driver.is_available)}
-                        className={`mx-1 transform hover:scale-110 ${driver.is_available ? 'bg-orange-500 hover:bg-orange-700' : 'bg-green-500 hover:bg-green-700'} text-white py-1 px-3 rounded`}
+                      <a
+                        href="/admin/driver-verification"
+                        className="verify-driver-link"
                       >
-                        {driver.is_available ? 'Set Unavailable' : 'Set Available'}
-                      </button>
+                        Verify
+                      </a>
                     </div>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="py-4 px-6 text-center">No drivers found</td>
+                <td colspan="9" className="empty-state">No drivers found</td>
               </tr>
             )}
           </tbody>

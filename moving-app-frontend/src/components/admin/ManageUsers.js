@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import './ManageUsers.css';
 
 const ManageUsers = () => {
   const [users, setUsers] = useState([]);
@@ -100,173 +101,129 @@ const ManageUsers = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="loading-container">
+        <div className="loader"></div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Manage Users</h1>
+    <div className="manage-users-container">
+      <h1 className="manage-users-title">Manage Users</h1>
       
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-4 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
-              Search Users
-            </label>
+      <div className="search-filter-section">
+        <div className="search-filter-grid">
+          <div className="search-input-wrapper">
             <input
               type="text"
               id="search"
               placeholder="Search by name or email"
-              className="w-full p-2 border border-gray-300 rounded"
+              className="search-input"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           
-          <div>
-            <label htmlFor="filter" className="block text-sm font-medium text-gray-700 mb-1">
-              Filter by Status
-            </label>
-            <select
-              id="filter"
-              className="w-full p-2 border border-gray-300 rounded"
-              value={filterRole}
-              onChange={(e) => setFilterRole(e.target.value)}
-            >
-              <option value="all">All Users</option>
-              <option value="active">Active Users</option>
-              <option value="banned">Banned Users</option>
-            </select>
-          </div>
-          
-          <div className="flex items-end">
-            <button
-              onClick={fetchUsers}
-              className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-            >
-              Refresh
-            </button>
-          </div>
+          <select
+            id="filter"
+            className="filter-select"
+            value={filterRole}
+            onChange={(e) => setFilterRole(e.target.value)}
+          >
+            <option value="all">All Users</option>
+            <option value="active">Active Users</option>
+            <option value="banned">Banned Users</option>
+          </select>
         </div>
       </div>
       
-      {/* Users Table */}
-      {filteredUsers.length > 0 ? (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    User ID
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredUsers.map((user) => (
-                  <tr key={user.user_id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.user_id}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-medium text-gray-900">{user.name}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.email}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        user.is_banned ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
-                      }`}>
-                        {user.is_banned ? 'Banned' : 'Active'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        onClick={() => handleViewDetails(user)}
-                        className="text-blue-600 hover:text-blue-900 mr-4"
-                      >
-                        View Details
-                      </button>
-                      {user.is_banned ? (
-                        <button
-                          onClick={() => handleUnbanUser(user.user_id)}
-                          className="text-green-600 hover:text-green-900"
-                        >
-                          Unban
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => handleBanUser(user.user_id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Ban
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {/* Users Grid */}
+      <div className="users-grid">
+        {filteredUsers.length > 0 ? (
+          filteredUsers.map((user) => (
+            <div key={user.user_id} className="user-card">
+              <div className="user-header">
+                <div className="user-info">
+                  <h3 className="user-name">{user.name}</h3>
+                  <p className="user-email">{user.email}</p>
+                  <p className="user-phone">ID: {user.user_id}</p>
+                </div>
+                <span className={`user-status-badge ${user.is_banned ? 'banned' : 'active'}`}>
+                  {user.is_banned ? 'Banned' : 'Active'}
+                </span>
+              </div>
+              
+              <div className="user-actions">
+                <button
+                  onClick={() => handleViewDetails(user)}
+                  className="view-details-button"
+                >
+                  View Details
+                </button>
+                {user.is_banned ? (
+                  <button
+                    onClick={() => handleUnbanUser(user.user_id)}
+                    className="unban-button"
+                  >
+                    Unban User
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleBanUser(user.user_id)}
+                    className="ban-button"
+                  >
+                    Ban User
+                  </button>
+                )}
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="empty-state">
+            <div className="empty-icon">👤</div>
+            <h3 className="empty-title">No Users Found</h3>
+            <p className="empty-description">Try adjusting your search or filters</p>
           </div>
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg shadow p-6 text-center">
-          <p className="text-gray-500">No users found</p>
-        </div>
-      )}
+        )}
+      </div>
       
       {/* User Details Modal */}
       {showModal && selectedUser && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow max-w-md w-full">
-            <div className="px-6 py-4 border-b">
-              <h3 className="text-lg font-semibold">User Details</h3>
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3 className="modal-title">User Details</h3>
+              <button onClick={handleCloseModal} className="modal-close-button">&times;</button>
             </div>
-            <div className="p-6">
-              <div className="mb-4">
-                <p className="text-sm text-gray-500">User ID</p>
-                <p className="font-medium">{selectedUser.user_id}</p>
+            <div className="modal-body">
+              <div className="modal-detail-row">
+                <span className="modal-detail-label">User ID</span>
+                <span className="modal-detail-value">{selectedUser.user_id}</span>
               </div>
-              <div className="mb-4">
-                <p className="text-sm text-gray-500">Name</p>
-                <p className="font-medium">{selectedUser.name}</p>
+              <div className="modal-detail-row">
+                <span className="modal-detail-label">Name</span>
+                <span className="modal-detail-value">{selectedUser.name}</span>
               </div>
-              <div className="mb-4">
-                <p className="text-sm text-gray-500">Email</p>
-                <p className="font-medium">{selectedUser.email}</p>
+              <div className="modal-detail-row">
+                <span className="modal-detail-label">Email</span>
+                <span className="modal-detail-value">{selectedUser.email}</span>
               </div>
-              <div className="mb-4">
-                <p className="text-sm text-gray-500">Status</p>
-                <p className={`font-medium ${selectedUser.is_banned ? 'text-red-600' : 'text-green-600'}`}>
+              <div className="modal-detail-row">
+                <span className="modal-detail-label">Status</span>
+                <span className={`modal-detail-value ${selectedUser.is_banned ? 'banned' : 'active'}`} style={{color: selectedUser.is_banned ? '#ef4444' : '#10b981', fontWeight: '600'}}>
                   {selectedUser.is_banned ? 'Banned' : 'Active'}
-                </p>
+                </span>
               </div>
             </div>
-            <div className="px-6 py-4 border-t bg-gray-50 flex justify-end">
+            <div style={{padding: '1.5rem', borderTop: '1px solid #e5e7eb', backgroundColor: '#f9fafb', display: 'flex', justifyContent: 'flex-end', gap: '0.75rem'}}>
               {selectedUser.is_banned ? (
                 <button
                   onClick={() => {
                     handleUnbanUser(selectedUser.user_id);
                     handleCloseModal();
                   }}
-                  className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 mr-3"
+                  className="unban-button"
                 >
                   Unban User
                 </button>
@@ -276,14 +233,14 @@ const ManageUsers = () => {
                     handleBanUser(selectedUser.user_id);
                     handleCloseModal();
                   }}
-                  className="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 mr-3"
+                  className="ban-button"
                 >
                   Ban User
                 </button>
               )}
               <button
                 onClick={handleCloseModal}
-                className="bg-gray-300 text-gray-800 py-2 px-4 rounded hover:bg-gray-400"
+                style={{backgroundColor: '#d1d5db', color: '#374151', padding: '0.625rem 1.25rem', borderRadius: '6px', fontSize: '0.875rem', fontWeight: '600', border: 'none', cursor: 'pointer'}}
               >
                 Close
               </button>

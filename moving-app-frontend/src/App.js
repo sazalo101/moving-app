@@ -22,7 +22,7 @@ import BookDriver from "./components/user/BookDriver";
 import UserOrderHistory from "./components/user/UserOrderHistory";
 import TrackDriver from "./components/user/TrackDriver";
 import UserNotifications from "./components/user/UserNotifications";
-import UserWallet from "./components/user/UserWallet";
+import UserTransactions from "./components/user/UserTransactions";
 import UserSupportTickets from "./components/user/UserSupportTickets";
 
 
@@ -32,6 +32,7 @@ import AvailableOrders from "./components/driver/AvailableOrders";
 import DriverOrderHistory from "./components/driver/DriverOrderHistory";
 import DriverNotifications from "./components/driver/DriverNotifications";
 import DriverWallet from "./components/driver/DriverWallet";
+import DriverVerificationSubmission from "./components/driver/DriverVerificationSubmission";
 
 // Admin Components
 import AdminDashboard from "./components/admin/AdminDashboard";
@@ -40,6 +41,7 @@ import ManageDrivers from "./components/admin/ManageDrivers";
 import EscrowManagement from "./components/admin/EscrowManagement";
 import SupportTicketManagement from "./components/admin/SupportTicketManagement";
 import PromoCodeManagement from "./components/admin/PromoCodeManagement";
+import DriverVerification from "./components/admin/DriverVerification";
 
 // Home Page Component
 import Home from "./components/Home"; // Import the Home component
@@ -105,10 +107,10 @@ function App() {
               }
             />
             <Route
-              path="/user/wallet"
+              path="/user/transactions"
               element={
                 <ProtectedRoute allowedRoles={["user"]}>
-                  <UserWallet />
+                  <UserTransactions />
                 </ProtectedRoute>
               }
             />
@@ -162,6 +164,14 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/driver/verification"
+              element={
+                <ProtectedRoute allowedRoles={["driver"]}>
+                  <DriverVerificationSubmission />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Admin Routes */}
             <Route
@@ -212,9 +222,29 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin/driver-verification"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <DriverVerification />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </div>
-        <ToastContainer position="bottom-right" />
+        <ToastContainer 
+          position="top-center" 
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={true}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          style={{ fontSize: '14px' }}
+        />
       </Router>
       <Footer /> {/* Footer is displayed on all pages */}
     </AuthProvider>

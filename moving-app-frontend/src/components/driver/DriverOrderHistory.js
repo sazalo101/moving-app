@@ -1,72 +1,110 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import './DriverOrderHistory.css';
 
 const DriverOrderHistory = () => {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState('all'); // all, completed, accepted, cancelled
+  const [filter, setFilter] = useState('all');
+  const [completingOrderId, setCompletingOrderId] = useState(null);
+  const [cancellingOrderId, setCancellingOrderId] = useState(null);
   
-  // Dummy data for order history
   const dummyOrders = [
     {
       booking_id: 5001,
       user_id: 123,
-      pickup_location: "123 Main St, Downtown",
-      dropoff_location: "456 Park Ave, Uptown",
+      user_name: "John Kamau",
+      pickup_location: "JKIA - Jomo Kenyatta International Airport",
+      dropoff_location: "Westlands, Nairobi",
       status: "completed",
-      created_at: "2025-03-20T14:30:00Z",
-      price: 24.50,
-      distance: 5.8
+      created_at: "2026-02-20T14:30:00Z",
+      price: 1850,
+      distance: 18.5,
+      payment_method: "M-Pesa"
     },
     {
       booking_id: 5002,
       user_id: 124,
-      pickup_location: "789 Oak Dr, Westside",
-      dropoff_location: "321 Pine St, Eastside",
+      user_name: "Mary Wanjiku",
+      pickup_location: "Thika Road Mall",
+      dropoff_location: "CBD, Moi Avenue",
       status: "accepted",
-      created_at: "2025-03-22T09:15:00Z",
-      price: 18.75,
-      distance: 3.2
+      created_at: "2026-02-22T09:15:00Z",
+      price: 950,
+      distance: 12.3,
+      payment_method: "M-Pesa"
     },
     {
       booking_id: 5003,
       user_id: 125,
-      pickup_location: "555 Maple Rd, Northend",
-      dropoff_location: "777 Elm Blvd, Southside",
+      user_name: "Peter Omondi",
+      pickup_location: "Karen Shopping Centre",
+      dropoff_location: "Nairobi Hospital, Upper Hill",
       status: "cancelled",
-      created_at: "2025-03-18T17:45:00Z",
-      price: 32.20,
-      distance: 7.5
+      created_at: "2026-02-18T17:45:00Z",
+      price: 1200,
+      distance: 8.7,
+      payment_method: "M-Pesa"
     },
     {
       booking_id: 5004,
       user_id: 126,
-      pickup_location: "888 Cedar Ln, Riverside",
-      dropoff_location: "999 Birch Ave, Lakefront",
+      user_name: "Grace Akinyi",
+      pickup_location: "Gigiri, UN Complex",
+      dropoff_location: "Kilimani, Yaya Centre",
       status: "accepted",
-      created_at: "2025-03-23T11:30:00Z",
-      price: 21.30,
-      distance: 4.6
+      created_at: "2026-02-23T11:30:00Z",
+      price: 850,
+      distance: 6.4,
+      payment_method: "M-Pesa"
     },
     {
       booking_id: 5005,
       user_id: 127,
-      pickup_location: "444 Willow St, College Town",
-      dropoff_location: "222 Aspen Ct, Business District",
+      user_name: "David Kipchoge",
+      pickup_location: "Ruiru Town",
+      dropoff_location: "Two Rivers Mall",
       status: "completed",
-      created_at: "2025-03-15T13:20:00Z",
-      price: 27.80,
-      distance: 6.3
+      created_at: "2026-02-15T13:20:00Z",
+      price: 1450,
+      distance: 15.2,
+      payment_method: "M-Pesa"
     },
     {
       booking_id: 5006,
       user_id: 128,
-      pickup_location: "333 Spruce Dr, Shopping Mall",
-      dropoff_location: "111 Fir St, Hospital",
+      user_name: "Sarah Njeri",
+      pickup_location: "South C, Mugoya Estate",
+      dropoff_location: "Garden City Mall",
       status: "completed",
-      created_at: "2025-03-10T08:45:00Z",
-      price: 15.90,
-      distance: 2.7
+      created_at: "2026-02-10T08:45:00Z",
+      price: 650,
+      distance: 4.8,
+      payment_method: "M-Pesa"
+    },
+    {
+      booking_id: 5007,
+      user_id: 129,
+      user_name: "James Mwangi",
+      pickup_location: "Ngong Road, Prestige Plaza",
+      dropoff_location: "Industrial Area",
+      status: "completed",
+      created_at: "2026-02-08T16:20:00Z",
+      price: 890,
+      distance: 9.1,
+      payment_method: "M-Pesa"
+    },
+    {
+      booking_id: 5008,
+      user_id: 130,
+      user_name: "Alice Wambui",
+      pickup_location: "Kasarani, Mwiki",
+      dropoff_location: "CBD, Railways Station",
+      status: "completed",
+      created_at: "2026-02-05T07:30:00Z",
+      price: 1150,
+      distance: 13.6,
+      payment_method: "M-Pesa"
     }
   ];
   
@@ -78,7 +116,6 @@ const DriverOrderHistory = () => {
   const fetchOrderHistory = async () => {
     try {
       setIsLoading(true);
-      // Simulate network delay
       setTimeout(() => {
         setOrders(dummyOrders);
         setIsLoading(false);
@@ -92,39 +129,41 @@ const DriverOrderHistory = () => {
   
   const handleCompleteOrder = async (bookingId) => {
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      setCompletingOrderId(bookingId);
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Update the order status in the local state
       setOrders(orders.map(order => 
         order.booking_id === bookingId 
           ? {...order, status: 'completed'} 
           : order
       ));
       
-      toast.success('Order marked as completed');
+      toast.success('Order completed! Funds released from escrow.');
     } catch (error) {
       console.error('Error completing order:', error);
       toast.error('Failed to complete order');
+    } finally {
+      setCompletingOrderId(null);
     }
   };
   
   const handleCancelOrder = async (bookingId) => {
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      setCancellingOrderId(bookingId);
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Update the order status in the local state
       setOrders(orders.map(order => 
         order.booking_id === bookingId 
           ? {...order, status: 'cancelled'} 
           : order
       ));
       
-      toast.success('Order cancelled successfully');
+      toast.success('Order cancelled. Refund processed.');
     } catch (error) {
       console.error('Error cancelling order:', error);
       toast.error('Failed to cancel order');
+    } finally {
+      setCancellingOrderId(null);
     }
   };
   
@@ -133,152 +172,312 @@ const DriverOrderHistory = () => {
     return order.status === filter;
   });
   
-  const getStatusBadgeClass = (status) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-green-100 text-green-800';
-      case 'accepted':
-        return 'bg-blue-100 text-blue-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-yellow-100 text-yellow-800';
-    }
-  };
-  
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
+
+  const getStatistics = () => {
+    const completed = orders.filter(o => o.status === 'completed').length;
+    const active = orders.filter(o => o.status === 'accepted').length;
+    const cancelled = orders.filter(o => o.status === 'cancelled').length;
+    const totalEarnings = orders
+      .filter(o => o.status === 'completed')
+      .reduce((sum, o) => sum + o.price, 0);
+    return { completed, active, cancelled, totalEarnings };
+  };
+
+  const stats = getStatistics();
   
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div className="order-history-loading">
+        <div className="loading-spinner-wrapper">
+          <div className="loading-spinner-container">
+            <div className="loading-spinner-outer"></div>
+            <div className="loading-spinner-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+          </div>
+          <p className="loading-text">Loading order history...</p>
+        </div>
       </div>
     );
   }
   
   return (
-    <div className="max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Order History</h1>
-      
-      {/* Filter Controls */}
-      <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-md ${
-              filter === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'
-            }`}
-          >
-            All Orders
-          </button>
-          <button
-            onClick={() => setFilter('accepted')}
-            className={`px-4 py-2 rounded-md ${
-              filter === 'accepted' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'
-            }`}
-          >
-            Active
-          </button>
-          <button
-            onClick={() => setFilter('completed')}
-            className={`px-4 py-2 rounded-md ${
-              filter === 'completed' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'
-            }`}
-          >
-            Completed
-          </button>
-          <button
-            onClick={() => setFilter('cancelled')}
-            className={`px-4 py-2 rounded-md ${
-              filter === 'cancelled' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'
-            }`}
-          >
-            Cancelled
-          </button>
+    <div className="order-history-container">
+      <div className="order-history-header">
+        <div className="order-history-header-content">
+          <h1 className="order-history-title">Order History</h1>
+          <p className="order-history-subtitle">Track all your completed and active deliveries</p>
         </div>
       </div>
-      
-      {filteredOrders.length === 0 ? (
-        <div className="bg-white p-8 rounded-lg shadow-md text-center">
-          <h2 className="text-2xl font-semibold text-gray-700 mb-2">No Orders Found</h2>
-          <p className="text-gray-500">
-            {filter === 'all' 
-              ? "You haven't taken any orders yet." 
-              : `You don't have any ${filter} orders.`}
-          </p>
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white">
-              <thead>
-                <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-                  <th className="py-3 px-6 text-left">Booking ID</th>
-                  <th className="py-3 px-6 text-left">User</th>
-                  <th className="py-3 px-6 text-left">Pickup</th>
-                  <th className="py-3 px-6 text-left">Dropoff</th>
-                  <th className="py-3 px-6 text-left">Status</th>
-                  <th className="py-3 px-6 text-left">Date</th>
-                  <th className="py-3 px-6 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="text-gray-600 text-sm">
-                {filteredOrders.map((order) => (
-                  <tr key={order.booking_id} className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="py-3 px-6">{order.booking_id}</td>
-                    <td className="py-3 px-6">User #{order.user_id}</td>
-                    <td className="py-3 px-6">{order.pickup_location}</td>
-                    <td className="py-3 px-6">{order.dropoff_location}</td>
-                    <td className="py-3 px-6">
-                      <span className={`py-1 px-2 rounded-full text-xs ${getStatusBadgeClass(order.status)}`}>
-                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="py-3 px-6">{formatDate(order.created_at)}</td>
-                    <td className="py-3 px-6 text-center">
-                      <div className="flex item-center justify-center space-x-2">
-                        {order.status === 'accepted' && (
-                          <>
-                            <button 
-                              onClick={() => handleCompleteOrder(order.booking_id)}
-                              className="text-green-500 hover:text-green-700"
-                            >
-                              Complete
-                            </button>
-                            <button 
-                              onClick={() => handleCancelOrder(order.booking_id)}
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              Cancel
-                            </button>
-                          </>
-                        )}
-                        {order.status === 'completed' && (
-                          <span className="text-gray-500">No actions</span>
-                        )}
-                        {order.status === 'cancelled' && (
-                          <span className="text-gray-500">No actions</span>
-                        )}
-                        {order.status === 'pending' && (
-                          <button 
-                            onClick={() => handleCancelOrder(order.booking_id)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            Cancel
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
+      <div className="order-history-content">
+        {/* Statistics Cards */}
+        <div className="stats-grid">
+          <div className="stat-card stat-card-completed">
+            <div className="stat-card-header">
+              <div className="stat-icon-wrapper">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <p className="stat-value">{stats.completed}</p>
+            <p className="stat-label">Completed Orders</p>
+          </div>
+
+          <div className="stat-card stat-card-active">
+            <div className="stat-card-header">
+              <div className="stat-icon-wrapper">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <p className="stat-value">{stats.active}</p>
+            <p className="stat-label">Active Orders</p>
+          </div>
+
+          <div className="stat-card stat-card-cancelled">
+            <div className="stat-card-header">
+              <div className="stat-icon-wrapper">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+            </div>
+            <p className="stat-value">{stats.cancelled}</p>
+            <p className="stat-label">Cancelled Orders</p>
+          </div>
+
+          <div className="stat-card stat-card-earnings">
+            <div className="stat-card-header">
+              <div className="stat-icon-wrapper">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <p className="stat-value">KES {stats.totalEarnings.toLocaleString()}</p>
+            <p className="stat-label">Total Earnings</p>
           </div>
         </div>
-      )}
+      
+        {/* Filter Controls */}
+        <div className="filter-section">
+          <div className="filter-header">
+            <h2 className="filter-title">Filter Orders</h2>
+            <span className="filter-count">{filteredOrders.length} {filteredOrders.length === 1 ? 'order' : 'orders'}</span>
+          </div>
+          <div className="filter-buttons">
+            <button
+              onClick={() => setFilter('all')}
+              className={`filter-btn ${filter === 'all' ? 'filter-btn-all' : 'filter-btn-inactive'}`}
+            >
+              All Orders
+            </button>
+            <button
+              onClick={() => setFilter('accepted')}
+              className={`filter-btn ${filter === 'accepted' ? 'filter-btn-active-status' : 'filter-btn-inactive'}`}
+            >
+              Active ({stats.active})
+            </button>
+            <button
+              onClick={() => setFilter('completed')}
+              className={`filter-btn ${filter === 'completed' ? 'filter-btn-completed' : 'filter-btn-inactive'}`}
+            >
+              Completed ({stats.completed})
+            </button>
+            <button
+              onClick={() => setFilter('cancelled')}
+              className={`filter-btn ${filter === 'cancelled' ? 'filter-btn-cancelled' : 'filter-btn-inactive'}`}
+            >
+              Cancelled ({stats.cancelled})
+            </button>
+          </div>
+        </div>
+      
+        {filteredOrders.length === 0 ? (
+          <div className="empty-state-container">
+            <div className="empty-icon-wrapper">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <h2 className="empty-title">No Orders Found</h2>
+            <p className="empty-description">
+              {filter === 'all' 
+                ? "You haven't taken any orders yet. Start accepting orders to see your history here." 
+                : `You don't have any ${filter} orders.`}
+            </p>
+            {filter !== 'all' && (
+              <button onClick={() => setFilter('all')} className="empty-action-btn">
+                View All Orders
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="orders-list">
+            {filteredOrders.map((order) => (
+              <div key={order.booking_id} className="order-card">
+                <div className="order-card-header">
+                  <div className="order-header-content">
+                    <div className="order-header-left">
+                      <div>
+                        <p className="order-id-label">#{order.booking_id}</p>
+                        <p className="order-id-text">Order ID</p>
+                      </div>
+                    </div>
+                    <div className="order-header-right">
+                      <p className="order-price">KES {order.price.toFixed(0)}</p>
+                      <p className="order-distance">{order.distance} km</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="order-card-body">
+                  <div className="order-info-grid">
+                    <div className="info-box">
+                      <div className="info-box-header">
+                        <div className="info-icon-blue">
+                          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="info-label">CUSTOMER</p>
+                          <p className="info-value">{order.user_name}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="info-box">
+                      <div className="info-box-header">
+                        <div className="info-icon-purple">
+                          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="info-label">DATE & TIME</p>
+                          <p className="info-value">{formatDate(order.created_at)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Route Display */}
+                  <div className="route-container">
+                    <div className="route-item">
+                      <div className="route-icon-column">
+                        <div className="route-marker-pickup">
+                          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                          </svg>
+                        </div>
+                        <div className="route-connector"></div>
+                      </div>
+                      <div className="route-details">
+                        <p className="route-label-pickup">PICKUP LOCATION</p>
+                        <p className="route-address">{order.pickup_location}</p>
+                      </div>
+                    </div>
+
+                    <div className="route-item">
+                      <div className="route-marker-dropoff">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </div>
+                      <div className="route-details">
+                        <p className="route-label-dropoff">DROP-OFF LOCATION</p>
+                        <p className="route-address">{order.dropoff_location}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Status Badge and Actions */}
+                  <div className="order-footer">
+                    <div>
+                      <span className={`status-badge status-badge-${order.status === 'accepted' ? 'active' : order.status}`}>
+                        {order.status === 'accepted' ? 'Active' : order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      </span>
+                    </div>
+                    
+                    <div className="action-buttons">
+                      {order.status === 'accepted' && (
+                        <>
+                          <button 
+                            onClick={() => handleCompleteOrder(order.booking_id)}
+                            disabled={completingOrderId === order.booking_id}
+                            className="action-btn action-btn-complete"
+                          >
+                            {completingOrderId === order.booking_id ? (
+                              <>
+                                <svg className="action-btn-spinner" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Completing...
+                              </>
+                            ) : (
+                              <>
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Complete
+                              </>
+                            )}
+                          </button>
+                          <button 
+                            onClick={() => handleCancelOrder(order.booking_id)}
+                            disabled={cancellingOrderId === order.booking_id}
+                            className="action-btn action-btn-cancel"
+                          >
+                            {cancellingOrderId === order.booking_id ? (
+                              <>
+                                <svg className="action-btn-spinner" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Cancelling...
+                              </>
+                            ) : (
+                              <>
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                Cancel
+                              </>
+                            )}
+                          </button>
+                        </>
+                      )}
+                      {(order.status === 'completed' || order.status === 'cancelled') && (
+                        <div className="order-completed-text">
+                          {order.status === 'completed' ? 'Order completed' : 'Order cancelled'}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

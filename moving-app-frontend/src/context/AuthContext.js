@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import API_ENDPOINTS from '../config/api';
 
 const AuthContext = createContext();
 
@@ -17,7 +18,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/register', userData);
+      const response = await axios.post(API_ENDPOINTS.REGISTER, userData);
       
       return { success: true, data: response.data };
     } catch (error) {
@@ -30,12 +31,17 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/login', { email, password });
+      const response = await axios.post(API_ENDPOINTS.LOGIN, { email, password });
       
+      // Store all user information from the backend response
       const user = {
         id: response.data.user_id,
         role: response.data.role,
-        email
+        email: response.data.email,
+        name: response.data.name,
+        phone: response.data.phone,
+        // Include driver_id if user is a driver
+        ...(response.data.driver_id && { driver_id: response.data.driver_id })
       };
       
       localStorage.setItem('user', JSON.stringify(user));

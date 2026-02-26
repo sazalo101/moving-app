@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate, Link } from "react-router-dom";
 import AuthContext from "../../context/AuthContext";
+import { toast } from "react-toastify";
 
 const UserDashboard = () => {
   // Get current user from AuthContext
   const { currentUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   // State variables
   const [recentBookings, setRecentBookings] = useState([]);
@@ -195,6 +197,25 @@ const UserDashboard = () => {
       fontWeight: "bold",
       cursor: "pointer",
       transition: "background-color 0.3s",
+      marginRight: "15px",
+    },
+    bookDriverButton: {
+      backgroundColor: "#00ced1",
+      color: "white",
+      padding: "15px 30px",
+      borderRadius: "8px",
+      border: "none",
+      fontSize: "18px",
+      fontWeight: "bold",
+      cursor: "pointer",
+      transition: "all 0.3s",
+      boxShadow: "0 4px 6px rgba(0, 206, 209, 0.3)",
+    },
+    buttonContainer: {
+      display: "flex",
+      gap: "15px",
+      justifyContent: "center",
+      marginTop: "20px",
     },
     loadingText: {
       color: "#7f8c8d",
@@ -204,51 +225,45 @@ const UserDashboard = () => {
     },
   };
 
-  // Dummy bookings data
-  const dummyBookings = [
-    {
-      booking_id: "BK-10045",
-      created_at: "2025-03-20T14:30:00",
-      pickup_location: "123 Main Street",
-      dropoff_location: "456 Park Avenue",
-      status: "completed",
-      driver_name: "Alex Johnson",
-      fare: 24.5,
-    },
-    {
-      booking_id: "BK-10052",
-      created_at: "2025-03-22T09:15:00",
-      pickup_location: "Grand Central Station",
-      dropoff_location: "JFK Airport Terminal 4",
-      status: "accepted",
-      driver_name: "Emma Williams",
-      fare: 67.75,
-    },
-    {
-      booking_id: "BK-10060",
-      created_at: "2025-03-23T11:45:00",
-      pickup_location: "Brooklyn Heights",
-      dropoff_location: "Manhattan Financial District",
-      status: "pending",
-      fare: 32.25,
-    },
-  ];
-
-  // Simulate API call
+  // Fetch real data from API
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setRecentBookings(dummyBookings);
-      setStats({
-        activeBookings: 2,
-        completedBookings: 15,
-        cancelledBookings: 3,
-      });
-      setLoading(false);
-    }, 1000);
+    const fetchDashboardData = async () => {
+      try {
+        if (!currentUser || !currentUser.id) {
+          setLoading(false);
+          return;
+        }
 
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+        // Fetch recent bookings
+        const response = await fetch(`http://127.0.0.1:5000/api/user/order-history/${currentUser.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          const bookings = data.orders || [];
+          
+          // Get last 3 bookings
+          setRecentBookings(bookings.slice(0, 3));
+          
+          // Calculate stats
+          const active = bookings.filter(b => b.status === 'pending' || b.status === 'accepted').length;
+          const completed = bookings.filter(b => b.status === 'completed').length;
+          const cancelled = bookings.filter(b => b.status === 'cancelled').length;
+          
+          setStats({
+            activeBookings: active,
+            completedBookings: completed,
+            cancelledBookings: cancelled,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        toast.error('Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [currentUser]);
 
   // Handle support navigation - MODIFIED TO OPEN GMAIL
   const navigateToSupport = () => {
@@ -296,9 +311,9 @@ const UserDashboard = () => {
       <div style={styles.card}>
         <div style={styles.headerContainer}>
           <h2 style={styles.cardTitle}>Recent Bookings</h2>
-          <a href="/user/orders" style={styles.viewAllLink}>
+          <Link to="/user/order-history" style={styles.viewAllLink}>
             View All
-          </a>
+          </Link>
         </div>
 
         {loading ? (
@@ -342,12 +357,12 @@ const UserDashboard = () => {
                 </div>
                 {booking.status === "accepted" && (
                   <div>
-                    <a
-                      href={`/user/track/${booking.booking_id}`}
+                    <Link
+                      to={`/user/track/${booking.booking_id}`}
                       style={styles.trackLink}
                     >
                       Track Driver
-                    </a>
+                    </Link>
                   </div>
                 )}
               </div>
@@ -358,10 +373,26 @@ const UserDashboard = () => {
         )}
       </div>
 
-      {/* Contact Support Button */}
-      <button style={styles.supportButton} onClick={navigateToSupport}>
-        Contact Support
-      </button>
+      {/* Action Buttons */}
+      <div style={styles.buttonContainer}>
+        <button 
+          style={styles.bookDriverButton} 
+          onClick={() => navigate('/user/book-driver')}
+          onMouseOver={(e) => {
+            e.target.style.transform = 'scale(1.05)';
+            e.target.style.boxShadow = '0 6px 12px rgba(0, 206, 209, 0.4)';
+          }}
+          onMouseOut={(e) => {
+            e.target.style.transform = 'scale(1)';
+            e.target.style.boxShadow = '0 4px 6px rgba(0, 206, 209, 0.3)';
+          }}
+        >
+          📦 Book a Mover
+        </button>
+        <button style={styles.supportButton} onClick={navigateToSupport}>
+          Contact Support
+        </button>
+      </div>
     </div>
   );
 };

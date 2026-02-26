@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import './SupportTicketManagement.css';
 
 const SupportTicketManagement = () => {
   const [tickets, setTickets] = useState([]);
@@ -94,50 +95,50 @@ const SupportTicketManagement = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6">Support Ticket Management</h2>
+    <div className="support-container">
+      <h2 className="support-title">Support Ticket Management</h2>
       
       {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <p className="text-gray-500">Loading support tickets...</p>
+        <div className="loading-container">
+          <p className="loading-message">Loading support tickets...</p>
         </div>
       ) : tickets.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-6 text-center">
-          <p>No support tickets found.</p>
+        <div className="empty-state">
+          <p className="empty-message">No support tickets found.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+        <div className="table-wrapper">
+          <table className="support-table">
+            <thead>
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th scope="col">ID</th>
+                <th scope="col">User</th>
+                <th scope="col">Subject</th>
+                <th scope="col">Status</th>
+                <th scope="col">Date</th>
+                <th scope="col">Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody>
               {tickets.map(ticket => (
-                <tr key={ticket.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{ticket.id}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ticket.user_name || `User ${ticket.user_id}`}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ticket.subject}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      ticket.status === 'resolved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                <tr key={ticket.id}>
+                  <td className="ticket-id">{ticket.id}</td>
+                  <td className="ticket-user">{ticket.user_name || `User ${ticket.user_id}`}</td>
+                  <td className="ticket-subject">{ticket.subject}</td>
+                  <td>
+                    <span className={`ticket-status ${
+                      ticket.status === 'resolved' ? 'resolved' : 'open'
                     }`}>
                       {ticket.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="ticket-date">
                     {new Date(ticket.created_at).toLocaleDateString()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <td>
                     <button 
                       onClick={() => setSelectedTicket(ticket)}
-                      className="text-indigo-600 hover:text-indigo-900"
+                      className="view-button"
                     >
                       View
                     </button>
@@ -150,50 +151,54 @@ const SupportTicketManagement = () => {
       )}
 
       {selectedTicket && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold">{selectedTicket.subject}</h2>
-              <p className="text-sm text-gray-500 mt-1">
-                From: {selectedTicket.user_name || `User #${selectedTicket.user_id}`} • 
-                {selectedTicket.user_email && ` ${selectedTicket.user_email} • `}
-                {new Date(selectedTicket.created_at).toLocaleString()}
-              </p>
-              <div className="mt-4 p-4 bg-gray-50 rounded border border-gray-200">
-                <p className="whitespace-pre-wrap">{selectedTicket.message}</p>
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <div>
+                <h2 className="modal-subject">{selectedTicket.subject}</h2>
+                <p className="modal-meta">
+                  From: {selectedTicket.user_name || `User #${selectedTicket.user_id}`} • 
+                  {selectedTicket.user_email && ` ${selectedTicket.user_email} • `}
+                  {new Date(selectedTicket.created_at).toLocaleString()}
+                </p>
+              </div>
+            </div>
+            <div className="modal-body">
+              <div className="message-container">
+                <p className="message-text">{selectedTicket.message}</p>
               </div>
               
               {selectedTicket.admin_reply && (
-                <div className="mt-4">
-                  <h4 className="font-medium text-gray-700">Your Reply:</h4>
-                  <div className="p-4 bg-blue-50 rounded border border-blue-200 mt-2">
-                    <p className="whitespace-pre-wrap">{selectedTicket.admin_reply}</p>
+                <div className="reply-section">
+                  <h4 className="reply-title">Your Reply:</h4>
+                  <div className="reply-container">
+                    <p className="reply-text">{selectedTicket.admin_reply}</p>
                   </div>
                 </div>
               )}
               
               {selectedTicket.status !== 'resolved' && (
-                <form onSubmit={handleSubmitReply} className="mt-6">
-                  <h4 className="font-medium text-gray-700 mb-2">Reply to this ticket:</h4>
+                <form onSubmit={handleSubmitReply} className="reply-form">
+                  <h4 className="reply-form-title">Reply to this ticket:</h4>
                   <textarea
                     value={adminReply}
                     onChange={(e) => setAdminReply(e.target.value)}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="reply-textarea"
                     placeholder="Type your reply here..."
                     rows="4"
                     required
                   />
-                  <div className="flex justify-end mt-4">
+                  <div className="form-actions">
                     <button 
                       type="button" 
                       onClick={() => setSelectedTicket(null)}
-                      className="mr-4 px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+                      className="cancel-button"
                     >
                       Cancel
                     </button>
                     <button 
                       type="submit"
-                      className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                      className="submit-button"
                     >
                       Send Reply & Resolve
                     </button>
@@ -202,10 +207,10 @@ const SupportTicketManagement = () => {
               )}
               
               {selectedTicket.status === 'resolved' && (
-                <div className="flex justify-end mt-6">
+                <div className="form-actions">
                   <button 
                     onClick={() => setSelectedTicket(null)}
-                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+                    className="close-button"
                   >
                     Close
                   </button>

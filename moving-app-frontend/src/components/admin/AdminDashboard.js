@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import './AdminDashboard.css';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -22,26 +23,29 @@ const AdminDashboard = () => {
   const fetchDashboardData = async () => {
     setIsLoading(true);
     try {
-      const usersResponse = await fetch('http://localhost:5000/api/admin/manage-users');
+      const usersResponse = await fetch('http://127.0.0.1:5000/api/admin/manage-users');
       const usersData = await usersResponse.json();
       
-      const totalUsers = usersData.users.filter(user => user.role === 'user').length;
-      const totalDrivers = usersData.users.filter(user => user.role === 'driver').length;
+      const totalUsers = usersData.users ? usersData.users.filter(user => user.role === 'user').length : 0;
+      const totalDrivers = usersData.users ? usersData.users.filter(user => user.role === 'driver').length : 0;
 
-      const ordersResponse = await fetch(`http://localhost:5000/api/admin/escrow`);
+      const ordersResponse = await fetch('http://127.0.0.1:5000/api/admin/escrow');
       const ordersData = await ordersResponse.json();
+      
+      const escrows = ordersData.escrows || [];
+      const summary = ordersData.summary || {};
       
       setStats({
         totalUsers,
         totalDrivers,
-        totalBookings: 120, // Mocked for demo
-        pendingBookings: 15,
-        completedBookings: 95,
-        totalRevenue: 5825.75,
+        totalBookings: escrows.length,
+        pendingBookings: summary.held_count || 0,
+        completedBookings: summary.released_count || 0,
+        totalRevenue: summary.total_platform_fees || 0,
         openSupportTickets: 8
       });
       
-      setRecentBookings(ordersData.escrow.slice(0, 5));
+      setRecentBookings(escrows.slice(0, 5));
       
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -69,7 +73,7 @@ const AdminDashboard = () => {
           { label: "Total Users", value: stats.totalUsers, link: "/admin/manage-users" },
           { label: "Total Drivers", value: stats.totalDrivers, link: "/admin/manage-drivers" },
           { label: "Completed Bookings", value: stats.completedBookings, extra: `Out of ${stats.totalBookings} total bookings` },
-          { label: "Total Revenue", value: `$${stats.totalRevenue.toFixed(2)}`, link: "/admin/escrow" }
+          { label: "Total Revenue", value: `KES ${stats.totalRevenue.toFixed(2)}`, link: "/admin/escrow" }
         ].map((stat, index) => (
           <div className="stat-card" key={index}>
             <h3>{stat.label}</h3>
@@ -93,9 +97,10 @@ const AdminDashboard = () => {
                 <li key={booking.booking_id}>
                   <div>
                     <p className="booking-id">Booking #{booking.booking_id}</p>
-                    <p className="booking-info">User #{booking.user_id} • Driver #{booking.driver_id}</p>
+                    <p className="booking-info">{booking.user_name} → {booking.driver_name}</p>
+                    <span className={`status-badge ${booking.status}`}>{booking.status}</span>
                   </div>
-                  <p className="booking-price">${booking.price.toFixed(2)}</p>
+                  <p className="booking-price">KES {booking.total_amount.toFixed(2)}</p>
                 </li>
               ))}
             </ul>
@@ -119,6 +124,7 @@ const AdminDashboard = () => {
           <div className="quick-links">
             <h3>Quick Links</h3>
             <div className="link-grid">
+              <Link to="/admin/driver-verification" className="link-box">Driver Verification</Link>
               <Link to="/admin/promo-codes" className="link-box">Manage Promo Codes</Link>
               <Link to="/admin/escrow" className="link-box">Escrow Management</Link>
             </div>

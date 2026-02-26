@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import './UserNotifications.css';
 
 const UserNotifications = () => {
   const initialNotifications = [
@@ -39,7 +40,6 @@ const UserNotifications = () => {
     }, 1000);
 
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const markAsRead = (notificationId) => {
@@ -66,45 +66,42 @@ const UserNotifications = () => {
   const unreadCount = notifications.filter(notification => !notification.is_read).length;
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="max-w-4xl w-full p-4">
-        <div className="flex flex-col items-center mb-6 text-center">
-          <h1 className="text-2xl font-bold mb-4">Notifications</h1>
+    <div className="notifications-wrapper">
+      <div className="notifications-container">
+        <div className="notifications-header">
+          <h1 className="notifications-title">Notifications</h1>
           {unreadCount > 0 && (
-            <button
-              onClick={markAllAsRead}
-              className="bg-blue-600 text-white py-1 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-            >
+            <button onClick={markAllAsRead} className="mark-all-button">
               Mark All as Read
             </button>
           )}
         </div>
 
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="notifications-card">
           {loading ? (
-            <div className="text-center py-8">
-              <p>Loading notifications...</p>
+            <div className="loading-state">
+              <p className="loading-text">Loading notifications...</p>
             </div>
           ) : notifications.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500">No notifications yet</p>
+            <div className="empty-state">
+              <p className="empty-text">No notifications yet</p>
             </div>
           ) : (
-            <ul className="divide-y divide-gray-200">
+            <ul className="notification-list">
               {notifications.map((notification) => (
                 <li
                   key={notification.id}
-                  className={`p-4 hover:bg-gray-50 transition-colors ${!notification.is_read ? 'bg-blue-50' : ''}`}
+                  className={`notification-item ${!notification.is_read ? 'unread' : ''}`}
                 >
-                  <div className="flex flex-col items-center text-center">
-                    <p className="text-sm text-gray-400 mb-1">Notification ID: {notification.id}</p>
-                    <p className="text-gray-800">{notification.message}</p>
-                    <p className="text-sm text-gray-500 mt-1">{formatDate(notification.created_at)}</p>
+                  <div className="notification-content">
+                    <p className="notification-id">Notification ID: {notification.id}</p>
+                    <p className="notification-message">{notification.message}</p>
+                    <p className="notification-date">{formatDate(notification.created_at)}</p>
 
                     {!notification.is_read && (
                       <button
                         onClick={() => markAsRead(notification.id)}
-                        className="mt-3 bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                        className="mark-read-button"
                       >
                         Mark as read
                       </button>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import './PromoCodeManagement.css';
 
 const PromoCodeManagement = () => {
   const [promoCodes, setPromoCodes] = useState([]);
@@ -102,22 +103,22 @@ const PromoCodeManagement = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="loading-container">
+        <div className="loader"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white shadow rounded-lg p-6">
-      <h2 className="text-2xl font-bold mb-6">Promo Code Management</h2>
+    <div className="promo-container">
+      <h2 className="promo-title">Promo Code Management</h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="md:col-span-1 bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold mb-4">Create New Promo Code</h3>
-          <form onSubmit={handleCreatePromoCode}>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="code">
+      <div className="promo-grid">
+        <div className="create-section">
+          <h3 className="section-title">Create New Promo Code</h3>
+          <form onSubmit={handleCreatePromoCode} className="promo-form">
+            <div className="form-group">
+              <label className="form-label" htmlFor="code">
                 Code
               </label>
               <input
@@ -125,84 +126,80 @@ const PromoCodeManagement = () => {
                 type="text"
                 value={newCode}
                 onChange={(e) => setNewCode(e.target.value)}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:
-outline-none focus:ring-2 focus:ring-blue-500"
-placeholder="Enter promo code"
-required
-/>
-</div>
+                className="form-input"
+                placeholder="Enter promo code"
+                required
+              />
+            </div>
 
-<div className="mb-4">
-<label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="discount">
-Discount (%)
-</label>
-<input
-id="discount"
-type="number"
-value={newDiscount}
-onChange={(e) => setNewDiscount(e.target.value)}
-className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
-placeholder="Enter discount percentage"
-required
-/>
-</div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="discount">
+                Discount (%)
+              </label>
+              <input
+                id="discount"
+                type="number"
+                value={newDiscount}
+                onChange={(e) => setNewDiscount(e.target.value)}
+                className="form-input"
+                placeholder="Enter discount percentage"
+                required
+              />
+            </div>
 
-<button
-type="submit"
-className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
->
-Create Promo Code
-</button>
-</form>
-</div>
+            <button type="submit" className="create-button">
+              Create Promo Code
+            </button>
+          </form>
+        </div>
 
-<div className="md:col-span-2 bg-gray-50 p-4 rounded-lg">
-<h3 className="text-lg font-semibold mb-4">Active Promo Codes</h3>
-{promoCodes.length > 0 ? (
-<table className="min-w-full border-collapse border border-gray-200">
-<thead>
-<tr className="bg-gray-200">
-  <th className="border border-gray-300 px-4 py-2">Code</th>
-  <th className="border border-gray-300 px-4 py-2">Discount</th>
-  <th className="border border-gray-300 px-4 py-2">Status</th>
-  <th className="border border-gray-300 px-4 py-2">Created At</th>
-  <th className="border border-gray-300 px-4 py-2">Actions</th>
-</tr>
-</thead>
-<tbody>
-{promoCodes.map((promo) => (
-  <tr key={promo.id} className="border border-gray-200">
-    <td className="border border-gray-300 px-4 py-2">{promo.code}</td>
-    <td className="border border-gray-300 px-4 py-2">{promo.discount}%</td>
-    <td className="border border-gray-300 px-4 py-2">
-      {promo.is_active ? (
-        <span className="text-green-600 font-semibold">Active</span>
-      ) : (
-        <span className="text-red-600 font-semibold">Disabled</span>
-      )}
-    </td>
-    <td className="border border-gray-300 px-4 py-2">{formatDate(promo.created_at)}</td>
-    <td className="border border-gray-300 px-4 py-2">
-      {promo.is_active && (
-        <button
-          onClick={() => handleDisablePromoCode(promo.id)}
-          className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 transition"
-        >
-          Disable
-        </button>
-      )}
-    </td>
-  </tr>
-))}
-</tbody>
-</table>
-) : (
-<p className="text-gray-500">No promo codes available.</p>
-)}
-</div>
-</div>
-</div>
-);
+        <div className="promo-list-section">
+          <h3 className="section-title">Active Promo Codes</h3>
+          {promoCodes.length > 0 ? (
+            <table className="promo-table">
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Discount</th>
+                  <th>Status</th>
+                  <th>Created At</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {promoCodes.map((promo) => (
+                  <tr key={promo.id}>
+                    <td>{promo.code}</td>
+                    <td>{promo.discount}%</td>
+                    <td>
+                      {promo.is_active ? (
+                        <span className="status-active">Active</span>
+                      ) : (
+                        <span className="status-disabled">Disabled</span>
+                      )}
+                    </td>
+                    <td>{formatDate(promo.created_at)}</td>
+                    <td>
+                      {promo.is_active && (
+                        <button
+                          onClick={() => handleDisablePromoCode(promo.id)}
+                          className="disable-button"
+                        >
+                          Disable
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p className="empty-message">No promo codes available.</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default PromoCodeManagement;

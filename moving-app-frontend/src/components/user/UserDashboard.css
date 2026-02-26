@@ -4,8 +4,8 @@
 }
 
 .quick-action[href="/user/book-driver"],
-.quick-action[href="/user/wallet"] {
-  display: none; /* Hides "Book a Driver" and "Manage Wallet" */
+.quick-action[href="/user/transactions"] {
+  display: none; /* Hides "Book a Driver" and "View Transactions" */
 }
 
 /* === Card Layout for Quick Actions === */

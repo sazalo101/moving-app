@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
@@ -10,6 +10,7 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "./BookDriver.css";
 
 // Fix for default marker icons in Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -22,54 +23,7 @@ L.Icon.Default.mergeOptions({
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
-// Kenyan drivers data
-const KENYAN_DRIVERS = [
-  {
-    driver_id: 1,
-    name: "David Kamau",
-    vehicle_type: "Sedan",
-    ratings: 4.8,
-    completed_orders: 237,
-    price: 1500,
-    image: "https://randomuser.me/api/portraits/men/32.jpg",
-  },
-  {
-    driver_id: 2,
-    name: "Faith Wanjiku",
-    vehicle_type: "SUV",
-    ratings: 4.9,
-    completed_orders: 412,
-    price: 1850,
-    image: "https://randomuser.me/api/portraits/women/44.jpg",
-  },
-  {
-    driver_id: 3,
-    name: "Brian Odhiambo",
-    vehicle_type: "Luxury",
-    ratings: 4.7,
-    completed_orders: 187,
-    price: 2200,
-    image: "https://randomuser.me/api/portraits/men/75.jpg",
-  },
-  {
-    driver_id: 4,
-    name: "Esther Muthoni",
-    vehicle_type: "Economy",
-    ratings: 4.6,
-    completed_orders: 153,
-    price: 1200,
-    image: "https://randomuser.me/api/portraits/women/65.jpg",
-  },
-  {
-    driver_id: 5,
-    name: "John Mwangi",
-    vehicle_type: "Boda Boda",
-    ratings: 4.5,
-    completed_orders: 292,
-    price: 500,
-    image: "https://randomuser.me/api/portraits/men/42.jpg",
-  },
-];
+// No hardcoded drivers - all drivers come from database via API
 
 // Kenyan promo codes
 const KENYAN_PROMO_CODES = {
@@ -99,112 +53,6 @@ const POPULAR_LOCATIONS = [
   "South C",
 ];
 
-const containerStyles = {
-  maxWidth: "900px",
-  margin: "0 auto",
-  padding: "20px",
-  fontFamily: "Arial, sans-serif",
-};
-
-const headingStyles = {
-  fontSize: "28px",
-  fontWeight: "bold",
-  marginBottom: "20px",
-  color: "#333",
-  borderBottom: "2px solid #e67e22",
-  paddingBottom: "10px",
-};
-
-const cardStyles = {
-  backgroundColor: "#fff",
-  borderRadius: "8px",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-  padding: "25px",
-  marginBottom: "25px",
-};
-
-const stepIndicatorContainerStyles = {
-  display: "flex",
-  marginBottom: "30px",
-};
-
-const formGroupStyles = {
-  marginBottom: "20px",
-};
-
-const labelStyles = {
-  display: "block",
-  marginBottom: "8px",
-  fontWeight: "600",
-  fontSize: "16px",
-  color: "#444",
-};
-
-const inputStyles = {
-  width: "100%",
-  padding: "12px 15px",
-  borderRadius: "6px",
-  border: "1px solid #ddd",
-  fontSize: "16px",
-  boxSizing: "border-box",
-  transition: "border-color 0.3s ease",
-  backgroundColor: "#f9f9f9",
-  color: "black",
-};
-
-const buttonPrimaryStyles = {
-  backgroundColor: "#e67e22", // Kenyan-inspired orange
-  color: "white",
-  padding: "12px 20px",
-  border: "none",
-  borderRadius: "6px",
-  fontSize: "16px",
-  cursor: "pointer",
-  fontWeight: "bold",
-  width: "100%",
-  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
-  transition: "all 0.3s ease",
-};
-
-const buttonSecondaryStyles = {
-  backgroundColor: "transparent",
-  color: "#e67e22",
-  padding: "10px 16px",
-  border: "1px solid #e67e22",
-  borderRadius: "6px",
-  fontSize: "14px",
-  cursor: "pointer",
-  fontWeight: "600",
-  transition: "all 0.3s ease",
-};
-
-const driverCardStyles = {
-  border: "1px solid #ddd",
-  borderRadius: "8px",
-  padding: "16px",
-  marginBottom: "15px",
-  cursor: "pointer",
-  transition: "all 0.3s ease",
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-};
-
-const mapContainerStyles = {
-  height: "300px",
-  borderRadius: "8px",
-  overflow: "hidden",
-  border: "1px solid #ddd",
-  marginBottom: "20px",
-};
-
-const hintTextStyles = {
-  fontSize: "12px",
-  color: "#777",
-  marginTop: "5px",
-  fontStyle: "italic",
-};
-
 const BookDriver = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -226,6 +74,16 @@ const BookDriver = () => {
   const [dropoffSuggestions, setDropoffSuggestions] = useState([]);
   const [showPickupSuggestions, setShowPickupSuggestions] = useState(false);
   const [showDropoffSuggestions, setShowDropoffSuggestions] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
+
+  // Get user phone number on component mount
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user && user.phone) {
+      setPhoneNumber(user.phone);
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -313,67 +171,9 @@ const BookDriver = () => {
     };
   };
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      // First geocode the addresses using our dummy geocoder
-      const pickupCoords = await geocodeAddress(formData.pickup_location);
-      const dropoffCoords = await geocodeAddress(formData.dropoff_location);
-
-      // Update the locations state
-      setLocations({
-        pickup: pickupCoords,
-        dropoff: dropoffCoords,
-      });
-
-      // Calculate the center of the two points for the map
-      const centerLat = (pickupCoords.lat + dropoffCoords.lat) / 2;
-      const centerLon = (pickupCoords.lon + dropoffCoords.lon) / 2;
-      setMapCenter([centerLat, centerLon]);
-
-      // Adjust zoom to fit both markers
-      setMapZoom(12);
-
-      // Calculate actual distance using Haversine formula
-      const distance = calculateDistance(
-        pickupCoords.lat,
-        pickupCoords.lon,
-        dropoffCoords.lat,
-        dropoffCoords.lon
-      );
-
-      // Calculate base price based on distance (in KES)
-      const basePrice = 200 + distance * 50;
-
-      // Prepare drivers with individualized pricing
-      const drivers = KENYAN_DRIVERS.map((driver) => ({
-        ...driver,
-        // Add some variation to driver prices
-        price: Math.round((basePrice * (0.9 + Math.random() * 0.3)) / 10) * 10, // round to nearest 10
-      }));
-
-      // Create search results
-      setSearchResults({
-        drivers: drivers,
-        distance: distance.toFixed(2),
-        price: basePrice,
-        calculated_route: {
-          from: pickupCoords,
-          to: dropoffCoords,
-        },
-      });
-
-      setBookingStep(2);
-      // Simulate network delay
-      await new Promise((resolve) => setTimeout(resolve, 700));
-      setLoading(false);
-    } catch (error) {
-      console.error("Error in search:", error);
-      toast.error("Failed to search for drivers. Please try again.");
-      setLoading(false);
-    }
+  // Helper function to convert degrees to radians
+  const deg2rad = (deg) => {
+    return deg * (Math.PI / 180);
   };
 
   // Haversine formula to calculate distance between two points
@@ -392,8 +192,81 @@ const BookDriver = () => {
     return distance;
   };
 
-  const deg2rad = (deg) => {
-    return deg * (Math.PI / 180);
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // Geocode addresses for map display and distance calculation
+      const pickupCoords = await geocodeAddress(formData.pickup_location);
+      const dropoffCoords = await geocodeAddress(formData.dropoff_location);
+
+      // Calculate actual distance using Haversine formula
+      const calculatedDistance = calculateDistance(
+        pickupCoords.lat,
+        pickupCoords.lon,
+        dropoffCoords.lat,
+        dropoffCoords.lon
+      );
+
+      // Call backend API to search for real registered verified drivers
+      const response = await fetch('http://127.0.0.1:5000/api/user/search-drivers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pickup_location: formData.pickup_location,
+          dropoff_location: formData.dropoff_location,
+          distance: calculatedDistance
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.error || 'Failed to search for drivers');
+        setLoading(false);
+        return;
+      }
+
+      // Update the locations state
+      setLocations({
+        pickup: pickupCoords,
+        dropoff: dropoffCoords,
+      });
+
+      // Calculate the center of the two points for the map
+      const centerLat = (pickupCoords.lat + dropoffCoords.lat) / 2;
+      const centerLon = (pickupCoords.lon + dropoffCoords.lon) / 2;
+      setMapCenter([centerLat, centerLon]);
+
+      // Adjust zoom to fit both markers
+      setMapZoom(12);
+
+      // Use data from backend API (only verified available drivers)
+      if (!data.drivers || data.drivers.length === 0) {
+        toast.warning('No verified drivers available at the moment. Please try again later.');
+        setLoading(false);
+        return;
+      }
+
+      // Create search results with real driver data
+      setSearchResults({
+        drivers: data.drivers,
+        distance: data.distance,
+        base_price: data.base_price,
+        calculated_route: {
+          from: pickupCoords,
+          to: dropoffCoords,
+        },
+      });
+
+      setBookingStep(2);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error in search:", error);
+      toast.error("Failed to search for drivers. Please try again.");
+      setLoading(false);
+    }
   };
 
   const handleSelectDriver = (driver) => {
@@ -416,85 +289,171 @@ const BookDriver = () => {
     const discount = KENYAN_PROMO_CODES[promoCode];
 
     if (discount) {
-      const newPrice = searchResults.price * (1 - discount);
+      // Apply discount to the selected driver's price
+      const currentPrice = selectedDriver.price || searchResults.base_price;
+      const newPrice = currentPrice * (1 - discount);
+      
+      // Update the selected driver's price
+      setSelectedDriver({
+        ...selectedDriver,
+        price: newPrice
+      });
+      
       setSearchResults({
         ...searchResults,
-        price: newPrice,
         appliedPromoCode: promoCode,
         discount: discount * 100,
       });
 
       toast.success(
-        `Promo code ${promoCode} applied! ${discount * 100}% discount`
+        `Promo code ${promoCode} applied! ${discount * 100}% discount - Saved KES ${(currentPrice - newPrice).toFixed(0)}`
       );
     } else {
       toast.error("Invalid or inactive promo code");
     }
   };
 
-  const handleBookDriver = async () => {
-    setLoading(true);
-
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 1200));
-
-    // Generate a random booking ID
-    const bookingId = Math.floor(100000 + Math.random() * 900000);
-
-    toast.success("Driver booked successfully!");
-
-    // Redirect to a fictional tracking page
-    // Note: If the navigate function isn't available in the test environment,
-    // we'll just log the navigation and handle booking completion in this component
+  const checkPaymentStatus = async (txnId) => {
     try {
-      navigate(`/user/track/${bookingId}`);
+      const response = await fetch(`http://127.0.0.1:5000/api/mpesa/check-status/${txnId}`);
+      const data = await response.json();
+      return data.status;
     } catch (error) {
-      console.log(`Would navigate to: /user/track/${bookingId}`);
-      toast.info(
-        `Booking #${bookingId} confirmed. Your driver will arrive shortly.`
-      );
-      setLoading(false);
-      setBookingStep(1);
-      setFormData({
-        pickup_location: "",
-        dropoff_location: "",
-        promo_code: "",
-      });
+      console.error('Error checking payment status:', error);
+      return null;
     }
   };
 
-  const getStepIndicatorStyle = (stepNumber) => {
-    const baseStyle = {
-      flex: 1,
-      textAlign: "center",
-      padding: "12px",
-      fontWeight: bookingStep >= stepNumber ? "bold" : "normal",
-      borderBottom: "3px solid",
-      borderBottomColor: bookingStep >= stepNumber ? "#e67e22" : "#ddd",
-      color: bookingStep >= stepNumber ? "#e67e22" : "#888",
-      position: "relative",
+  const pollPaymentStatus = async (txnId, maxAttempts = 30) => {
+    let attempts = 0;
+    
+    const poll = async () => {
+      attempts++;
+      const status = await checkPaymentStatus(txnId);
+      
+      if (status === 'completed') {
+        setIsPaymentProcessing(false);
+        toast.success('Payment successful! Your booking is confirmed.');
+        setTimeout(() => {
+          navigate('/user/order-history');
+        }, 2000);
+        return;
+      } else if (status === 'failed') {
+        setIsPaymentProcessing(false);
+        toast.error('Payment failed. Please try again.');
+        setBookingStep(3); // Go back to confirmation
+        return;
+      } else if (attempts < maxAttempts) {
+        setTimeout(poll, 3000); // Check every 3 seconds
+      } else {
+        setIsPaymentProcessing(false);
+        toast.warning('Payment is taking longer than expected. Please check your order history.');
+        setTimeout(() => {
+          navigate('/user/order-history');
+        }, 2000);
+      }
     };
+    
+    setTimeout(poll, 5000); // Start checking after 5 seconds
+  };
 
-    return baseStyle;
+  const handleProceedToPayment = () => {
+    // Validate phone number
+    if (!phoneNumber || phoneNumber.trim() === '') {
+      toast.error('Please enter your M-Pesa phone number');
+      return;
+    }
+    
+    const cleanPhone = phoneNumber.replace(/\s+/g, '').replace(/[^0-9+]/g, '');
+    if (cleanPhone.length < 10) {
+      toast.error('Please enter a valid phone number');
+      return;
+    }
+    
+    setBookingStep(4);
+  };
+
+  const handleBookDriver = async () => {
+    setLoading(true);
+    setIsPaymentProcessing(true);
+
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user) {
+        toast.error('Please log in to book a driver');
+        setLoading(false);
+        setIsPaymentProcessing(false);
+        return;
+      }
+
+      // Validate phone number
+      if (!phoneNumber || phoneNumber.trim() === '') {
+        toast.error('Please enter your M-Pesa phone number');
+        setLoading(false);
+        setIsPaymentProcessing(false);
+        return;
+      }
+
+      const finalPrice = selectedDriver.price || searchResults.base_price;
+
+      // Call backend API to initiate M-Pesa payment
+      const response = await fetch('http://127.0.0.1:5000/api/user/book-driver-mpesa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user.id,
+          driver_id: selectedDriver.driver_id,
+          pickup_location: formData.pickup_location,
+          dropoff_location: formData.dropoff_location,
+          distance: parseFloat(searchResults.distance),
+          price: finalPrice,
+          phone_number: phoneNumber,
+          promo_code: formData.promo_code || null
+        })
+      });
+
+      const data = await response.json();
+      setLoading(false);
+
+      if (!response.ok || !data.success) {
+        toast.error(data.error || 'Failed to initiate payment');
+        setIsPaymentProcessing(false);
+        return;
+      }
+
+      // Show success message
+      toast.success(data.message || 'Check your phone to complete payment');
+      toast.info('📱 Enter your M-Pesa PIN on your phone', { autoClose: 8000 });
+
+      // Start polling for payment status
+      pollPaymentStatus(data.transaction_id);
+
+    } catch (error) {
+      console.error('Error booking driver:', error);
+      toast.error('Failed to initiate payment. Please try again.');
+      setLoading(false);
+      setIsPaymentProcessing(false);
+    }
   };
 
   return (
-    <div style={containerStyles}>
-      <h1 style={headingStyles}>MOVERS WEB APP</h1>
+    <div className="book-driver-container">
+      <h1 className="book-driver-title">MOVERS WEB APP</h1>
 
       {/* Step indicators */}
-      <div style={stepIndicatorContainerStyles}>
-        <div style={getStepIndicatorStyle(1)}>1. Enter Locations</div>
-        <div style={getStepIndicatorStyle(2)}>2. Select Driver</div>
-        <div style={getStepIndicatorStyle(3)}>3. Confirm Booking</div>
+      <div className="step-indicator-container">
+        <div className={`step-indicator ${bookingStep >= 1 ? 'active' : ''}`}>1. Enter Locations</div>
+        <div className={`step-indicator ${bookingStep >= 2 ? 'active' : ''}`}>2. Select Driver</div>
+        <div className={`step-indicator ${bookingStep >= 3 ? 'active' : ''}`}>3. Confirm Details</div>
+        <div className={`step-indicator ${bookingStep >= 4 ? 'active' : ''}`}>4. Pay via M-Pesa</div>
       </div>
 
       {/* Step 1: Enter locations */}
       {bookingStep === 1 && (
-        <div style={cardStyles}>
+        <div className="booking-card">
           <form onSubmit={handleSearch}>
-            <div style={formGroupStyles}>
-              <label style={labelStyles} htmlFor="pickup_location">
+            <div className="form-group">
+              <label className="form-label" htmlFor="pickup_location">
                 Pickup Location
               </label>
               <div style={{ position: "relative" }}>
@@ -505,46 +464,16 @@ const BookDriver = () => {
                   value={formData.pickup_location}
                   onChange={handleChange}
                   onFocus={() => setShowPickupSuggestions(true)}
-                  style={{
-                    ...inputStyles,
-                    borderColor: showPickupSuggestions ? "#e67e22" : "#ddd",
-                  }}
+                  className={`form-input ${showPickupSuggestions ? 'form-input-focused' : ''}`}
                   required
                   placeholder="Enter pickup address"
                 />
                 {showPickupSuggestions && pickupSuggestions.length > 0 && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "100%",
-                      left: 0,
-                      width: "100%",
-                      backgroundColor: "black",
-                      color: "orange",
-                      border: "1px solid #ddd",
-                      borderRadius: "0 0 6px 6px",
-                      zIndex: 10,
-                      boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-                    }}
-                  >
+                  <div className="suggestions-dropdown">
                     {pickupSuggestions.map((suggestion, index) => (
                       <div
                         key={index}
-                        style={{
-                          padding: "10px 15px",
-                          cursor: "pointer",
-                          borderBottom:
-                            index < pickupSuggestions.length - 1
-                              ? "1px solid #eee"
-                              : "none",
-                          transition: "background-color 0.2s ease",
-                        }}
-                        onMouseOver={(e) =>
-                          (e.target.style.backgroundColor = "#f5f5f5")
-                        }
-                        onMouseOut={(e) =>
-                          (e.target.style.backgroundColor = "transparent")
-                        }
+                        className="suggestion-item"
                         onClick={() =>
                           handleSuggestionClick(suggestion, "pickup")
                         }
@@ -555,13 +484,13 @@ const BookDriver = () => {
                   </div>
                 )}
               </div>
-              <p style={hintTextStyles}>
+              <p className="hint-text">
                 Popular: CBD, Westlands, Kilimani, Karen, etc.
               </p>
             </div>
 
-            <div style={formGroupStyles}>
-              <label style={labelStyles} htmlFor="dropoff_location">
+            <div className="form-group">
+              <label className="form-label" htmlFor="dropoff_location">
                 Dropoff Location
               </label>
               <div style={{ position: "relative" }}>
@@ -572,46 +501,16 @@ const BookDriver = () => {
                   value={formData.dropoff_location}
                   onChange={handleChange}
                   onFocus={() => setShowDropoffSuggestions(true)}
-                  style={{
-                    ...inputStyles,
-                    borderColor: showDropoffSuggestions ? "#e67e22" : "#ddd",
-                  }}
+                  className={`form-input ${showDropoffSuggestions ? 'form-input-focused' : ''}`}
                   required
                   placeholder="Enter destination address"
                 />
                 {showDropoffSuggestions && dropoffSuggestions.length > 0 && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "100%",
-                      left: 0,
-                      width: "100%",
-                      backgroundColor: "black",
-                      color: "orange",
-                      border: "1px solid #ddd",
-                      borderRadius: "0 0 6px 6px",
-                      zIndex: 10,
-                      boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-                    }}
-                  >
+                  <div className="suggestions-dropdown">
                     {dropoffSuggestions.map((suggestion, index) => (
                       <div
                         key={index}
-                        style={{
-                          padding: "10px 15px",
-                          cursor: "pointer",
-                          borderBottom:
-                            index < dropoffSuggestions.length - 1
-                              ? "1px solid #eee"
-                              : "none",
-                          transition: "background-color 0.2s ease",
-                        }}
-                        onMouseOver={(e) =>
-                          (e.target.style.backgroundColor = "#f5f5f5")
-                        }
-                        onMouseOut={(e) =>
-                          (e.target.style.backgroundColor = "transparent")
-                        }
+                        className="suggestion-item"
                         onClick={() =>
                           handleSuggestionClick(suggestion, "dropoff")
                         }
@@ -622,18 +521,14 @@ const BookDriver = () => {
                   </div>
                 )}
               </div>
-              <p style={hintTextStyles}>
+              <p className="hint-text">
                 Popular: JKIA, Lavington, Ngong, Kiambu, etc.
               </p>
             </div>
 
             <button
               type="submit"
-              style={{
-                ...buttonPrimaryStyles,
-                backgroundColor: loading ? "#ccc" : "#e67e22",
-                cursor: loading ? "not-allowed" : "pointer",
-              }}
+              className="btn-primary"
               disabled={loading}
             >
               {loading ? "Searching..." : "Find Drivers"}
@@ -644,20 +539,13 @@ const BookDriver = () => {
 
       {/* Step 2: Select driver with map */}
       {bookingStep === 2 && searchResults && (
-        <div style={cardStyles}>
+        <div className="booking-card">
           {/* Map display */}
-          <div style={{ marginBottom: "20px" }}>
-            <h2
-              style={{
-                fontSize: "20px",
-                fontWeight: "bold",
-                marginBottom: "15px",
-                color: "#444",
-              }}
-            >
+          <div className="map-wrapper">
+            <h2 className="section-title">
               Trip Route
             </h2>
-            <div style={mapContainerStyles}>
+            <div className="map-container">
               {locations.pickup && locations.dropoff && (
                 <MapContainer
                   center={mapCenter}
@@ -690,174 +578,84 @@ const BookDriver = () => {
             </div>
           </div>
 
-          <div
-            style={{
-              backgroundColor: "#f8f4e5",
-              padding: "15px",
-              borderRadius: "8px",
-              marginBottom: "20px",
-              borderLeft: "4px solid #e67e22",
-            }}
-          >
-            <h2
-              style={{
-                fontSize: "18px",
-                fontWeight: "bold",
-                marginBottom: "10px",
-              }}
-            >
+          <div className="trip-details-card">
+            <h2 className="section-subtitle">
               Trip Details
             </h2>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div className="trip-details-flex">
               <div>
-                <p>
-                  <span style={{ fontWeight: "bold", color: "black" }}>
-                    From:
-                  </span>{" "}
-                  <span style={{ color: "black" }}>
-                    {formData.pickup_location}
-                  </span>
+                <p className="trip-detail-item">
+                  <span className="trip-detail-label">From:</span>{" "}
+                  <span className="trip-detail-value">{formData.pickup_location}</span>
                 </p>
-                <p>
-                  <span style={{ fontWeight: "bold", color: "black" }}>
-                    To:
-                  </span>{" "}
-                  <span style={{ color: "black" }}>
-                    {formData.dropoff_location}
-                  </span>
+                <p className="trip-detail-item">
+                  <span className="trip-detail-label">To:</span>{" "}
+                  <span className="trip-detail-value">{formData.dropoff_location}</span>
                 </p>
-                <p>
-                  <span style={{ fontWeight: "bold", color: "black" }}>
-                    Distance:
-                  </span>{" "}
-                  <span style={{ color: "black" }}>
-                    {searchResults.distance} km
-                  </span>
+                <p className="trip-detail-item">
+                  <span className="trip-detail-label">Distance:</span>{" "}
+                  <span className="trip-detail-value">{searchResults.distance} km</span>
                 </p>
               </div>
               <div>
-                <p
-                  style={{
-                    fontSize: "28px",
-                    fontWeight: "bold",
-                    color: "#e67e22",
-                    backgroundColor: "#fff",
-                    padding: "10px 15px",
-                    borderRadius: "6px",
-                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                  }}
-                >
-                  KES {searchResults.price.toFixed(0)}
+                <p className="price-display">
+                  KES {searchResults.base_price ? searchResults.base_price.toFixed(0) : '0'}
                 </p>
               </div>
             </div>
           </div>
 
-          <h2
-            style={{
-              fontSize: "20px",
-              fontWeight: "bold",
-              marginBottom: "15px",
-              color: "#444",
-            }}
-          >
+          <h2 className="section-title">
             Available Drivers
           </h2>
 
           {searchResults.drivers && searchResults.drivers.length > 0 ? (
-            <div>
+            <div className="drivers-list">
               {searchResults.drivers.map((driver) => (
                 <div
                   key={driver.driver_id}
-                  style={{
-                    ...driverCardStyles,
-                    backgroundColor:
-                      selectedDriver?.driver_id === driver.driver_id
-                        ? "#fdf2e9"
-                        : "#fff",
-                    borderColor:
-                      selectedDriver?.driver_id === driver.driver_id
-                        ? "#e67e22"
-                        : "#ddd",
-                  }}
+                  className={`driver-card ${selectedDriver?.driver_id === driver.driver_id ? 'selected' : ''}`}
                   onClick={() => handleSelectDriver(driver)}
                 >
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <div
-                      style={{
-                        width: "60px",
-                        height: "60px",
-                        borderRadius: "50%",
-                        overflow: "hidden",
-                        marginRight: "15px",
-                        border: "2px solid #e67e22",
-                      }}
-                    >
+                  <div className="driver-info">
+                    <div className="driver-avatar">
                       <img
                         src={driver.image}
                         alt={driver.name}
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                        }}
                       />
                     </div>
-                    <div>
-                      <p
-                        style={{
-                          fontWeight: "bold",
-                          fontSize: "16px",
-                          marginBottom: "4px",
-                        }}
-                      >
+                    <div className="driver-details">
+                      <p className="driver-name">
                         {driver.name}
+                        {driver.is_verified && (
+                          <span className="verified-badge">
+                            <span style={{ fontSize: "12px" }}>✓</span> VERIFIED
+                          </span>
+                        )}
+                        {!driver.is_verified && (
+                          <span className="unverified-badge">
+                            Unverified
+                          </span>
+                        )}
                       </p>
-                      <p
-                        style={{
-                          color: "#666",
-                          fontSize: "14px",
-                          marginBottom: "4px",
-                        }}
-                      >
+                      <p className="driver-vehicle">
                         Vehicle: {driver.vehicle_type}
                       </p>
-                      <div style={{ display: "flex", alignItems: "center" }}>
-                        <span style={{ color: "#f39c12", marginRight: "5px" }}>
-                          ★
-                        </span>
-                        <span style={{ fontWeight: "bold" }}>
-                          {driver.ratings.toFixed(1)}
-                        </span>
-                        <span
-                          style={{
-                            color: "#777",
-                            fontSize: "13px",
-                            marginLeft: "5px",
-                          }}
-                        >
+                      <div className="driver-rating">
+                        <span className="rating-star">★</span>
+                        <span className="rating-value">{driver.ratings ? driver.ratings.toFixed(1) : '0.0'}</span>
+                        <span className="rating-trips">
                           ({driver.completed_orders} trips)
                         </span>
                       </div>
                     </div>
                   </div>
-                  <div style={{ textAlign: "right" }}>
-                    <p
-                      style={{
-                        fontWeight: "bold",
-                        fontSize: "18px",
-                        marginBottom: "10px",
-                        color: "#e67e22",
-                      }}
-                    >
-                      KES {driver.price.toFixed(0)}
+                  <div className="driver-price-section">
+                    <p className="driver-price">
+                      KES {driver.price ? driver.price.toFixed(0) : '0'}
                     </p>
                     <button
-                      style={{
-                        ...buttonSecondaryStyles,
-                        backgroundColor: "#e67e22",
-                        color: "white",
-                      }}
+                      className="btn-secondary filled"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSelectDriver(driver);
@@ -870,30 +668,13 @@ const BookDriver = () => {
               ))}
             </div>
           ) : (
-            <p
-              style={{
-                color: "#666",
-                fontStyle: "italic",
-                textAlign: "center",
-                padding: "20px",
-              }}
-            >
+            <p className="no-drivers">
               No drivers available at the moment. Please try again later.
             </p>
           )}
 
           <button
-            style={{
-              background: "none",
-              border: "none",
-              color: "#e67e22",
-              fontWeight: "bold",
-              cursor: "pointer",
-              padding: "10px 0",
-              marginTop: "15px",
-              display: "flex",
-              alignItems: "center",
-            }}
+            className="btn-back"
             onClick={() => setBookingStep(1)}
           >
             ← Back to locations
@@ -903,22 +684,14 @@ const BookDriver = () => {
 
       {/* Step 3: Confirm booking with map */}
       {bookingStep === 3 && selectedDriver && (
-        <div style={cardStyles}>
-          <h2
-            style={{
-              fontSize: "22px",
-              fontWeight: "bold",
-              marginBottom: "20px",
-              color: "#444",
-              textAlign: "center",
-            }}
-          >
+        <div className="booking-card">
+          <h2 className="confirmation-title">
             Confirm Your Booking
           </h2>
 
           {/* Map in confirmation */}
-          <div style={{ marginBottom: "20px" }}>
-            <div style={{ ...mapContainerStyles, height: "200px" }}>
+          <div className="map-wrapper">
+            <div className="map-container compact">
               {locations.pickup && locations.dropoff && (
                 <MapContainer
                   center={mapCenter}
@@ -951,142 +724,63 @@ const BookDriver = () => {
             </div>
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              backgroundColor: "#f8f4e5",
-              padding: "20px",
-              borderRadius: "8px",
-              marginBottom: "20px",
-              borderLeft: "4px solid #e67e22",
-            }}
-          >
-            <div style={{ flex: "1" }}>
-              <div style={{ marginBottom: "15px" }}>
-                <h3
-                  style={{
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                    marginBottom: "10px",
-                    color: "#555",
-                  }}
-                >
+          <div className="confirmation-details">
+            <div className="confirmation-left">
+              <div className="confirmation-section">
+                <h3 className="confirmation-section-title">
                   Trip Details
                 </h3>
-                <p style={{ marginBottom: "5px" }}>
-                  <span style={{ fontWeight: "bold" }}>From:</span>{" "}
+                <p className="trip-detail-item">
+                  <span className="trip-detail-label">From:</span>{" "}
                   {formData.pickup_location}
                 </p>
-                <p style={{ marginBottom: "5px" }}>
-                  <span style={{ fontWeight: "bold" }}>To:</span>{" "}
+                <p className="trip-detail-item">
+                  <span className="trip-detail-label">To:</span>{" "}
                   {formData.dropoff_location}
                 </p>
-                <p>
-                  <span style={{ fontWeight: "bold" }}>Distance:</span>{" "}
+                <p className="trip-detail-item">
+                  <span className="trip-detail-label">Distance:</span>{" "}
                   {searchResults.distance} km
                 </p>
               </div>
 
-              <div>
-                <h3
-                  style={{
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                    marginBottom: "10px",
-                    color: "#555",
-                  }}
-                >
+              <div className="confirmation-section">
+                <h3 className="confirmation-section-title">
                   Driver Info
                 </h3>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <div
-                    style={{
-                      width: "50px",
-                      height: "50px",
-                      borderRadius: "50%",
-                      overflow: "hidden",
-                      marginRight: "10px",
-                      border: "2px solid #e67e22",
-                    }}
-                  >
+                <div className="driver-info-compact">
+                  <div className="driver-avatar-compact">
                     <img
                       src={selectedDriver.image}
                       alt={selectedDriver.name}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
                     />
                   </div>
                   <div>
-                    <p style={{ fontWeight: "bold", marginBottom: "2px" }}>
+                    <p className="driver-name-compact">
                       {selectedDriver.name}
                     </p>
-                    <p style={{ fontSize: "13px", color: "#666" }}>
+                    <p className="driver-meta-compact">
                       {selectedDriver.vehicle_type} ·{" "}
-                      {selectedDriver.ratings.toFixed(1)} ★
+                      {selectedDriver.ratings ? selectedDriver.ratings.toFixed(1) : '0.0'} ★
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div
-              style={{
-                flex: "0 0 auto",
-                marginLeft: "20px",
-                textAlign: "center",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <div
-                style={{
-                  backgroundColor: "#fff",
-                  padding: "15px 20px",
-                  borderRadius: "6px",
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                  marginBottom: "10px",
-                  minWidth: "150px",
-                }}
-              >
-                <p
-                  style={{
-                    fontSize: "14px",
-                    color: "#777",
-                    marginBottom: "5px",
-                  }}
-                >
+            <div className="confirmation-right">
+              <div className="price-box">
+                <p className="price-label">
                   Total Price
                 </p>
-                <p
-                  style={{
-                    fontSize: "28px",
-                    fontWeight: "bold",
-                    color: "#e67e22",
-                  }}
-                >
-                  KES {searchResults.price.toFixed(0)}
+                <p className="price-value">
+                  KES {selectedDriver.price ? selectedDriver.price.toFixed(0) : (searchResults.base_price ? searchResults.base_price.toFixed(0) : '0')}
                 </p>
               </div>
 
               {searchResults.appliedPromoCode && (
-                <div
-                  style={{
-                    backgroundColor: "#e8f5e9",
-                    border: "1px solid #c8e6c9",
-                    borderRadius: "4px",
-                    padding: "8px 12px",
-                    marginTop: "5px",
-                    fontSize: "13px",
-                    color: "#2e7d32",
-                  }}
-                >
-                  <span style={{ fontWeight: "bold" }}>
+                <div className="promo-applied">
+                  <span className="promo-code">
                     {searchResults.appliedPromoCode}
                   </span>
                   : {searchResults.discount}% off applied
@@ -1096,78 +790,40 @@ const BookDriver = () => {
           </div>
 
           {/* Promo code section */}
-          <div
-            style={{
-              marginBottom: "25px",
-              backgroundColor: "#fff",
-              padding: "15px",
-              borderRadius: "8px",
-              border: "1px dashed #ddd",
-            }}
-          >
+          <div className="promo-section">
             <label
-              style={{ ...labelStyles, marginBottom: "10px" }}
+              className="form-label"
               htmlFor="promo_code"
             >
-              Have a Promo Code?
+              Have a Promo Code? (Optional)
             </label>
-            <div style={{ display: "flex" }}>
+            <div className="promo-input-group">
               <input
                 type="text"
                 id="promo_code"
                 name="promo_code"
                 value={formData.promo_code}
                 onChange={handleChange}
-                style={{
-                  ...inputStyles,
-                  borderTopRightRadius: 0,
-                  borderBottomRightRadius: 0,
-                  borderRight: 0,
-                }}
-                placeholder="Enter promo code"
+                className="form-input promo-input"
+                placeholder="Enter promo code (optional)"
               />
               <button
                 type="button"
                 onClick={handleApplyPromo}
-                style={{
-                  backgroundColor: "#e67e22",
-                  color: "white",
-                  border: "none",
-                  padding: "0 20px",
-                  borderTopRightRadius: "6px",
-                  borderBottomRightRadius: "6px",
-                  cursor: loading ? "not-allowed" : "pointer",
-                  opacity: loading ? 0.7 : 1,
-                }}
+                className="promo-button"
                 disabled={loading}
               >
                 Apply
               </button>
             </div>
-            <p style={hintTextStyles}>
-              Try: KARIBU10, SAFARI20, NAIROBI25, MADARAKA50, UHURU30
+            <p className="hint-text">
+              Optional: Try KARIBU10, SAFARI20, NAIROBI25, MADARAKA50, UHURU30 for discounts
             </p>
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              borderTop: "1px solid #eee",
-              paddingTop: "20px",
-            }}
-          >
+          <div className="action-buttons">
             <button
-              style={{
-                background: "none",
-                border: "none",
-                color: "#e67e22",
-                fontWeight: "bold",
-                cursor: "pointer",
-                padding: "10px 0",
-                display: "flex",
-                alignItems: "center",
-              }}
+              className="btn-back"
               onClick={() => setBookingStep(2)}
               disabled={loading}
             >
@@ -1175,75 +831,137 @@ const BookDriver = () => {
             </button>
 
             <button
-              style={{
-                backgroundColor: "#4CAF50",
-                color: "white",
-                border: "none",
-                padding: "12px 25px",
-                borderRadius: "6px",
-                fontWeight: "bold",
-                fontSize: "16px",
-                cursor: loading ? "not-allowed" : "pointer",
-                opacity: loading ? 0.7 : 1,
-                boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-              onClick={handleBookDriver}
+              className="btn-confirm"
+              onClick={handleProceedToPayment}
               disabled={loading}
             >
-              {loading ? (
-                <span>Processing...</span>
-              ) : (
-                <span>Confirm & Book Now</span>
-              )}
+              Proceed to Payment →
             </button>
           </div>
 
           {/* Additional information */}
-          <div
-            style={{
-              marginTop: "25px",
-              padding: "15px",
-              backgroundColor: "#f9f9f9",
-              borderRadius: "6px",
-              fontSize: "14px",
-              color: "#666",
-            }}
-          >
-            <p style={{ marginBottom: "5px", fontWeight: "bold" }}>
-              Booking Information:
+          <div className="booking-info">
+            <p className="booking-info-title">
+              Payment Information:
             </p>
-            <ul style={{ paddingLeft: "20px", marginTop: "5px" }}>
-              <li style={{ marginBottom: "3px" }}>
-                Payment will be processed after your trip is completed.
+            <ul className="booking-info-list">
+              <li>
+                You will pay via M-Pesa in the next step.
               </li>
-              <li style={{ marginBottom: "3px" }}>
-                Cancel up to 5 minutes before pickup with no fee.
+              <li>
+                Payment is securely held in escrow until service completion.
               </li>
-              <li style={{ marginBottom: "3px" }}>
-                Contact your driver directly after booking is confirmed.
+              <li>
+                Funds are released to the driver after you confirm service completion.
               </li>
-              <li>Track your driver in real-time after booking.</li>
+              <li>
+                Cancel before driver accepts for a full refund.
+              </li>
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {/* Step 4: M-Pesa Payment */}
+      {bookingStep === 4 && selectedDriver && (
+        <div className="booking-card">
+          <h2 className="confirmation-title">
+            💳 Complete Payment via M-Pesa
+          </h2>
+
+          <div className="payment-summary">
+            <div className="payment-detail">
+              <span>Amount to Pay:</span>
+              <strong style={{fontSize: '24px', color: '#27ae60'}}>KES {selectedDriver.price ? selectedDriver.price.toFixed(2) : (searchResults.base_price ? searchResults.base_price.toFixed(2) : '0')}</strong>
+            </div>
+            <div className="payment-detail">
+              <span>From:</span>
+              <span>{formData.pickup_location}</span>
+            </div>
+            <div className="payment-detail">
+              <span>To:</span>
+              <span>{formData.dropoff_location}</span>
+            </div>
+            <div className="payment-detail">
+              <span>Driver:</span>
+              <span>{selectedDriver.name} - {selectedDriver.vehicle_type}</span>
+            </div>
+          </div>
+
+          <div className="mpesa-form">
+            <div className="form-group">
+              <label className="form-label" htmlFor="phoneNumber">
+                M-Pesa Phone Number
+              </label>
+              <input
+                type="tel"
+                id="phoneNumber"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className="form-input"
+                placeholder="e.g., 0712345678 or 254712345678"
+                disabled={isPaymentProcessing}
+              />
+              <p className="hint-text">
+                Enter the M-Pesa phone number you want to pay with
+              </p>
+            </div>
+
+            {isPaymentProcessing && (
+              <div className="payment-processing">
+                <div className="spinner"></div>
+                <p style={{color: '#e67e22', fontWeight: 'bold', margin: '10px 0'}}>
+                  📱 Check your phone and enter your M-Pesa PIN
+                </p>
+                <p style={{fontSize: '14px', color: '#7f8c8d'}}>
+                  Waiting for payment confirmation...
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="action-buttons">
+            <button
+              className="btn-back"
+              onClick={() => setBookingStep(3)}
+              disabled={loading || isPaymentProcessing}
+            >
+              ← Back 
+            </button>
+
+            <button
+              className="btn-confirm"
+              onClick={handleBookDriver}
+              disabled={loading || isPaymentProcessing || !phoneNumber}
+              style={{backgroundColor: isPaymentProcessing ? '#95a5a6' : '#27ae60'}}
+            >
+              {loading || isPaymentProcessing ? (
+                <span>Processing Payment...</span>
+              ) : (
+                <span>Pay KES {selectedDriver.price ? selectedDriver.price.toFixed(0) : (searchResults.base_price ? searchResults.base_price.toFixed(0) : '0')}</span>
+              )}
+            </button>
+          </div>
+
+          <div className="booking-info">
+            <p className="booking-info-title">
+              M-Pesa Payment Steps:
+            </p>
+            <ul className="booking-info-list">
+              <li>Click the "Pay" button above</li>
+              <li>You'll receive an M-Pesa prompt on your phone</li>
+              <li>Enter your M-Pesa PIN to complete payment</li>
+              <li>Wait for payment confirmation</li>
+              <li>Your booking will be confirmed automatically</li>
             </ul>
           </div>
         </div>
       )}
 
       {/* Footer */}
-      <div
-        style={{
-          textAlign: "center",
-          marginTop: "30px",
-          borderTop: "1px solid #eee",
-          paddingTop: "20px",
-          color: "#888",
-          fontSize: "14px",
-        }}
-      >
+      <div className="book-driver-footer">
         <p>© 2025 Movers Web App. All Rights Reserved.</p>
-        <p style={{ marginTop: "5px" }}>
+        <p className="footer-text">
           Safe, Reliable Transport Across Kenya
         </p>
       </div>

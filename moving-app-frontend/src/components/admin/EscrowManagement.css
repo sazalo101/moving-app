@@ -1,0 +1,185 @@
+/* Escrow Management Container */
+.escrow-container {
+  background-color: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.escrow-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+}
+
+/* Stats Section */
+.escrow-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.escrow-stat-card {
+  flex: 1;
+  min-width: 200px;
+  padding: 1.25rem;
+  border-radius: 12px;
+}
+
+.escrow-stat-card.blue {
+  background-color: #dbeafe;
+}
+
+.escrow-stat-card.green {
+  background-color: #d1fae5;
+}
+
+.stat-card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.stat-card-title.blue {
+  color: #1e40af;
+}
+
+.stat-card-title.green {
+  color: #065f46;
+}
+
+.stat-card-value {
+  font-size: 1.875rem;
+  font-weight: 700;
+}
+
+.stat-card-value.blue {
+  color: #2563eb;
+}
+
+.stat-card-value.green {
+  color: #10b981;
+}
+
+/* Table Container */
+.table-container {
+  overflow-x: auto;
+}
+
+.escrow-table {
+  min-width: 100%;
+  background-color: white;
+  border-collapse: collapse;
+}
+
+.escrow-table thead tr {
+  background-color: #f3f4f6;
+  color: #374151;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.escrow-table th {
+  padding: 0.75rem 1.5rem;
+  text-align: left;
+}
+
+.escrow-table th:last-child {
+  text-align: center;
+}
+
+.escrow-table tbody {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.escrow-table tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s;
+}
+
+.escrow-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.escrow-table td {
+  padding: 0.75rem 1.5rem;
+}
+
+.escrow-table td:last-child {
+  text-align: center;
+}
+
+/* Release Button */
+.release-button {
+  background-color: #10b981;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.813rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.release-button:hover {
+  background-color: #059669;
+  transform: scale(1.05);
+}
+
+/* Empty State */
+.empty-state {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+/* Loading State */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.loader {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .escrow-container {
+    padding: 1rem;
+  }
+
+  .escrow-title {
+    font-size: 1.5rem;
+  }
+
+  .escrow-stats {
+    flex-direction: column;
+  }
+
+  .escrow-stat-card {
+    min-width: 100%;
+  }
+
+  .table-container {
+    overflow-x: scroll;
+  }
+}

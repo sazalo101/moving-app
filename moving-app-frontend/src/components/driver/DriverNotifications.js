@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import './DriverPages.css';
 
 const DriverNotifications = () => {
   // Initial dummy notifications data
@@ -94,8 +95,11 @@ const DriverNotifications = () => {
   
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div className="loading-container">
+        <div style={{ textAlign: 'center' }}>
+          <div className="loading-spinner"></div>
+          <p style={{ marginTop: '16px', color: '#6b7280', fontWeight: '500' }}>Loading notifications...</p>
+        </div>
       </div>
     );
   }
@@ -103,67 +107,110 @@ const DriverNotifications = () => {
   const unreadCount = notifications.filter(notification => !notification.is_read).length;
   
   return (
-    <div className="max-w-6xl mx-auto p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Notifications</h1>
-        
-        <div className="flex space-x-2">
-          {unreadCount > 0 && (
-            <button
-              onClick={handleMarkAllAsRead}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
-            >
-              Mark All as Read
-            </button>
-          )}
-          
-          <button
-            onClick={fetchNotifications}
-            className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-md"
-          >
-            Refresh
-          </button>
-        </div>
-      </div>
-      
-      {unreadCount > 0 && (
-        <p className="mb-4 text-blue-600 font-medium">
-          You have {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}.
-        </p>
-      )}
-      
-      {notifications.length === 0 ? (
-        <div className="bg-white p-8 rounded-lg shadow-md text-center">
-          <h2 className="text-2xl font-semibold text-gray-700 mb-2">No Notifications</h2>
-          <p className="text-gray-500">
-            You don't have any notifications at the moment.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {notifications.map((notification) => (
-            <div 
-              key={notification.id} 
-              className={`bg-white p-4 rounded-lg shadow-md flex justify-between items-center ${notification.is_read ? 'opacity-70' : 'bg-blue-50'}`}
-            >
-              <div>
-                <h3 className="text-lg font-semibold">{notification.title}</h3>
-                <p className="text-gray-600">{notification.message}</p>
-                <p className="text-sm text-gray-400">{formatDate(notification.created_at)}</p>
-              </div>
-              
-              {!notification.is_read && (
-                <button
-                  onClick={() => handleMarkAsRead(notification.id)}
-                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md"
-                >
-                  Mark as Read
-                </button>
+    <div className="driver-dashboard">
+      {/* Header */}
+      <div className="dashboard-header">
+        <div className="dashboard-container">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+            <div>
+              <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Notifications</h1>
+              {unreadCount > 0 && (
+                <p style={{ marginTop: '4px', fontSize: '13px', color: '#2563eb', fontWeight: '600' }}>
+                  You have {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
+                </p>
               )}
             </div>
-          ))}
+            
+            <div style={{ display: 'flex', gap: '12px' }}>
+              {unreadCount > 0 && (
+                <button
+                  onClick={handleMarkAllAsRead}
+                  className="btn btn-primary"
+                >
+                  <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  Mark All as Read
+                </button>
+              )}
+              
+              <button
+                onClick={fetchNotifications}
+                className="btn"
+                style={{ background: '#f3f4f6', color: '#374151' }}
+              >
+                <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Refresh
+              </button>
+            </div>
+          </div>
         </div>
-      )}
+      </div>
+
+      <div className="dashboard-container">
+        {notifications.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-icon">
+              <svg style={{ width: '32px', height: '32px', color: '#3b82f6' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+            </div>
+            <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1f2937', marginBottom: '12px' }}>No Notifications</h2>
+            <p style={{ color: '#6b7280', marginBottom: '24px' }}>
+              You don't have any notifications at the moment.
+            </p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {notifications.map((notification) => (
+              <div 
+                key={notification.id} 
+                className="card"
+                style={{
+                  background: notification.is_read ? 'white' : 'linear-gradient(to right, #eff6ff, #ffffff)',
+                  borderLeft: !notification.is_read ? '4px solid #3b82f6' : '4px solid transparent',
+                  opacity: notification.is_read ? 0.7 : 1
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: '16px' }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                      <div style={{
+                        background: notification.is_read ? '#f3f4f6' : '#dbeafe',
+                        borderRadius: '8px',
+                        padding: '8px',
+                        display: 'inline-flex'
+                      }}>
+                        <svg style={{ width: '18px', height: '18px', color: notification.is_read ? '#6b7280' : '#2563eb' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                      </div>
+                      <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#111827', margin: 0 }}>{notification.title}</h3>
+                    </div>
+                    <p style={{ color: '#6b7280', marginBottom: '8px', fontSize: '14px', lineHeight: '1.5' }}>{notification.message}</p>
+                    <p style={{ fontSize: '12px', color: '#9ca3af' }}>{formatDate(notification.created_at)}</p>
+                  </div>
+                  
+                  {!notification.is_read && (
+                    <button
+                      onClick={() => handleMarkAsRead(notification.id)}
+                      className="btn btn-success"
+                      style={{ flexShrink: 0 }}
+                    >
+                      <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      Mark as Read
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

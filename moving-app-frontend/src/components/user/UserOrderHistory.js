@@ -1,65 +1,123 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import './UserOrderHistory.css';
 
 const UserOrderHistory = () => {
-  const dummyOrders = [
-    {
-      id: 1001,
-      status: 'pending',
-      created_at: new Date(2025, 2, 18, 10, 30).toISOString(),
-      pickup_location: '123 Main St, Downtown',
-      dropoff_location: '456 Park Ave, Uptown',
-      driver_id: 'D-501',
-      price: 25.5
-    },
-    {
-      id: 1002,
-      status: 'accepted',
-      created_at: new Date(2025, 2, 17, 14, 15).toISOString(),
-      pickup_location: '789 Broadway, Midtown',
-      dropoff_location: '321 River Rd, Westside',
-      driver_id: 'D-342',
-      price: 18.75
-    },
-    {
-      id: 1003,
-      status: 'completed',
-      created_at: new Date(2025, 2, 15, 9, 45).toISOString(),
-      pickup_location: '555 Ocean Dr, Seaside',
-      dropoff_location: '777 Mountain View, Highlands',
-      driver_id: 'D-128',
-      price: 32.0
-    },
-    {
-      id: 1004,
-      status: 'cancelled',
-      created_at: new Date(2025, 2, 10, 16, 20).toISOString(),
-      pickup_location: '999 College Blvd, University',
-      dropoff_location: '888 Market St, Financial District',
-      driver_id: 'D-205',
-      price: 15.25
-    }
-  ];
-
-  const [orders, setOrders] = useState(dummyOrders);
+  const [orders, setOrders] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user) {
+        toast.error('Please log in to view your orders');
+        return;
+      }
+
+      const response = await fetch(`http://127.0.0.1:5000/api/user/order-history/${user.id}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        setOrders(data.orders || []);
+      } else {
+        toast.error('Failed to fetch orders');
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      toast.error('Failed to load order history');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredOrders = filter === 'all'
     ? orders
     : orders.filter(order => order.status === filter);
 
-  const handleCancelOrder = bookingId => {
+  const handleCancelOrder = async (bookingId) => {
+    if (!window.confirm('Are you sure you want to cancel this order?')) {
+      return;
+    }
+
     try {
-      setOrders(
-        orders.map(order =>
-          order.id === bookingId ? { ...order, status: 'cancelled' } : order
-        )
-      );
-      toast.success('Order cancelled successfully!');
+      const response = await fetch(`http://127.0.0.1:5000/api/user/cancel-order/${bookingId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        toast.success(data.message || 'Order cancelled successfully!');
+        fetchOrders(); // Refresh the list
+      } else {
+        toast.error(data.error || 'Failed to cancel order');
+      }
     } catch (error) {
       console.error('Error cancelling order:', error);
       toast.error('Failed to cancel order. Please try again.');
+    }
+  };
+
+  const openReviewModal = (order) => {
+    setSelectedOrder(order);
+    setRating(0);
+    setComment('');
+    setShowReviewModal(true);
+  };
+
+  const closeReviewModal = () => {
+    setShowReviewModal(false);
+    setSelectedOrder(null);
+    setRating(0);
+    setComment('');
+  };
+
+  const handleSubmitReview = async () => {
+    if (rating === 0) {
+      toast.error('Please select a rating');
+      return;
+    }
+
+    setSubmittingReview(true);
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      
+      const response = await fetch('http://127.0.0.1:5000/api/user/submit-review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user.id,
+          driver_id: selectedOrder.driver_id,
+          rating: rating,
+          comment: comment
+        })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        toast.success('✅ ' + data.message);
+        closeReviewModal();
+      } else {
+        toast.error(data.error || 'Failed to submit review');
+      }
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      toast.error('Failed to submit review. Please try again.');
+    } finally {
+      setSubmittingReview(false);
     }
   };
 
@@ -72,19 +130,27 @@ const UserOrderHistory = () => {
     );
   };
 
+  if (loading) {
+    return (
+      <div className="user-order-container">
+        <div className="loading-spinner">Loading orders...</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-4xl mx-auto p-4 text-center">
-      <h1 className="text-2xl font-bold mb-6">Your Order History</h1>
+    <div className="user-order-container">
+      <div className="user-order-header">
+        <h1 className="user-order-title">Your Order History</h1>
+      </div>
 
       {/* Filter tabs */}
-      <div className="mb-6 border-b flex justify-center">
-        <div className="flex space-x-6">
+      <div className="filter-tabs-container">
+        <div className="filter-tabs">
           {['all', 'pending', 'accepted', 'completed', 'cancelled'].map(status => (
             <button
               key={status}
-              className={`py-2 px-1 border-b-2 ${
-                filter === status ? 'border-blue-500 text-blue-500' : 'border-transparent'
-              }`}
+              className={`filter-tab ${filter === status ? 'filter-tab-active' : ''}`}
               onClick={() => setFilter(status)}
             >
               {status === 'all' ? 'All Orders' : status.charAt(0).toUpperCase() + status.slice(1)}
@@ -94,72 +160,59 @@ const UserOrderHistory = () => {
       </div>
 
       {filteredOrders.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-600 mb-4">
+        <div className="empty-state-box">
+          <p className="empty-state-text">
             No {filter !== 'all' ? filter : ''} orders found.
           </p>
-          <Link
-            to="/user/book-driver"
-            className="inline-block bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
-          >
+          <Link to="/user/book-driver" className="book-driver-link">
             Book a Driver
           </Link>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="orders-list-grid">
           {filteredOrders.map(order => (
-            <div key={order.id} className="bg-white rounded-lg shadow p-4 text-center">
-              <div className="md:flex md:justify-between md:items-center">
-                <div className="text-center md:text-left">
-                  <div className="flex items-center justify-center md:justify-start">
-                    <p className="font-medium text-lg">Booking #{order.id}</p>
-                    <span
-                      className={`ml-3 px-2 py-1 rounded-full text-xs font-medium ${
-                        order.status === 'completed'
-                          ? 'bg-green-100 text-green-800'
-                          : order.status === 'cancelled'
-                          ? 'bg-red-100 text-red-800'
-                          : order.status === 'accepted'
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}
-                    >
-                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+            <div key={order.booking_id} className="order-card-item">
+              <div className="order-card-layout">
+                <div className="order-info-section">
+                  <div className="order-header-row">
+                    <p className="order-booking-id">Booking #{order.booking_id}</p>
+                    <span className={`status-badge status-${order.status}`}>
+                      {order.status}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">{formatDate(order.created_at)}</p>
-                  <p className="mt-2">
-                    <span className="font-medium">From:</span> {order.pickup_location}
+                  <p className="order-date">{formatDate(order.created_at)}</p>
+                  <p className="order-detail-row">
+                    <span className="order-detail-label">From:</span> {order.pickup_location}
                   </p>
-                  <p>
-                    <span className="font-medium">To:</span> {order.dropoff_location}
+                  <p className="order-detail-row">
+                    <span className="order-detail-label">To:</span> {order.dropoff_location}
                   </p>
-                  <p className="mt-2">
-                    <span className="font-medium">Driver ID:</span> {order.driver_id}
-                  </p>
-                  <p className="mt-2">
-                    <span className="font-medium">Price:</span> ${order.price.toFixed(2)}
+                  <p className="order-detail-row">
+                    <span className="order-detail-label">Driver ID:</span> {order.driver_id}
                   </p>
                 </div>
-                <div className="mt-4 md:mt-0 text-center md:text-right">
+                <div className="order-actions-section">
                   {order.status === 'pending' && (
                     <button
-                      onClick={() => handleCancelOrder(order.id)}
-                      className="bg-red-100 text-red-700 py-1 px-3 rounded-md hover:bg-red-200 transition-colors mr-2"
+                      onClick={() => handleCancelOrder(order.booking_id)}
+                      className="action-btn action-btn-cancel"
                     >
                       Cancel Booking
                     </button>
                   )}
                   {order.status === 'accepted' && (
                     <Link
-                      to={`/user/track/${order.id}`}
-                      className="bg-blue-600 text-white py-1 px-3 rounded-md hover:bg-blue-700 transition-colors"
+                      to={`/user/track/${order.booking_id}`}
+                      className="action-btn action-btn-track"
                     >
                       Track Driver
                     </Link>
                   )}
                   {order.status === 'completed' && (
-                    <button className="bg-yellow-100 text-yellow-700 py-1 px-3 rounded-md hover:bg-yellow-200 transition-colors">
+                    <button 
+                      className="action-btn action-btn-review"
+                      onClick={() => openReviewModal(order)}
+                    >
                       Leave a Review
                     </button>
                   )}
@@ -167,6 +220,76 @@ const UserOrderHistory = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Review Modal */}
+      {showReviewModal && (
+        <div className="modal-overlay" onClick={closeReviewModal}>
+          <div className="modal-content review-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Leave a Review</h2>
+              <button className="modal-close" onClick={closeReviewModal}>&times;</button>
+            </div>
+            
+            <div className="modal-body">
+              <p className="review-order-info">
+                Booking #{selectedOrder?.booking_id}
+              </p>
+              
+              <div className="rating-section">
+                <label className="rating-label">Rating:</label>
+                <div className="star-rating">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      className={`star ${star <= rating ? 'star-filled' : 'star-empty'}`}
+                      onClick={() => setRating(star)}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+                <p className="rating-text">
+                  {rating === 0 && 'Select a rating'}
+                  {rating === 1 && 'Poor'}
+                  {rating === 2 && 'Fair'}
+                  {rating === 3 && 'Good'}
+                  {rating === 4 && 'Very Good'}
+                  {rating === 5 && 'Excellent'}
+                </p>
+              </div>
+
+              <div className="comment-section">
+                <label className="comment-label">Comment (Optional):</label>
+                <textarea
+                  className="comment-textarea"
+                  placeholder="Share your experience with this driver..."
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  rows={4}
+                />
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button 
+                className="btn-secondary" 
+                onClick={closeReviewModal}
+                disabled={submittingReview}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn-primary" 
+                onClick={handleSubmitReview}
+                disabled={submittingReview || rating === 0}
+              >
+                {submittingReview ? 'Submitting...' : 'Submit Review'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
