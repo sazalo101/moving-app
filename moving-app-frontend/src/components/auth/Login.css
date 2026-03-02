@@ -1,22 +1,14 @@
-/* === Email and Password Labels === */
-label[for="email"],
-label[for="password"] {
-  color: #007f7f; /* Aqua marine for email and password labels */
-  font-size: 0.9rem;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
 /* === Login Container === */
 .login-container {
-  max-width: 400px;
-  margin: 50px auto;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
-  border-radius: 10px;
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-  position: relative; /* Ensures the container is positioned correctly */
-  z-index: 1; /* Ensures the container is above the background */
-  overflow: hidden; /* Prevents content from spilling outside */
+  max-width: 450px;
+  margin: var(--spacing-4xl) auto;
+  padding: var(--spacing-2xl);
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-2xl);
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
 }
 
 /* Background Image */
@@ -27,21 +19,22 @@ label[for="password"] {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url("../../assets/background.jpg"); /* Path to the background image */
-  background-size: cover; /* Ensures the image covers the entire container */
-  background-position: center; /* Centers the background image */
-  background-repeat: no-repeat; /* Prevents the image from repeating */
-  z-index: -1; /* Places the background behind the content */
-  filter: blur(2px); /* Optional: Adds a slight blur effect to the background */
+  background-image: url("../../assets/background.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -1;
+  filter: blur(2px);
+  opacity: 0.1;
 }
 
 /* === Login Title === */
 .login-title {
-  font-size: 1.8rem;
-  font-weight: bold;
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
   text-align: center;
-  margin-bottom: 20px;
-  color: #333333; /* Dark gray for contrast */
+  margin-bottom: var(--spacing-lg);
+  color: var(--text-primary);
 }
 
 /* === Form Styles === */
@@ -51,102 +44,116 @@ label[for="password"] {
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: var(--spacing-lg);
 }
 
-/* === Email and Password Labels === */
+/* === Labels === */
 label[for="email"],
-label[for="password"] {
-  color: #007f7f; /* Aqua marine for email and password labels */
-  font-size: 0.9rem;
-  font-weight: bold;
-  margin-bottom: 5px;
+label[for="password"],
+.form-label {
+  display: block;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-sm);
 }
 
 .form-input {
   width: 100%;
-  padding: 10px 15px;
-  font-size: 0.95rem;
-  border: 1px solid #7fffd4; /* Aqua marine border */
-  border-radius: 8px;
-  transition: border 0.3s, box-shadow 0.3s;
-  box-sizing: border-box; /* Ensures padding doesn't affect overall size */
-  background-color: #e0ffff; /* Light aqua marine for input background */
-  color: #333333; /* Dark gray for text */
+  padding: 0.75rem 1rem;
+  font-size: var(--font-size-base);
+  border: var(--border-width-thick) solid var(--border-color);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  box-sizing: border-box;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 /* Placeholder text styling */
 .form-input::placeholder {
-  color: #007f7f; /* Aqua marine for placeholder text */
-  opacity: 1; /* Ensures the placeholder is fully visible */
+  color: var(--text-light);
+  opacity: 1;
 }
 
 .form-input:focus {
-  border-color: #00ced1; /* Darker aqua marine for focus */
-  box-shadow: 0px 4px 10px rgba(0, 206, 209, 0.2); /* Aqua marine shadow */
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
   outline: none;
 }
 
 .form-button {
-  background: linear-gradient(
-    145deg,
-    #00ced1,
-    #20b2aa
-  ); /* Aqua marine gradient */
-  color: #fff;
-  padding: 10px;
-  font-size: 1rem;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  color: var(--text-inverse);
+  padding: 0.875rem 1.5rem;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background 0.3s, transform 0.2s;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-md);
 }
 
 .form-button:hover {
-  background: linear-gradient(
-    145deg,
-    #20b2aa,
-    #008b8b
-  ); /* Darker aqua marine gradient */
-  transform: scale(1.02);
+  background: linear-gradient(135deg, var(--color-primary-hover), var(--color-primary));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
 .form-button:disabled {
-  background: #b0c4de; /* Light gray for disabled state */
+  background: var(--color-gray-400);
   cursor: not-allowed;
+  transform: none;
 }
 
 /* === Register Link === */
 .register-link {
-  margin-top: 20px;
+  margin-top: var(--spacing-xl);
   text-align: center;
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
 }
 
 .register-link-text {
-  color: #00ced1; /* Aqua marine for link */
-  font-weight: bold;
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
   text-decoration: none;
+  transition: color var(--transition-fast);
 }
 
 .register-link-text:hover {
-  color: #008b8b; /* Darker aqua marine for hover */
+  color: var(--color-primary-hover);
+  text-decoration: underline;
 }
 
 /* === Moving Text Using ID === */
 #moving-text {
   display: inline-block;
-  white-space: nowrap; /* Keeps the text on one line */
-  animation: moveRight 8s linear infinite; /* Smooth left-to-right movement */
-  color: #00ced1; /* Aqua marine for moving text */
+  white-space: nowrap;
+  animation: moveRight 8s linear infinite;
+  color: var(--color-primary);
 }
 
 /* === Animation Keyframes === */
 @keyframes moveRight {
   from {
-    transform: translateX(-100%); /* Start offscreen to the left */
+    transform: translateX(-100%);
   }
   to {
-    transform: translateX(100%); /* Move offscreen to the right */
+    transform: translateX(100%);
   }
 }
+
+/* === Mobile Responsive === */
+@media (max-width: 768px) {
+  .login-container {
+    margin: var(--spacing-2xl) var(--spacing-md);
+    padding: var(--spacing-xl);
+  }
+  
+  .login-title {
+    font-size: var(--font-size-2xl);
+  }
+}
+

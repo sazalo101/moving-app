@@ -2,20 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import API_ENDPOINTS from '../../config/api';
+import DriverLocationTracker from './DriverLocationTracker';
 import './DriverPages.css';
 
 const DriverDashboard = () => {
   // State variables
   const [driver, setDriver] = useState(null);
   const [activeOrders, setActiveOrders] = useState([]);
+  const [availableOrders, setAvailableOrders] = useState([]);
   const [isAvailable, setIsAvailable] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [earnings, setEarnings] = useState(0);
   const [pendingEscrow, setPendingEscrow] = useState(0);
   const [completedOrders, setCompletedOrders] = useState(0);
   const [pendingOrders, setPendingOrders] = useState(0);
+  const [cancelledOrders, setCancelledOrders] = useState(0);
   const [ratings, setRatings] = useState(0);
   const [verificationStatus, setVerificationStatus] = useState('pending');
+  const [totalOrders, setTotalOrders] = useState(0);
 
   useEffect(() => {
     fetchDriverData();
@@ -74,6 +78,37 @@ const DriverDashboard = () => {
         }
       } catch (err) {
         console.error('Error fetching verification status:', err);
+      }
+
+      // Fetch available orders (pending orders assigned to driver)
+      try {
+        const ordersResponse = await fetch(API_ENDPOINTS.AVAILABLE_ORDERS(driverId));
+        const ordersData = await ordersResponse.json();
+        if (ordersResponse.ok) {
+          setAvailableOrders(ordersData.orders || []);
+        }
+      } catch (err) {
+        console.error('Error fetching available orders:', err);
+      }
+
+      // Fetch order history to get cancelled and active counts
+      try {
+        const historyResponse = await fetch(API_ENDPOINTS.DRIVER_ORDER_HISTORY(driverId));
+        const historyData = await historyResponse.json();
+        if (historyResponse.ok) {
+          const allOrders = historyData.orders || [];
+          setTotalOrders(allOrders.length);
+          
+          // Count cancelled orders
+          const cancelled = allOrders.filter(order => order.status === 'cancelled').length;
+          setCancelledOrders(cancelled);
+          
+          // Set active orders (accepted orders)
+          const active = allOrders.filter(order => order.status === 'accepted');
+          setActiveOrders(active);
+        }
+      } catch (err) {
+        console.error('Error fetching order history:', err);
       }
 
       setIsLoading(false);
@@ -203,7 +238,14 @@ const DriverDashboard = () => {
                 </svg>
               </div>
               <div>
-                <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Driver Status</h2>
+                <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827', margin: 0 }}>
+                  Driver Status
+                  {verificationStatus === 'approved' ? (
+                    <span style={{ marginLeft: '12px', padding: '4px 10px', background: '#10b981', color: 'white', borderRadius: '6px', fontSize: '12px', fontWeight: '600' }}>✓ VERIFIED</span>
+                  ) : (
+                    <span style={{ marginLeft: '12px', padding: '4px 10px', background: '#ef4444', color: 'white', borderRadius: '6px', fontSize: '12px', fontWeight: '600' }}>UNVERIFIED</span>
+                  )}
+                </h2>
                 <p style={{
                   fontSize: '18px',
                   fontWeight: '600',
@@ -333,41 +375,82 @@ const DriverDashboard = () => {
           )}
         </div>
 
+        {/* GPS Location Tracker */}
+        {driver && (
+          <DriverLocationTracker driverId={driver.driver_id || JSON.parse(localStorage.getItem('user'))?.driver_id} />
+        )}
+
         {/* Stats Grid */}
         <div className="stats-grid">
-          {/* Completed Orders */}
-          <div className="stat-card">
-            <div className="stat-icon-blue">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3 className="stat-title">Completed Orders</h3>
-            <p className="stat-value stat-value-blue">{completedOrders}</p>
-            <p className="stat-label">Total deliveries</p>
-          </div>
-
-          {/* Pending Orders */}
+          {/* Available Orders */}
           <div className="stat-card">
             <div className="stat-icon-amber">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
+            <h3 className="stat-title">Available Orders</h3>
+            <p className="stat-value stat-value-amber">{availableOrders.length}</p>
+            <p className="stat-label">To accept or complete</p>
+          </div>
+
+          {/* Active Orders */}
+          <div className="stat-card">
+            <div className="stat-icon-blue">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
             <h3 className="stat-title">Active Orders</h3>
-            <p className="stat-value stat-value-amber">{pendingOrders}</p>
+            <p className="stat-value stat-value-blue">{activeOrders.length}</p>
             <p className="stat-label">In progress</p>
+          </div>
+
+          {/* Completed Orders */}
+          <div className="stat-card">
+            <div className="stat-icon-green">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="stat-title">Completed Orders</h3>
+            <p className="stat-value stat-value-green">{completedOrders}</p>
+            <p className="stat-label">Total deliveries</p>
+          </div>
+
+          {/* Cancelled Orders */}
+          <div className="stat-card">
+            <div className="stat-icon-purple">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <h3 className="stat-title">Cancelled Orders</h3>
+            <p className="stat-value stat-value-purple">{cancelledOrders}</p>
+            <p className="stat-label">Cancellations</p>
+          </div>
+
+          {/* Total Orders */}
+          <div className="stat-card">
+            <div className="stat-icon-blue">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <h3 className="stat-title">Total Orders</h3>
+            <p className="stat-value stat-value-blue">{totalOrders}</p>
+            <p className="stat-label">All time</p>
           </div>
 
           {/* Rating */}
           <div className="stat-card">
-            <div className="stat-icon-purple">
+            <div className="stat-icon-amber">
               <svg fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
               </svg>
             </div>
             <h3 className="stat-title">Your Rating</h3>
-            <p className="stat-value stat-value-purple">{ratings.toFixed(1)} / 5.0</p>
+            <p className="stat-value stat-value-amber">{ratings.toFixed(1)} / 5.0</p>
             <p className="stat-label">Customer rating</p>
           </div>
 
@@ -380,11 +463,123 @@ const DriverDashboard = () => {
             </div>
             <h3 className="stat-title">Avg Per Order</h3>
             <p className="stat-value stat-value-green">
-              KES {completedOrders > 0 ? (totalPotential / completedOrders).toFixed(0) : '0'}
+              KES {completedOrders > 0 ? (earnings / completedOrders).toFixed(0) : '0'}
             </p>
             <p className="stat-label">Average earnings</p>
           </div>
+
+          {/* Pending in Escrow Count */}
+          <div className="stat-card">
+            <div className="stat-icon-purple">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h3 className="stat-title">Pending in Escrow</h3>
+            <p className="stat-value stat-value-purple">{pendingOrders}</p>
+            <p className="stat-label">Orders to complete</p>
+          </div>
         </div>
+
+        {/* Recent Available Orders */}
+        {availableOrders.length > 0 && (
+          <div className="card">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <svg style={{ width: '22px', height: '22px', color: '#f59e0b' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Recent Available Orders
+              </h2>
+              <Link to="/driver/orders" className="btn btn-primary" style={{ textDecoration: 'none' }}>
+                View All
+                <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {availableOrders.slice(0, 3).map((order) => (
+                <div key={order.booking_id} style={{
+                  background: '#f9fafb',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  padding: '16px',
+                  transition: 'all 0.2s'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px', flexWrap: 'wrap', gap: '12px' }}>
+                    <div>
+                      <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#111827', margin: 0, marginBottom: '4px' }}>
+                        Booking #{order.booking_id}
+                      </h3>
+                      <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
+                        Customer: {order.customer_name}
+                      </p>
+                      {order.customer_phone && (
+                        <p style={{ fontSize: '13px', color: '#2563eb', margin: 0, marginTop: '2px' }}>
+                          📞 {order.customer_phone}
+                        </p>
+                      )}
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <span style={{
+                        padding: '6px 12px',
+                        background: '#fef3c7',
+                        color: '#92400e',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        display: 'block'
+                      }}>
+                        Your Earnings: KES {(order.price * 0.9).toFixed(2)}
+                      </span>
+                      <span style={{ fontSize: '11px', color: '#6b7280', marginTop: '4px', display: 'block' }}>
+                        Total: KES {order.price.toFixed(2)} (10% fee)
+                      </span>
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'start', gap: '8px', marginBottom: '8px' }}>
+                      <svg style={{ width: '18px', height: '18px', color: '#10b981', flexShrink: 0, marginTop: '2px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontSize: '13px', color: '#6b7280', margin: 0, marginBottom: '2px' }}>From</p>
+                        <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: 0 }}>{order.pickup_location}</p>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'start', gap: '8px' }}>
+                      <svg style={{ width: '18px', height: '18px', color: '#ef4444', flexShrink: 0, marginTop: '2px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontSize: '13px', color: '#6b7280', margin: 0, marginBottom: '2px' }}>To</p>
+                        <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: 0 }}>{order.dropoff_location}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '12px', borderTop: '1px solid #e5e7eb' }}>
+                    <span style={{ fontSize: '13px', color: '#6b7280' }}>
+                      Distance: {order.distance.toFixed(2)} km
+                    </span>
+                    <span style={{ fontSize: '13px', color: '#6b7280' }}>
+                      {new Date(order.created_at).toLocaleDateString()} {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {availableOrders.length > 3 && (
+              <div style={{ marginTop: '16px', textAlign: 'center' }}>
+                <Link to="/driver/orders" style={{ color: '#2563eb', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>
+                  View {availableOrders.length - 3} more available {availableOrders.length - 3 === 1 ? 'order' : 'orders'} →
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Quick Actions */}
         <div className="quick-actions">

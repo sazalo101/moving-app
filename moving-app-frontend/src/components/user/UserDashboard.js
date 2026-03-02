@@ -243,8 +243,12 @@ const UserDashboard = () => {
           // Get last 3 bookings
           setRecentBookings(bookings.slice(0, 3));
           
-          // Calculate stats
-          const active = bookings.filter(b => b.status === 'pending' || b.status === 'accepted').length;
+          // Calculate stats based on real data
+          const active = bookings.filter(b => 
+            b.status === 'pending' || 
+            b.status === 'accepted' || 
+            b.status === 'pending_payment'
+          ).length;
           const completed = bookings.filter(b => b.status === 'completed').length;
           const cancelled = bookings.filter(b => b.status === 'cancelled').length;
           
@@ -311,7 +315,7 @@ const UserDashboard = () => {
       <div style={styles.card}>
         <div style={styles.headerContainer}>
           <h2 style={styles.cardTitle}>Recent Bookings</h2>
-          <Link to="/user/order-history" style={styles.viewAllLink}>
+          <Link to="/user/orders" style={styles.viewAllLink}>
             View All
           </Link>
         </div>

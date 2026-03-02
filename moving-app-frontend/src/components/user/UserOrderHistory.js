@@ -188,7 +188,18 @@ const UserOrderHistory = () => {
                     <span className="order-detail-label">To:</span> {order.dropoff_location}
                   </p>
                   <p className="order-detail-row">
-                    <span className="order-detail-label">Driver ID:</span> {order.driver_id}
+                    <span className="order-detail-label">Driver:</span> {order.driver_name}
+                    {order.is_verified ? (
+                      <span style={{ marginLeft: '8px', padding: '2px 6px', background: '#10b981', color: 'white', borderRadius: '3px', fontSize: '10px', fontWeight: '600' }}>✓ VERIFIED</span>
+                    ) : (
+                      <span style={{ marginLeft: '8px', padding: '2px 6px', background: '#ef4444', color: 'white', borderRadius: '3px', fontSize: '10px', fontWeight: '600' }}>UNVERIFIED</span>
+                    )}
+                  </p>
+                  <p className="order-detail-row">
+                    <span className="order-detail-label">Vehicle:</span> {order.vehicle_type} ({order.license_plate})
+                  </p>
+                  <p className="order-detail-row">
+                    <span className="order-detail-label">Price:</span> KES {order.price ? order.price.toFixed(2) : 'N/A'}
                   </p>
                 </div>
                 <div className="order-actions-section">

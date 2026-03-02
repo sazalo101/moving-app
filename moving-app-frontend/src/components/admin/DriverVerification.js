@@ -294,6 +294,13 @@ const DriverVerification = () => {
                       <td style={{padding: '1rem 1.5rem'}}>
                         <div style={{fontSize: '0.875rem', fontWeight: '600', color: '#1f2937'}}>{driver.name}</div>
                         <div style={{fontSize: '0.875rem', color: '#6b7280'}}>{driver.email}</div>
+                        <div style={{marginTop: '0.25rem'}}>
+                          {driver.is_verified ? (
+                            <span style={{display: 'inline-block', padding: '2px 8px', background: '#10b981', color: 'white', borderRadius: '4px', fontSize: '11px', fontWeight: '600'}}>✓ VERIFIED</span>
+                          ) : (
+                            <span style={{display: 'inline-block', padding: '2px 8px', background: '#ef4444', color: 'white', borderRadius: '4px', fontSize: '11px', fontWeight: '600'}}>UNVERIFIED</span>
+                          )}
+                        </div>
                       </td>
                       <td style={{padding: '1rem 1.5rem'}}>
                         <div style={{fontSize: '0.875rem', color: '#1f2937'}}>{driver.vehicle_type}</div>

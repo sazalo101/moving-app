@@ -4,13 +4,14 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background-color: #f3f4f6;
+  background-color: var(--bg-secondary);
+  transition: background-color var(--transition-base);
 }
 
 .notifications-container {
   max-width: 900px;
   width: 100%;
-  padding: 1.5rem;
+  padding: var(--spacing-xl);
 }
 
 /* Header Section */
@@ -18,31 +19,37 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--spacing-xl);
   text-align: center;
 }
 
 .notifications-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: #1f2937;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-lg);
+  color: var(--text-primary);
 }
 
 .mark-all-button {
-  background-color: #2563eb;
-  color: white;
-  padding: 0.5rem 1rem;
+  background-color: var(--color-primary);
+  color: var(--text-inverse);
+  padding: var(--spacing-sm) var(--spacing-lg);
   border: none;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-base);
 }
 
 .mark-all-button:hover {
-  background-color: #1d4ed8;
+  background-color: var(--color-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.dark-theme .mark-all-button:hover {
+  box-shadow: var(--shadow-md), var(--glow-primary);
 }
 
 .mark-all-button:focus {
@@ -52,27 +59,29 @@
 
 /* Notifications Card */
 .notifications-card {
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
+  border: var(--border-width) solid var(--border-color);
+  transition: all var(--transition-base);
 }
 
 /* Loading and Empty States */
 .loading-state,
 .empty-state {
   text-align: center;
-  padding: 2.5rem;
+  padding: var(--spacing-2xl);
 }
 
 .loading-text {
-  color: #6b7280;
-  font-size: 1rem;
+  color: var(--text-secondary);
+  font-size: var(--font-size-base);
 }
 
 .empty-text {
-  color: #9ca3af;
-  font-size: 1rem;
+  color: var(--text-light);
+  font-size: var(--font-size-base);
 }
 
 /* Notification List */
@@ -83,9 +92,9 @@
 }
 
 .notification-item {
-  padding: 1.25rem;
-  border-bottom: 1px solid #e5e7eb;
-  transition: background-color 0.2s;
+  padding: var(--spacing-lg);
+  border-bottom: var(--border-width) solid var(--border-color);
+  transition: background-color var(--transition-fast);
   cursor: pointer;
 }
 
@@ -94,11 +103,16 @@
 }
 
 .notification-item:hover {
-  background-color: #f9fafb;
+  background-color: var(--bg-secondary);
 }
 
 .notification-item.unread {
-  background-color: #eff6ff;
+  background-color: rgba(59, 130, 246, 0.05);
+  border-left: 4px solid var(--color-primary);
+}
+
+.dark-theme .notification-item.unread {
+  background-color: rgba(59, 130, 246, 0.1);
 }
 
 .notification-content {
@@ -109,39 +123,45 @@
 }
 
 .notification-id {
-  font-size: 0.75rem;
-  color: #9ca3af;
-  margin-bottom: 0.5rem;
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  margin-bottom: var(--spacing-sm);
 }
 
 .notification-message {
-  color: #1f2937;
-  font-size: 0.938rem;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
   line-height: 1.5;
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--spacing-sm);
 }
 
 .notification-date {
-  font-size: 0.813rem;
-  color: #6b7280;
-  margin-top: 0.375rem;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-top: var(--spacing-xs);
 }
 
 .mark-read-button {
-  margin-top: 0.875rem;
-  background-color: #3b82f6;
-  color: white;
-  padding: 0.4rem 0.875rem;
+  margin-top: var(--spacing-md);
+  background-color: var(--color-primary);
+  color: var(--text-inverse);
+  padding: var(--spacing-xs) var(--spacing-md);
   border: none;
-  border-radius: 8px;
-  font-size: 0.813rem;
-  font-weight: 500;
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-base);
 }
 
 .mark-read-button:hover {
-  background-color: #2563eb;
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.dark-theme .mark-read-button:hover {
+  box-shadow: var(--shadow-sm), var(--glow-primary);
 }
 
 .mark-read-button:focus {

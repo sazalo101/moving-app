@@ -85,8 +85,8 @@ const DriverWallet = () => {
       return;
     }
 
-    if (amount < 100) {
-      toast.error('Minimum withdrawal amount is KES 100');
+    if (amount < 20) {
+      toast.error('Minimum withdrawal amount is KES 20');
       return;
     }
 
@@ -294,7 +294,7 @@ const DriverWallet = () => {
             </h2>
             <p className="quick-withdraw-subtitle">Select an amount to withdraw instantly</p>
             <div className="quick-withdraw-buttons">
-              {[500, 1000, 2000, 5000].map((amount) => (
+              {[20, 50, 100, 200].map((amount) => (
                 <button
                   key={amount}
                   onClick={() => handleQuickWithdraw(amount)}
@@ -366,14 +366,14 @@ const DriverWallet = () => {
                     onChange={(e) => setWithdrawAmount(e.target.value)}
                     className="form-input form-input-with-currency"
                     placeholder="Enter amount"
-                    min="100"
+                    min="20"
                     max="50000"
-                    step="50"
+                    step="10"
                     required
                   />
                 </div>
                 <div className="form-hint-row">
-                  <p className="form-hint">Min: KES 100 | Max: KES 50,000</p>
+                  <p className="form-hint">Min: KES 20 | Max: KES 50,000</p>
                   <p className="form-hint-available">
                     Available: KES {earnings.toFixed(2)}
                   </p>
@@ -382,7 +382,7 @@ const DriverWallet = () => {
 
               <button
                 type="submit"
-                disabled={isWithdrawing || earnings < 100}
+                disabled={isWithdrawing || earnings < 20}
                 className="submit-btn"
               >
                 {isWithdrawing ? (
@@ -403,20 +403,7 @@ const DriverWallet = () => {
                 )}
               </button>
 
-              {earnings < 100 && (
-                <div className="insufficient-balance-alert">
-                  <div className="alert-icon">
-                    <svg fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="alert-content">
-                    <p className="alert-text">
-                      Complete more deliveries to reach the minimum withdrawal amount of KES 100.
-                    </p>
-                  </div>
-                </div>
-              )}
+
             </form>
           </div>
         </div>
@@ -456,7 +443,7 @@ const DriverWallet = () => {
               </p>
               <button
                 onClick={() => setShowWithdrawForm(true)}
-                disabled={earnings < 100}
+                disabled={earnings < 20}
                 className="empty-state-action"
               >
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">

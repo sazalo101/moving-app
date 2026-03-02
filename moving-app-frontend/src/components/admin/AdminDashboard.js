@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import API_ENDPOINTS from '../../config/api';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -11,9 +12,11 @@ const AdminDashboard = () => {
     pendingBookings: 0,
     completedBookings: 0,
     totalRevenue: 0,
+    totalPayments: 0,
+    totalAmountPaid: 0,
     openSupportTickets: 0
   });
-  const [recentBookings, setRecentBookings] = useState([]);
+  const [recentPayments, setRecentPayments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -23,29 +26,30 @@ const AdminDashboard = () => {
   const fetchDashboardData = async () => {
     setIsLoading(true);
     try {
-      const usersResponse = await fetch('http://127.0.0.1:5000/api/admin/manage-users');
+      // Fetch users
+      const usersResponse = await fetch(API_ENDPOINTS.MANAGE_USERS);
       const usersData = await usersResponse.json();
       
       const totalUsers = usersData.users ? usersData.users.filter(user => user.role === 'user').length : 0;
       const totalDrivers = usersData.users ? usersData.users.filter(user => user.role === 'driver').length : 0;
 
-      const ordersResponse = await fetch('http://127.0.0.1:5000/api/admin/escrow');
-      const ordersData = await ordersResponse.json();
-      
-      const escrows = ordersData.escrows || [];
-      const summary = ordersData.summary || {};
+      // Fetch real payment data from M-Pesa transactions
+      const paymentsResponse = await fetch(API_ENDPOINTS.PAYMENTS_SUMMARY);
+      const paymentsData = await paymentsResponse.json();
       
       setStats({
         totalUsers,
         totalDrivers,
-        totalBookings: escrows.length,
-        pendingBookings: summary.held_count || 0,
-        completedBookings: summary.released_count || 0,
-        totalRevenue: summary.total_platform_fees || 0,
-        openSupportTickets: 8
+        totalBookings: paymentsData.total_bookings || 0,
+        pendingBookings: paymentsData.pending_bookings || 0,
+        completedBookings: paymentsData.completed_bookings || 0,
+        totalRevenue: paymentsData.total_platform_revenue || 0,
+        totalPayments: paymentsData.total_payments || 0,
+        totalAmountPaid: paymentsData.total_amount_paid || 0,
+        openSupportTickets: 0
       });
       
-      setRecentBookings(escrows.slice(0, 5));
+      setRecentPayments(paymentsData.recent_payments || []);
       
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -72,8 +76,8 @@ const AdminDashboard = () => {
         {[
           { label: "Total Users", value: stats.totalUsers, link: "/admin/manage-users" },
           { label: "Total Drivers", value: stats.totalDrivers, link: "/admin/manage-drivers" },
-          { label: "Completed Bookings", value: stats.completedBookings, extra: `Out of ${stats.totalBookings} total bookings` },
-          { label: "Total Revenue", value: `KES ${stats.totalRevenue.toFixed(2)}`, link: "/admin/escrow" }
+          { label: "Total M-Pesa Payments", value: `${stats.totalPayments} payments`, extra: `KES ${stats.totalAmountPaid.toFixed(2)} paid` },
+          { label: "Platform Revenue (10%)", value: `KES ${stats.totalRevenue.toFixed(2)}`, extra: `From ${stats.completedBookings} completed bookings` }
         ].map((stat, index) => (
           <div className="stat-card" key={index}>
             <h3>{stat.label}</h3>
@@ -88,24 +92,34 @@ const AdminDashboard = () => {
       <div className="activity-grid">
         <div className="activity-card">
           <div className="card-header">
-            <h2>Recent Bookings</h2>
-            <span className="pending-badge">{stats.pendingBookings} pending</span>
+            <h2>Recent M-Pesa Payments</h2>
+            <span className="pending-badge">{stats.totalPayments} total payments</span>
           </div>
-          {recentBookings.length > 0 ? (
+          {recentPayments.length > 0 ? (
             <ul className="booking-list">
-              {recentBookings.map((booking) => (
-                <li key={booking.booking_id}>
+              {recentPayments.map((payment, index) => (
+                <li key={payment.transaction_id || index}>
                   <div>
-                    <p className="booking-id">Booking #{booking.booking_id}</p>
-                    <p className="booking-info">{booking.user_name} → {booking.driver_name}</p>
-                    <span className={`status-badge ${booking.status}`}>{booking.status}</span>
+                    <p className="booking-id">Receipt: {payment.mpesa_receipt || 'N/A'}</p>
+                    <p className="booking-info">
+                      {payment.user_name} → {payment.driver_name}
+                      {payment.driver_verified ? (
+                        <span style={{ marginLeft: '6px', padding: '2px 6px', background: '#10b981', color: 'white', borderRadius: '3px', fontSize: '10px', fontWeight: '600' }}>✓</span>
+                      ) : (
+                        <span style={{ marginLeft: '6px', padding: '2px 6px', background: '#ef4444', color: 'white', borderRadius: '3px', fontSize: '10px', fontWeight: '600' }}>✗</span>
+                      )}
+                    </p>
+                    <span className="status-badge completed">{payment.status}</span>
+                    <p style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>
+                      {payment.phone_number} • {new Date(payment.created_at).toLocaleDateString()}
+                    </p>
                   </div>
-                  <p className="booking-price">KES {booking.total_amount.toFixed(2)}</p>
+                  <p className="booking-price">KES {payment.amount.toFixed(2)}</p>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="no-data">No recent bookings</p>
+            <p className="no-data">No M-Pesa payments yet</p>
           )}
         </div>
 

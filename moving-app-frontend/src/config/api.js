@@ -39,9 +39,10 @@ export const API_ENDPOINTS = {
   GET_DRIVER_BY_USER: (userId) => `${API_BASE_URL}/api/driver/by-user/${userId}`,
   DRIVER_EARNINGS: (driverId) => `${API_BASE_URL}/api/driver/${driverId}/earnings`,
   DRIVER_WITHDRAW: `${API_BASE_URL}/api/driver/withdraw`,
-  AVAILABLE_ORDERS: `${API_BASE_URL}/api/driver/available-orders`,
+  AVAILABLE_ORDERS: (driverId = null) => driverId ? `${API_BASE_URL}/api/driver/available-orders/${driverId}` : `${API_BASE_URL}/api/driver/available-orders`,
   ACCEPT_ORDER: (bookingId) => `${API_BASE_URL}/api/driver/accept-order/${bookingId}`,
   COMPLETE_ORDER: (bookingId) => `${API_BASE_URL}/api/driver/complete-order/${bookingId}`,
+  CANCEL_ORDER: (bookingId) => `${API_BASE_URL}/api/driver/cancel-order/${bookingId}`,
   DRIVER_ORDER_HISTORY: (driverId) => `${API_BASE_URL}/api/driver/order-history/${driverId}`,
   DRIVER_NOTIFICATIONS: (driverId) => `${API_BASE_URL}/api/driver/notifications/${driverId}`,
   TOGGLE_AVAILABILITY: `${API_BASE_URL}/api/driver/toggle-availability`,
@@ -59,6 +60,7 @@ export const API_ENDPOINTS = {
   CREATE_PROMO_CODE: `${API_BASE_URL}/api/admin/create-promo-code`,
   DISABLE_PROMO_CODE: (promoId) => `${API_BASE_URL}/api/admin/disable-promo-code/${promoId}`,
   ESCROW: `${API_BASE_URL}/api/admin/escrow`,
+  PAYMENTS_SUMMARY: `${API_BASE_URL}/api/admin/payments-summary`,
   
   // M-Pesa
   MPESA_STK_PUSH: `${API_BASE_URL}/api/mpesa/stk-push`,

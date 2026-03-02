@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import API_ENDPOINTS from '../../config/api';
 import './DriverOrderHistory.css';
 
 const DriverOrderHistory = () => {
@@ -9,105 +10,6 @@ const DriverOrderHistory = () => {
   const [completingOrderId, setCompletingOrderId] = useState(null);
   const [cancellingOrderId, setCancellingOrderId] = useState(null);
   
-  const dummyOrders = [
-    {
-      booking_id: 5001,
-      user_id: 123,
-      user_name: "John Kamau",
-      pickup_location: "JKIA - Jomo Kenyatta International Airport",
-      dropoff_location: "Westlands, Nairobi",
-      status: "completed",
-      created_at: "2026-02-20T14:30:00Z",
-      price: 1850,
-      distance: 18.5,
-      payment_method: "M-Pesa"
-    },
-    {
-      booking_id: 5002,
-      user_id: 124,
-      user_name: "Mary Wanjiku",
-      pickup_location: "Thika Road Mall",
-      dropoff_location: "CBD, Moi Avenue",
-      status: "accepted",
-      created_at: "2026-02-22T09:15:00Z",
-      price: 950,
-      distance: 12.3,
-      payment_method: "M-Pesa"
-    },
-    {
-      booking_id: 5003,
-      user_id: 125,
-      user_name: "Peter Omondi",
-      pickup_location: "Karen Shopping Centre",
-      dropoff_location: "Nairobi Hospital, Upper Hill",
-      status: "cancelled",
-      created_at: "2026-02-18T17:45:00Z",
-      price: 1200,
-      distance: 8.7,
-      payment_method: "M-Pesa"
-    },
-    {
-      booking_id: 5004,
-      user_id: 126,
-      user_name: "Grace Akinyi",
-      pickup_location: "Gigiri, UN Complex",
-      dropoff_location: "Kilimani, Yaya Centre",
-      status: "accepted",
-      created_at: "2026-02-23T11:30:00Z",
-      price: 850,
-      distance: 6.4,
-      payment_method: "M-Pesa"
-    },
-    {
-      booking_id: 5005,
-      user_id: 127,
-      user_name: "David Kipchoge",
-      pickup_location: "Ruiru Town",
-      dropoff_location: "Two Rivers Mall",
-      status: "completed",
-      created_at: "2026-02-15T13:20:00Z",
-      price: 1450,
-      distance: 15.2,
-      payment_method: "M-Pesa"
-    },
-    {
-      booking_id: 5006,
-      user_id: 128,
-      user_name: "Sarah Njeri",
-      pickup_location: "South C, Mugoya Estate",
-      dropoff_location: "Garden City Mall",
-      status: "completed",
-      created_at: "2026-02-10T08:45:00Z",
-      price: 650,
-      distance: 4.8,
-      payment_method: "M-Pesa"
-    },
-    {
-      booking_id: 5007,
-      user_id: 129,
-      user_name: "James Mwangi",
-      pickup_location: "Ngong Road, Prestige Plaza",
-      dropoff_location: "Industrial Area",
-      status: "completed",
-      created_at: "2026-02-08T16:20:00Z",
-      price: 890,
-      distance: 9.1,
-      payment_method: "M-Pesa"
-    },
-    {
-      booking_id: 5008,
-      user_id: 130,
-      user_name: "Alice Wambui",
-      pickup_location: "Kasarani, Mwiki",
-      dropoff_location: "CBD, Railways Station",
-      status: "completed",
-      created_at: "2026-02-05T07:30:00Z",
-      price: 1150,
-      distance: 13.6,
-      payment_method: "M-Pesa"
-    }
-  ];
-  
   useEffect(() => {
     fetchOrderHistory();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -116,13 +18,51 @@ const DriverOrderHistory = () => {
   const fetchOrderHistory = async () => {
     try {
       setIsLoading(true);
-      setTimeout(() => {
-        setOrders(dummyOrders);
+      
+      // Get driver ID from localStorage
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user) {
+        toast.error('Please log in to view order history');
         setIsLoading(false);
-      }, 1000);
+        return;
+      }
+
+      let driverId = user.driver_id;
+
+      // Fallback: fetch driver_id if not in localStorage
+      if (!driverId && user.id && user.role === 'driver') {
+        try {
+          const driverResponse = await fetch(API_ENDPOINTS.GET_DRIVER_BY_USER(user.id));
+          const driverData = await driverResponse.json();
+          if (driverResponse.ok && driverData.driver_id) {
+            driverId = driverData.driver_id;
+            user.driver_id = driverId;
+            localStorage.setItem('user', JSON.stringify(user));
+          }
+        } catch (err) {
+          console.error('Error fetching driver info:', err);
+        }
+      }
+
+      if (!driverId) {
+        toast.error('Driver information not found');
+        setIsLoading(false);
+        return;
+      }
+
+      // Fetch order history
+      const response = await fetch(API_ENDPOINTS.DRIVER_ORDER_HISTORY(driverId));
+      const data = await response.json();
+      
+      if (response.ok) {
+        setOrders(data.orders || []);
+      } else {
+        toast.error('Failed to load order history');
+      }
     } catch (error) {
       console.error('Error fetching order history:', error);
       toast.error('Failed to load order history');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -130,15 +70,26 @@ const DriverOrderHistory = () => {
   const handleCompleteOrder = async (bookingId) => {
     try {
       setCompletingOrderId(bookingId);
-      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      setOrders(orders.map(order => 
-        order.booking_id === bookingId 
-          ? {...order, status: 'completed'} 
-          : order
-      ));
+      const response = await fetch(API_ENDPOINTS.COMPLETE_ORDER(bookingId), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      const data = await response.json();
       
-      toast.success('Order completed! Funds released from escrow.');
+      if (response.ok) {
+        setOrders(orders.map(order => 
+          order.booking_id === bookingId 
+            ? {...order, status: 'completed'} 
+            : order
+        ));
+        toast.success('Order completed! Funds released from escrow.');
+      } else {
+        toast.error(data.error || 'Failed to complete order');
+      }
     } catch (error) {
       console.error('Error completing order:', error);
       toast.error('Failed to complete order');
@@ -150,15 +101,26 @@ const DriverOrderHistory = () => {
   const handleCancelOrder = async (bookingId) => {
     try {
       setCancellingOrderId(bookingId);
-      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      setOrders(orders.map(order => 
-        order.booking_id === bookingId 
-          ? {...order, status: 'cancelled'} 
-          : order
-      ));
+      const response = await fetch(API_ENDPOINTS.CANCEL_ORDER(bookingId), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      const data = await response.json();
       
-      toast.success('Order cancelled. Refund processed.');
+      if (response.ok) {
+        setOrders(orders.map(order => 
+          order.booking_id === bookingId 
+            ? {...order, status: 'cancelled'} 
+            : order
+        ));
+        toast.success('Order cancelled. Refund processed.');
+      } else {
+        toast.error(data.error || 'Failed to cancel order');
+      }
     } catch (error) {
       console.error('Error cancelling order:', error);
       toast.error('Failed to cancel order');
@@ -187,9 +149,10 @@ const DriverOrderHistory = () => {
     const completed = orders.filter(o => o.status === 'completed').length;
     const active = orders.filter(o => o.status === 'accepted').length;
     const cancelled = orders.filter(o => o.status === 'cancelled').length;
+    // Calculate driver's actual earnings (90% after 10% platform fee)
     const totalEarnings = orders
       .filter(o => o.status === 'completed')
-      .reduce((sum, o) => sum + o.price, 0);
+      .reduce((sum, o) => sum + (o.price * 0.9), 0);
     return { completed, active, cancelled, totalEarnings };
   };
 
@@ -340,8 +303,8 @@ const DriverOrderHistory = () => {
                       </div>
                     </div>
                     <div className="order-header-right">
-                      <p className="order-price">KES {order.price.toFixed(0)}</p>
-                      <p className="order-distance">{order.distance} km</p>
+                      <p className="order-price">KES {(order.price * 0.9).toFixed(0)}</p>
+                      <p className="order-distance">{order.distance} km • Your earnings (90%)</p>
                     </div>
                   </div>
                 </div>
@@ -358,6 +321,11 @@ const DriverOrderHistory = () => {
                         <div>
                           <p className="info-label">CUSTOMER</p>
                           <p className="info-value">{order.user_name}</p>
+                          {order.user_phone && (
+                            <p style={{ fontSize: '12px', color: '#2563eb', marginTop: '4px' }}>
+                              📞 {order.user_phone}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>

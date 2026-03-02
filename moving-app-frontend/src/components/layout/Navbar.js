@@ -1,7 +1,8 @@
 import React, { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthContext from "../../context/AuthContext";
-import "./Navbar.css"; // Import custom CSS for styling
+import ThemeToggle from "./ThemeToggle";
+import "./Navbar.css";
 
 const Navbar = () => {
   const { currentUser, logout } = useContext(AuthContext);
@@ -22,6 +23,9 @@ const Navbar = () => {
 
         {/* Navigation Links */}
         <div className="navbar-links">
+          {/* Theme Toggle - Always visible */}
+          <ThemeToggle />
+          
           {!currentUser ? (
             <>
               <Link to="/login" className="navbar-link">

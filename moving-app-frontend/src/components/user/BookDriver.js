@@ -324,7 +324,7 @@ const BookDriver = () => {
     }
   };
 
-  const pollPaymentStatus = async (txnId, maxAttempts = 30) => {
+  const pollPaymentStatus = async (txnId, maxAttempts = 45) => {
     let attempts = 0;
     
     const poll = async () => {
@@ -333,10 +333,11 @@ const BookDriver = () => {
       
       if (status === 'completed') {
         setIsPaymentProcessing(false);
-        toast.success('Payment successful! Your booking is confirmed.');
+        toast.success('✅ Payment successful! Your booking is confirmed.', { autoClose: 2000 });
+        toast.info('🔄 Redirecting to your orders...', { autoClose: 1000 });
         setTimeout(() => {
-          navigate('/user/order-history');
-        }, 2000);
+          navigate('/user/orders');
+        }, 1000);
         return;
       } else if (status === 'failed') {
         setIsPaymentProcessing(false);
@@ -344,17 +345,18 @@ const BookDriver = () => {
         setBookingStep(3); // Go back to confirmation
         return;
       } else if (attempts < maxAttempts) {
-        setTimeout(poll, 3000); // Check every 3 seconds
+        setTimeout(poll, 2000); // Check every 2 seconds (faster)
       } else {
         setIsPaymentProcessing(false);
         toast.warning('Payment is taking longer than expected. Please check your order history.');
         setTimeout(() => {
-          navigate('/user/order-history');
+          navigate('/user/orders');
         }, 2000);
       }
     };
     
-    setTimeout(poll, 5000); // Start checking after 5 seconds
+    // Check immediately first, then start polling after 2 seconds
+    poll();
   };
 
   const handleProceedToPayment = () => {
@@ -438,8 +440,6 @@ const BookDriver = () => {
 
   return (
     <div className="book-driver-container">
-      <h1 className="book-driver-title">MOVERS WEB APP</h1>
-
       {/* Step indicators */}
       <div className="step-indicator-container">
         <div className={`step-indicator ${bookingStep >= 1 ? 'active' : ''}`}>1. Enter Locations</div>
@@ -960,7 +960,7 @@ const BookDriver = () => {
 
       {/* Footer */}
       <div className="book-driver-footer">
-        <p>© 2025 Movers Web App. All Rights Reserved.</p>
+        <p>© 2026 Movers Web App. All Rights Reserved.</p>
         <p className="footer-text">
           Safe, Reliable Transport Across Kenya
         </p>

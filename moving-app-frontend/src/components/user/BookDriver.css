@@ -2,83 +2,84 @@
 .book-driver-container {
   max-width: 900px;
   margin: 0 auto;
-  padding: 20px;
-  font-family: Arial, sans-serif;
+  padding: var(--spacing-lg);
+  font-family: var(--font-family-base);
 }
 
 .book-driver-title {
-  font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  color: #333;
-  border-bottom: 2px solid #e67e22;
-  padding-bottom: 10px;
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-lg);
+  color: var(--text-primary);
+  border-bottom: var(--border-width-thick) solid var(--color-secondary);
+  padding-bottom: var(--spacing-md);
 }
 
 /* === Step Indicators === */
 .step-indicator-container {
   display: flex;
-  margin-bottom: 30px;
+  margin-bottom: var(--spacing-2xl);
 }
 
 .step-indicator {
   flex: 1;
   text-align: center;
-  padding: 12px;
-  font-weight: normal;
-  border-bottom: 3px solid #ddd;
-  color: #888;
+  padding: var(--spacing-md);
+  font-weight: var(--font-weight-normal);
+  border-bottom: 3px solid var(--border-color);
+  color: var(--text-tertiary);
   position: relative;
-  transition: all 0.3s ease;
+  transition: all var(--transition-base);
 }
 
 .step-indicator.active {
-  font-weight: bold;
-  border-bottom-color: #e67e22;
-  color: #e67e22;
+  font-weight: var(--font-weight-bold);
+  border-bottom-color: var(--color-secondary);
+  color: var(--color-secondary);
 }
 
 /* === Card Styles === */
 .booking-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 25px;
-  margin-bottom: 25px;
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-2xl);
+  margin-bottom: var(--spacing-2xl);
 }
 
 /* === Form Styles === */
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-lg);
 }
 
 .form-label {
   display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
-  font-size: 16px;
-  color: #444;
+  margin-bottom: var(--spacing-sm);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
 }
 
 .form-input {
   width: 100%;
-  padding: 12px 15px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  font-size: 16px;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  border: var(--border-width) solid var(--border-color);
+  font-size: var(--font-size-base);
   box-sizing: border-box;
-  transition: border-color 0.3s ease;
-  background-color: #f9f9f9;
-  color: black;
+  transition: all var(--transition-fast);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .form-input:focus {
   outline: none;
-  border-color: #e67e22;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .form-input-focused {
-  border-color: #e67e22;
+  border-color: var(--color-primary);
 }
 
 /* === Suggestion Dropdown === */
@@ -87,19 +88,19 @@
   top: 100%;
   left: 0;
   width: 100%;
-  background-color: black;
-  color: orange;
-  border: 1px solid #ddd;
-  border-radius: 0 0 6px 6px;
-  z-index: 10;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  z-index: var(--z-dropdown);
+  box-shadow: var(--shadow-lg);
 }
 
 .suggestion-item {
-  padding: 10px 15px;
+  padding: var(--spacing-md) var(--spacing-lg);
   cursor: pointer;
-  border-bottom: 1px solid #eee;
-  transition: background-color 0.2s ease;
+  border-bottom: var(--border-width) solid var(--border-color);
+  transition: all var(--transition-fast);
 }
 
 .suggestion-item:last-child {
@@ -107,58 +108,59 @@
 }
 
 .suggestion-item:hover {
-  background-color: #f5f5f5;
+  background-color: var(--bg-secondary);
+  color: var(--color-primary);
 }
 
 .hint-text {
-  font-size: 12px;
-  color: #777;
-  margin-top: 5px;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin-top: var(--spacing-xs);
   font-style: italic;
 }
 
 /* === Button Styles === */
 .btn-primary {
-  background-color: #e67e22;
-  color: white;
-  padding: 12px 20px;
+  background-color: var(--color-secondary);
+  color: var(--text-inverse);
+  padding: 0.75rem 1.25rem;
   border: none;
-  border-radius: 6px;
-  font-size: 16px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
   cursor: pointer;
-  font-weight: bold;
+  font-weight: var(--font-weight-semibold);
   width: 100%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
 }
 
 .btn-primary:hover {
-  background-color: #d35400;
+  background-color: var(--color-secondary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-primary:disabled {
-  background-color: #ccc;
+  background-color: var(--color-gray-400);
   cursor: not-allowed;
   transform: none;
 }
 
 .btn-secondary {
   background-color: transparent;
-  color: #e67e22;
-  padding: 10px 16px;
-  border: 1px solid #e67e22;
-  border-radius: 6px;
-  font-size: 14px;
+  color: var(--color-secondary);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border: var(--border-width) solid var(--color-secondary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  font-weight: var(--font-weight-semibold);
+  transition: all var(--transition-base);
 }
 
 .btn-secondary:hover {
-  background-color: #e67e22;
-  color: white;
+  background-color: var(--color-secondary);
+  color: var(--text-inverse);
 }
 
 .btn-secondary.filled {

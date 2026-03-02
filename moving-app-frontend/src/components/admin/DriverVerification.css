@@ -1,8 +1,9 @@
 /* Driver Verification Container */
 .verification-container {
   min-height: 100vh;
-  background-color: #f9fafb;
-  padding: 1.5rem;
+  background-color: var(--bg-secondary);
+  padding: var(--spacing-xl);
+  transition: background-color var(--transition-base);
 }
 
 .verification-wrapper {
@@ -11,52 +12,54 @@
 }
 
 .verification-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 1.5rem;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xl);
 }
 
 /* Tabs */
 .verification-tabs {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  border-bottom: 2px solid #e5e7eb;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xl);
+  border-bottom: 2px solid var(--border-color);
 }
 
 .tab-button {
-  padding: 0.75rem 1.5rem;
+  padding: var(--spacing-md) var(--spacing-xl);
   background-color: transparent;
   border: none;
   border-bottom: 3px solid transparent;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #6b7280;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-fast);
   margin-bottom: -2px;
 }
 
 .tab-button:hover {
-  color: #374151;
+  color: var(--text-primary);
 }
 
 .tab-button.active {
-  color: #3b82f6;
-  border-bottom-color: #3b82f6;
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
 }
 
 /* Stats Bar */
 .stats-bar {
-  background-color: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-base);
   display: flex;
-  gap: 2rem;
+  gap: var(--spacing-2xl);
   align-items: center;
+  border: var(--border-width) solid var(--border-color);
+  transition: all var(--transition-base);
 }
 
 .stat-item {
@@ -64,42 +67,48 @@
 }
 
 .stat-value {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: #1f2937;
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
 }
 
 .stat-label {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin-top: 0.25rem;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-top: var(--spacing-xs);
 }
 
 /* Driver Grid */
 .driver-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
+  gap: var(--spacing-xl);
 }
 
 .driver-verification-card {
-  background-color: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+  border: var(--border-width) solid transparent;
 }
 
 .driver-verification-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--border-color);
+}
+
+.dark-theme .driver-verification-card:hover {
+  box-shadow: var(--shadow-xl), var(--glow-primary);
 }
 
 .driver-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-lg);
 }
 
 .driver-info {
@@ -107,88 +116,89 @@
 }
 
 .driver-name {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 0.25rem;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
 }
 
 .driver-email {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin-bottom: 0.25rem;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xs);
 }
 
 .driver-phone {
-  font-size: 0.875rem;
-  color: #6b7280;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
 }
 
 /* Status Badges */
 .status-badge {
-  padding: 0.375rem 0.875rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   text-transform: capitalize;
+  transition: all var(--transition-fast);
 }
 
 .status-badge.pending {
-  background-color: #f3f4f6;
-  color: #374151;
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
 }
 
 .status-badge.under-review {
-  background-color: #fef3c7;
-  color: #92400e;
+  background-color: var(--color-warning-light);
+  color: var(--color-warning-dark);
 }
 
 .status-badge.approved {
-  background-color: #d1fae5;
-  color: #065f46;
+  background-color: var(--color-success-light);
+  color: var(--color-success-dark);
 }
 
 .status-badge.rejected {
-  background-color: #fee2e2;
-  color: #991b1b;
+  background-color: var(--color-danger-light);
+  color: var(--color-danger-dark);
 }
 
 /* Driver Details */
 .driver-details {
-  margin: 1rem 0;
-  padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  margin: var(--spacing-lg) 0;
+  padding-top: var(--spacing-lg);
+  border-top: var(--border-width) solid var(--border-color);
 }
 
 .detail-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-size-sm);
 }
 
 .detail-label {
-  color: #6b7280;
-  font-weight: 500;
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
 }
 
 .detail-value {
-  color: #1f2937;
-  font-weight: 600;
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
 }
 
 /* Documents Section */
 .documents-section {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: var(--border-width) solid var(--border-color);
 }
 
 .documents-title {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 0.75rem;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-md);
 }
 
 .document-list {

@@ -49,12 +49,14 @@ import Footer from "./components/Footer";
 
 // Context Provider
 import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import "./App.css";
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
         <Navbar />
         <div className="container mx-auto px-4 py-8">
           <Routes>
@@ -248,6 +250,7 @@ function App() {
       </Router>
       <Footer /> {/* Footer is displayed on all pages */}
     </AuthProvider>
+    </ThemeProvider>
   );
 }
 

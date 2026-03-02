@@ -65,7 +65,7 @@ const UserWallet = () => {
     }
   };
 
-  const pollTransactionStatus = async (transactionId, maxAttempts = 20) => {
+  const pollTransactionStatus = async (transactionId, maxAttempts = 30) => {
     let attempts = 0;
     
     const poll = async () => {
@@ -78,9 +78,9 @@ const UserWallet = () => {
         ));
         // Refresh balance from server
         await fetchWalletData();
-        toast.success('Payment completed successfully!', {
+        toast.success('✅ Payment completed successfully!', {
           position: "top-center",
-          autoClose: 4000,
+          autoClose: 3000,
           hideProgressBar: false,
         });
         setAmount('');
@@ -90,16 +90,16 @@ const UserWallet = () => {
         setTransactions(prev => prev.map(t =>
           t.transaction_id === transactionId ? { ...t, status: 'failed' } : t
         ));
-        toast.error('Payment failed. Please try again.', {
+        toast.error('❌ Payment failed. Please try again.', {
           position: "top-center",
           autoClose: 4000,
         });
         setIsDepositing(false);
         return;
       } else if (attempts < maxAttempts) {
-        setTimeout(poll, 3000);
+        setTimeout(poll, 2000); // Check every 2 seconds (faster)
       } else {
-        toast.warning('Payment is taking longer than expected. Check back later.', {
+        toast.warning('⏱️ Payment is taking longer than expected. Check back later.', {
           position: "top-center",
           autoClose: 5000,
         });
@@ -107,7 +107,8 @@ const UserWallet = () => {
       }
     };
     
-    setTimeout(poll, 5000);
+    // Check immediately first, then continue polling
+    poll();
   };
 
   const handleDeposit = async (e) => {

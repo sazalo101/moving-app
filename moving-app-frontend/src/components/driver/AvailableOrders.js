@@ -1,115 +1,171 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import API_ENDPOINTS from '../../config/api';
 import './DriverPages.css';
 
 const AvailableOrders = () => {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [acceptingOrderId, setAcceptingOrderId] = useState(null);
-
-  // Dummy data for available orders with more details
-  const dummyOrders = [
-    {
-      booking_id: 1001,
-      pickup_location: "JKIA - Jomo Kenyatta International Airport",
-      dropoff_location: "Westlands, Nairobi",
-      distance: 18.5,
-      price: 1850,
-      status: "pending",
-      customer_name: "John Kamau",
-      estimated_time: "25 mins",
-      created_at: "5 mins ago",
-      priority: "high"
-    },
-    {
-      booking_id: 1002,
-      pickup_location: "CBD, Moi Avenue",
-      dropoff_location: "Karen Shopping Centre",
-      distance: 12.2,
-      price: 1220,
-      status: "pending",
-      customer_name: "Sarah Wanjiku",
-      estimated_time: "18 mins",
-      created_at: "8 mins ago",
-      priority: "normal"
-    },
-    {
-      booking_id: 1003,
-      pickup_location: "Kilimani, Yaya Centre",
-      dropoff_location: "Gigiri, UN Complex",
-      distance: 7.5,
-      price: 750,
-      status: "pending",
-      customer_name: "David Omondi",
-      estimated_time: "12 mins",
-      created_at: "12 mins ago",
-      priority: "normal"
-    },
-    {
-      booking_id: 1004,
-      pickup_location: "Thika Road Mall",
-      dropoff_location: "Ruiru Town",
-      distance: 15.6,
-      price: 1560,
-      status: "pending",
-      customer_name: "Grace Muthoni",
-      estimated_time: "22 mins",
-      created_at: "3 mins ago",
-      priority: "normal"
-    },
-    {
-      booking_id: 1005,
-      pickup_location: "Upper Hill, Nairobi Hospital",
-      dropoff_location: "South C, Mugoya Estate",
-      distance: 6.3,
-      price: 630,
-      status: "pending",
-      customer_name: "Peter Njoroge",
-      estimated_time: "10 mins",
-      created_at: "15 mins ago",
-      priority: "low"
-    }
-  ];
+  const [completingOrderId, setCompletingOrderId] = useState(null);
 
   useEffect(() => {
     fetchOrders();
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(fetchOrders, 30000);
+    return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchOrders = () => {
+  const fetchOrders = async () => {
     setIsLoading(true);
-    // Simulate network delay
-    setTimeout(() => {
-      setOrders(dummyOrders);
+    try {
+      // Get driver ID from localStorage
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user) {
+        toast.error('Please log in to view available orders');
+        setIsLoading(false);
+        return;
+      }
+
+      let driverId = user.driver_id;
+
+      // Fallback: fetch driver_id if not in localStorage
+      if (!driverId && user.id && user.role === 'driver') {
+        try {
+          const driverResponse = await fetch(API_ENDPOINTS.GET_DRIVER_BY_USER(user.id));
+          const driverData = await driverResponse.json();
+          if (driverResponse.ok && driverData.driver_id) {
+            driverId = driverData.driver_id;
+            user.driver_id = driverId;
+            localStorage.setItem('user', JSON.stringify(user));
+          }
+        } catch (err) {
+          console.error('Error fetching driver info:', err);
+        }
+      }
+
+      if (!driverId) {
+        toast.error('Driver information not found');
+        setIsLoading(false);
+        return;
+      }
+
+      const response = await fetch(API_ENDPOINTS.AVAILABLE_ORDERS(driverId));
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Enhance orders with calculated fields
+        const enhancedOrders = data.orders.map(order => ({
+          ...order,
+          estimated_time: calculateEstimatedTime(order.distance),
+          priority: calculatePriority(order.created_at, order.price),
+          created_at: formatTimeAgo(order.created_at)
+        }));
+        setOrders(enhancedOrders);
+      } else {
+        toast.error('Failed to load available orders');
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      toast.error('Failed to load available orders');
+    } finally {
       setIsLoading(false);
-    }, 800);
+    }
+  };
+
+  const calculateEstimatedTime = (distance) => {
+    // Assuming average speed of 40 km/h in city traffic
+    const minutes = Math.ceil((distance / 40) * 60);
+    return `${minutes} mins`;
+  };
+
+  const calculatePriority = (createdAt, price) => {
+    const now = new Date();
+    const created = new Date(createdAt);
+    const minutesAgo = (now - created) / (1000 * 60);
+    
+    // High priority: Order is more than 15 mins old OR price is high
+    if (minutesAgo > 15 || price > 1500) return 'high';
+    // Low priority: Order is less than 5 mins old AND price is low
+    if (minutesAgo < 5 && price < 800) return 'low';
+    // Normal priority: Everything else
+    return 'normal';
+  };
+
+  const formatTimeAgo = (timestamp) => {
+    if (!timestamp) return 'just now';
+    const now = new Date();
+    const created = new Date(timestamp);
+    const diffMs = now - created;
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins} mins ago`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
   };
 
   const handleAcceptOrder = async (bookingId) => {
     try {
       setAcceptingOrderId(bookingId);
       
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const response = await fetch(API_ENDPOINTS.ACCEPT_ORDER(bookingId), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      const data = await response.json();
       
-      // Remove the accepted order from the list
-      setOrders(orders.filter(order => order.booking_id !== bookingId));
-      toast.success('Order accepted successfully! You can now start the trip.');
-      setAcceptingOrderId(null);
+      if (response.ok) {
+        // Update the order status to 'accepted' instead of removing it
+        setOrders(orders.map(order => 
+          order.booking_id === bookingId 
+            ? { ...order, status: 'accepted' }
+            : order
+        ));
+        toast.success('Order accepted successfully! You can now complete the trip.');
+      } else {
+        toast.error(data.error || 'Failed to accept order');
+      }
     } catch (error) {
       console.error('Error accepting order:', error);
       toast.error('Failed to accept order. Please try again.');
+    } finally {
       setAcceptingOrderId(null);
     }
   };
 
-  const getPriorityBadge = (priority) => {
-    const badges = {
-      high: 'bg-red-100 text-red-700 border border-red-200',
-      normal: 'bg-blue-100 text-blue-700 border border-blue-200',
-      low: 'bg-gray-100 text-gray-700 border border-gray-200'
-    };
-    return badges[priority] || badges.normal;
+  const handleCompleteOrder = async (bookingId) => {
+    try {
+      setCompletingOrderId(bookingId);
+      
+      const response = await fetch(API_ENDPOINTS.COMPLETE_ORDER(bookingId), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Remove the completed order from the list
+        setOrders(orders.filter(order => order.booking_id !== bookingId));
+        toast.success('Order completed successfully! Payment has been released.');
+      } else {
+        toast.error(data.error || 'Failed to complete order');
+      }
+    } catch (error) {
+      console.error('Error completing order:', error);
+      toast.error('Failed to complete order. Please try again.');
+    } finally {
+      setCompletingOrderId(null);
+    }
   };
 
   if (isLoading) {
@@ -158,7 +214,7 @@ const AvailableOrders = () => {
               <p style={{ color: '#6b7280', fontSize: '14px' }}>
                 {orders.length === 0 
                   ? 'No orders available right now' 
-                  : `${orders.length} order${orders.length !== 1 ? 's' : ''} waiting for you`}
+                  : `${orders.filter(o => o.status === 'pending').length} to accept, ${orders.filter(o => o.status === 'accepted').length} to complete`}
               </p>
             </div>
             
@@ -212,19 +268,32 @@ const AvailableOrders = () => {
                       <p style={{ color: 'white', fontSize: '16px', fontWeight: 'bold' }}>#{order.booking_id}</p>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                      <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '10px', fontWeight: '500' }}>Earnings</p>
-                      <p style={{ color: 'white', fontSize: '16px', fontWeight: 'bold' }}>KES {order.price.toFixed(0)}</p>
+                      <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '10px', fontWeight: '500' }}>Your Earnings (90%)</p>
+                      <p style={{ color: 'white', fontSize: '16px', fontWeight: 'bold' }}>KES {(order.price * 0.9).toFixed(0)}</p>
+                      <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '8px', fontWeight: '400' }}>Total: KES {order.price.toFixed(0)}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Card Body */}
                 <div className="order-body">
-                  {/* Priority & Time */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                  {/* Priority & Time & Status */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
                     <span className={`priority-badge-${order.priority}`}>
                       {order.priority.toUpperCase()}
                     </span>
+                    {order.status === 'accepted' && (
+                      <span style={{ 
+                        padding: '4px 8px', 
+                        fontSize: '11px', 
+                        background: '#10b981', 
+                        color: 'white', 
+                        borderRadius: '4px',
+                        fontWeight: '600'
+                      }}>
+                        ✓ ACCEPTED
+                      </span>
+                    )}
                     <span style={{ fontSize: '12px', color: '#6b7280' }}>Posted {order.created_at}</span>
                   </div>
 
@@ -238,6 +307,11 @@ const AvailableOrders = () => {
                     <div>
                       <p style={{ fontSize: '12px', color: '#6b7280' }}>Customer</p>
                       <p style={{ fontWeight: '600', color: '#1f2937' }}>{order.customer_name}</p>
+                      {order.customer_phone && (
+                        <p style={{ fontSize: '11px', color: '#2563eb', marginTop: '2px' }}>
+                          📞 {order.customer_phone}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -298,33 +372,62 @@ const AvailableOrders = () => {
                     </div>
                   </div>
 
-                  {/* Accept Button */}
-                  <button
-                    onClick={() => handleAcceptOrder(order.booking_id)}
-                    disabled={acceptingOrderId === order.booking_id}
-                    className={`btn ${acceptingOrderId === order.booking_id ? '' : 'btn-success'}`}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      fontSize: '14px',
-                      background: acceptingOrderId === order.booking_id ? '#9ca3af' : undefined,
-                      cursor: acceptingOrderId === order.booking_id ? 'not-allowed' : undefined
-                    }}
-                  >
-                    {acceptingOrderId === order.booking_id ? (
-                      <>
-                        <div className="loading-spinner" style={{ width: '14px', height: '14px', border: '2px solid #e5e7eb', borderTop: '2px solid white' }}></div>
-                        Accepting...
-                      </>
-                    ) : (
-                      <>
-                        <svg style={{ width: '14px', height: '14px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        Accept Order
-                      </>
-                    )}
-                  </button>
+                  {/* Action Button */}
+                  {order.status === 'pending' ? (
+                    <button
+                      onClick={() => handleAcceptOrder(order.booking_id)}
+                      disabled={acceptingOrderId === order.booking_id}
+                      className={`btn ${acceptingOrderId === order.booking_id ? '' : 'btn-success'}`}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        fontSize: '14px',
+                        background: acceptingOrderId === order.booking_id ? '#9ca3af' : undefined,
+                        cursor: acceptingOrderId === order.booking_id ? 'not-allowed' : undefined
+                      }}
+                    >
+                      {acceptingOrderId === order.booking_id ? (
+                        <>
+                          <div className="loading-spinner" style={{ width: '14px', height: '14px', border: '2px solid #e5e7eb', borderTop: '2px solid white' }}></div>
+                          Accepting...
+                        </>
+                      ) : (
+                        <>
+                          <svg style={{ width: '14px', height: '14px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          Accept Order
+                        </>
+                      )}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleCompleteOrder(order.booking_id)}
+                      disabled={completingOrderId === order.booking_id}
+                      className={`btn ${completingOrderId === order.booking_id ? '' : 'btn-primary'}`}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        fontSize: '14px',
+                        background: completingOrderId === order.booking_id ? '#9ca3af' : '#3b82f6',
+                        cursor: completingOrderId === order.booking_id ? 'not-allowed' : undefined
+                      }}
+                    >
+                      {completingOrderId === order.booking_id ? (
+                        <>
+                          <div className="loading-spinner" style={{ width: '14px', height: '14px', border: '2px solid #e5e7eb', borderTop: '2px solid white' }}></div>
+                          Completing...
+                        </>
+                      ) : (
+                        <>
+                          <svg style={{ width: '14px', height: '14px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          Complete Order
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

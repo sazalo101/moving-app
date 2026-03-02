@@ -115,10 +115,10 @@ const ManageDrivers = () => {
                         : 'pending'
                     }`}>
                       {driver.is_verified && driver.verification_status === 'approved' && '✓ Verified'}
-                      {driver.verification_status === 'under_review' && '🔍 Under Review'}
-                      {driver.verification_status === 'rejected' && '❌ Rejected'}
-                      {driver.verification_status === 'pending' && '⏳ Pending'}
-                      {!driver.verification_status && '⏳ Not Submitted'}
+                      {!driver.is_verified && driver.verification_status === 'under_review' && '🔍 Under Review'}
+                      {!driver.is_verified && driver.verification_status === 'rejected' && '❌ Rejected'}
+                      {!driver.is_verified && driver.verification_status === 'pending' && '⏳ Unverified'}
+                      {!driver.is_verified && !driver.verification_status && '⏳ Unverified'}
                     </span>
                   </td>
                   <td>
