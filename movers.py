@@ -20,17 +20,17 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///moving_app.db'
 db = SQLAlchemy(app)
 
 # M-Pesa Daraja API Configuration
-MPESA_CONSUMER_KEY = os.getenv('MPESA_CONSUMER_KEY')
-MPESA_CONSUMER_SECRET = os.getenv('MPESA_CONSUMER_SECRET')
+MPESA_CONSUMER_KEY = os.getenv('MPESA_CONSUMER_KEY', '').strip()
+MPESA_CONSUMER_SECRET = os.getenv('MPESA_CONSUMER_SECRET', '').strip()
 MPESA_BUSINESS_SHORT_CODE = os.getenv('MPESA_BUSINESS_SHORT_CODE', '174379')
-MPESA_PASSKEY = os.getenv('MPESA_PASSKEY')
+MPESA_PASSKEY = os.getenv('MPESA_PASSKEY', '').strip()
 MPESA_ENVIRONMENT = os.getenv('MPESA_ENVIRONMENT', 'sandbox')
 MPESA_CALLBACK_URL = os.getenv('MPESA_CALLBACK_URL', 'https://yourdomain.com/api/mpesa/callback')
 
 # M-Pesa B2C Configuration
-MPESA_INITIATOR_NAME = os.getenv('MPESA_INITIATOR_NAME', 'testapi')
-MPESA_SECURITY_CREDENTIAL = os.getenv('MPESA_SECURITY_CREDENTIAL', '')
-MPESA_B2C_SHORT_CODE = os.getenv('MPESA_B2C_SHORT_CODE', '600996')
+MPESA_INITIATOR_NAME = os.getenv('MPESA_INITIATOR_NAME', 'testapi').strip()
+MPESA_SECURITY_CREDENTIAL = os.getenv('MPESA_SECURITY_CREDENTIAL', '').strip()
+MPESA_B2C_SHORT_CODE = os.getenv('MPESA_B2C_SHORT_CODE', '600996').strip()
 MPESA_B2C_RESULT_URL = os.getenv('MPESA_B2C_RESULT_URL', 'https://yourdomain.com/api/mpesa/b2c-result')
 MPESA_B2C_TIMEOUT_URL = os.getenv('MPESA_B2C_TIMEOUT_URL', 'https://yourdomain.com/api/mpesa/b2c-timeout')
 
@@ -297,55 +297,65 @@ def get_user_balance(user_id):
 # User Dashboard
 @app.route('/api/user/search-drivers', methods=['POST'])
 def search_drivers():
-    data = request.get_json()
-    pickup_location = data.get('pickup_location')
-    dropoff_location = data.get('dropoff_location')
-    distance = data.get('distance', None)  # Get distance from frontend calculation
+    """Search for available verified drivers"""
+    try:
+        data = request.get_json()
+        pickup_location = data.get('pickup_location')
+        dropoff_location = data.get('dropoff_location')
+        distance = data.get('distance', None)  # Get distance from frontend calculation
 
-    if not pickup_location or not dropoff_location:
-        return jsonify({'error': 'Pickup and dropoff locations are required'}), 400
+        if not pickup_location or not dropoff_location:
+            return jsonify({'error': 'Pickup and dropoff locations are required'}), 400
 
-    # Use actual distance from frontend or default to reasonable estimate
-    if not distance:
-        distance = 15.0  # Default reasonable distance for moving services
-    
-    # TEST PRICING MODE: Fixed range 10-20 KES for affordable M-Pesa testing
-    # This makes it practical to test real payments without spending much money
-    base_test_price = random.randint(10, 20)  # Random price between 10-20 KES
-    
-    print(f"[TEST MODE] Base shipping fee: KES {base_test_price}")
-
-    # Only show verified drivers that are available
-    drivers = Driver.query.filter_by(is_available=True, is_verified=True).all()
-    
-    print(f"[SEARCH DRIVERS] Found {len(drivers)} verified & available drivers")
-    for driver in drivers:
-        print(f"  - {driver.user.name} (ID: {driver.id}, Vehicle: {driver.vehicle_type})")
-    
-    # Apply small price variation per driver (±1-2 KES) to show different prices
-    drivers_data = []
-    for driver in drivers:
-        # Small random variation per driver (between -2 and +2 KES)
-        price_variation = random.randint(-2, 2)
-        driver_price = max(10, base_test_price + price_variation)  # Ensure minimum 10 KES
-        driver_price = min(20, driver_price)  # Ensure maximum 20 KES
+        # Use actual distance from frontend or default to reasonable estimate
+        if not distance:
+            distance = 15.0  # Default reasonable distance for moving services
         
-        drivers_data.append({
-            'driver_id': driver.id,
-            'name': driver.user.name,
-            'vehicle_type': driver.vehicle_type,
-            'ratings': driver.ratings,
-            'completed_orders': driver.completed_orders,
-            'price': driver_price,
-            'is_verified': driver.is_verified,
-            'license_plate': driver.license_plate
-        })
+        # TEST PRICING MODE: Fixed range 10-20 KES for affordable M-Pesa testing
+        # This makes it practical to test real payments without spending much money
+        base_test_price = random.randint(10, 20)  # Random price between 10-20 KES
+        
+        print(f"[SEARCH DRIVERS] Request from: {pickup_location} to: {dropoff_location}")
+        print(f"[TEST MODE] Base shipping fee: KES {base_test_price}")
 
-    return jsonify({
-        'distance': round(distance, 2),
-        'base_price': base_test_price,
-        'drivers': drivers_data
-    })
+        # Only show verified drivers that are available
+        drivers = Driver.query.filter_by(is_available=True, is_verified=True).all()
+        
+        print(f"[SEARCH DRIVERS] Found {len(drivers)} verified & available drivers")
+        for driver in drivers:
+            print(f"  - {driver.user.name} (ID: {driver.id}, Vehicle: {driver.vehicle_type})")
+        
+        # Apply small price variation per driver (±1-2 KES) to show different prices
+        drivers_data = []
+        for driver in drivers:
+            # Small random variation per driver (between -2 and +2 KES)
+            price_variation = random.randint(-2, 2)
+            driver_price = max(10, base_test_price + price_variation)  # Ensure minimum 10 KES
+            driver_price = min(20, driver_price)  # Ensure maximum 20 KES
+            
+            drivers_data.append({
+                'driver_id': driver.id,
+                'name': driver.user.name,
+                'vehicle_type': driver.vehicle_type,
+                'ratings': driver.ratings,
+                'completed_orders': driver.completed_orders,
+                'price': driver_price,
+                'is_verified': driver.is_verified,
+                'license_plate': driver.license_plate
+            })
+
+        print(f"[SEARCH DRIVERS] Returning {len(drivers_data)} drivers to client")
+        
+        return jsonify({
+            'distance': round(distance, 2),
+            'base_price': base_test_price,
+            'drivers': drivers_data
+        })
+    except Exception as e:
+        print(f"[ERROR] Search drivers failed: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': f'Failed to search drivers: {str(e)}'}), 500
 
 @app.route('/api/user/book-driver', methods=['POST'])
 def book_driver():
@@ -509,89 +519,39 @@ def book_driver_with_mpesa():
     db.session.add(transaction)
     db.session.commit()
     
-    # Call M-Pesa API for both sandbox and production to send STK push
+    # Call M-Pesa API to send STK push
+    print(f"\n{'='*60}")
+    print(f"[PAYMENT] Starting M-Pesa STK Push for booking {booking.id}")
+    print(f"[PAYMENT] Environment: {MPESA_ENVIRONMENT}")
+    print(f"[PAYMENT] Amount: KES {final_price}")
+    print(f"[PAYMENT] Phone: {phone_number}")
+    print(f"{'='*60}\n")
+    
     try:
         # Get OAuth access token
+        print(f"[PAYMENT] Step 1: Requesting M-Pesa access token...")
         access_token = get_mpesa_access_token()
         
         if not access_token:
             # Log the error for debugging
-            print(f"Failed to get M-Pesa access token for booking {booking.id}")
-            print(f"M-Pesa Config - Environment: {MPESA_ENVIRONMENT}")
-            print(f"M-Pesa Config - Business Short Code: {MPESA_BUSINESS_SHORT_CODE}")
-            print(f"M-Pesa Config - Has Consumer Key: {bool(MPESA_CONSUMER_KEY)}")
-            print(f"M-Pesa Config - Has Consumer Secret: {bool(MPESA_CONSUMER_SECRET)}")
+            print(f"[ERROR] Failed to get M-Pesa access token for booking {booking.id}")
+            print(f"[ERROR] M-Pesa Config - Environment: {MPESA_ENVIRONMENT}")
+            print(f"[ERROR] M-Pesa Config - Business Short Code: {MPESA_BUSINESS_SHORT_CODE}")
+            print(f"[ERROR] M-Pesa Config - Has Consumer Key: {bool(MPESA_CONSUMER_KEY)}")
+            print(f"[ERROR] M-Pesa Config - Has Consumer Secret: {bool(MPESA_CONSUMER_SECRET)}")
             
-            # Failover for production when API is down
-            if MPESA_ENVIRONMENT != 'production':
-                print("Simulating M-Pesa STK Push for sandbox environment...")
-                
-                # Update booking status to pending (as if payment was received)
-                booking.status = 'pending'
-                transaction.status = 'completed'
-                transaction.checkout_request_id = f'sim-{transaction_id[:20]}'
-                transaction.mpesa_receipt_number = f'SIM{uuid.uuid4().hex[:10].upper()}'
-                
-                print(f"[PAYMENT SIMULATION] Booking {booking.id} payment simulated successfully")
-                print(f"  User: {user.name} (ID: {user_id})")
-                print(f"  Driver ID: {driver_id}")
-                print(f"  Amount: KES {final_price}")
-                print(f"  Status changed to: {booking.status}")
-                
-                # Create escrow record
-                platform_fee_percentage = 10
-                platform_fee = final_price * (platform_fee_percentage / 100)
-                driver_amount = final_price - platform_fee
-                
-                escrow = Escrow(
-                    booking_id=booking.id,
-                    user_id=user_id,
-                    driver_id=driver_id,
-                    amount=final_price,
-                    platform_fee=platform_fee,
-                    driver_amount=driver_amount,
-                    status='held'
-                )
-                db.session.add(escrow)
-                
-                # Create payment record
-                payment = Payment(
-                    user_id=user_id,
-                    amount=final_price,
-                    transaction_id=transaction.mpesa_receipt_number,
-                    status='completed'
-                )
-                db.session.add(payment)
-                
-                # Notify driver
-                notification = Notification(
-                    driver_id=driver_id,
-                    message=f'New booking request from {user.name}. Amount: KES {final_price:.2f} (KES {driver_amount:.2f} for you after fees)'
-                )
-                db.session.add(notification)
-                
-                db.session.commit()
-                
-                return jsonify({
-                    'success': True,
-                    'message': 'Payment simulated successfully (Sandbox Mode)',
-                    'transaction_id': transaction_id,
-                    'booking_id': booking.id,
-                    'checkout_request_id': transaction.checkout_request_id,
-                    'amount': final_price,
-                    'simulated': True
-                }), 200
-            
+            # Cannot proceed without access token
             transaction.status = 'failed'
             booking.status = 'cancelled'
             db.session.commit()
             return jsonify({
                 'success': False,
-                'error': 'Failed to authenticate with M-Pesa API. Please check your configuration or contact support.',
+                'error': 'Failed to authenticate with M-Pesa API. Please check your configuration.',
                 'transaction_id': transaction_id
             }), 500
         
         # Generate password and timestamp
+        print(f"[PAYMENT] Step 2: Generating password and timestamp...")
         password, timestamp = generate_password_and_timestamp()
         
         # Prepare STK Push request
@@ -614,75 +574,62 @@ def book_driver_with_mpesa():
             'TransactionDesc': f'Moving service booking payment'
         }
         
-        print(f"[PAYMENT] Initiating M-Pesa STK Push for booking {booking.id}, Amount: KES {final_price}")
+        print(f"[PAYMENT] Step 3: Sending STK Push request to M-Pesa...")
+        print(f"[PAYMENT] Endpoint: {MPESA_API_BASE}/mpesa/stkpush/v1/processrequest")
+        print(f"[PAYMENT] Short Code: {MPESA_BUSINESS_SHORT_CODE}")
+        print(f"[PAYMENT] Phone: {phone_number}")
+        print(f"[PAYMENT] Amount: {int(final_price)}")
+        print(f"[PAYMENT] Callback: {MPESA_CALLBACK_URL}")
         
         try:
             response = requests.post(
                 f'{MPESA_API_BASE}/mpesa/stkpush/v1/processrequest',
                 json=payload,
                 headers=headers,
-                timeout=15
+                timeout=30  # Increased timeout for better reliability
             )
             
+            print(f"[PAYMENT] M-Pesa Response Status: {response.status_code}")
+            print(f"[PAYMENT] M-Pesa Response: {response.text}")
+            
             response_data = response.json()
-        except (requests.exceptions.Timeout, requests.exceptions.RequestException) as e:
-            print(f"[PAYMENT ERROR] M-Pesa API call failed: {str(e)}")
-            # In sandbox mode, simulate successful payment
-            if MPESA_ENVIRONMENT == 'sandbox':
-                print("[PAYMENT] Using sandbox simulation due to API error")
-                booking.status = 'pending'
-                transaction.status = 'completed'
-                transaction.checkout_request_id = f'sim-{transaction_id[:20]}'
-                transaction.mpesa_receipt_number = f'SIM{str(uuid.uuid4().hex[:10]).upper()}'
-                
-                platform_fee_percentage = 10
-                platform_fee = final_price * (platform_fee_percentage / 100)
-                driver_amount = final_price - platform_fee
-                
-                escrow = Escrow(
-                    booking_id=booking.id,
-                    user_id=user_id,
-                    driver_id=driver_id,
-                    amount=final_price,
-                    platform_fee=platform_fee,
-                    driver_amount=driver_amount,
-                    status='held'
-                )
-                db.session.add(escrow)
-                
-                notification = Notification(
-                    driver_id=driver_id,
-                    message=f'New booking request from {user.name}. Amount: KES {final_price:.2f} (KES {driver_amount:.2f} for you after fees)'
-                )
-                db.session.add(notification)
-                db.session.commit()
-                
-                return jsonify({
-                    'success': True,
-                    'message': 'Payment processed successfully (Sandbox Mode)',
-                    'transaction_id': transaction_id,
-                    'booking_id': booking.id,
-                    'checkout_request_id': transaction.checkout_request_id,
-                    'amount': final_price,
-                    'simulated': True
-                }), 200
-            else:
-                transaction.status = 'failed'
-                booking.status = 'cancelled'
-                db.session.commit()
-                return jsonify({
-                    'success': False,
-                    'error': 'Payment gateway unavailable. Please try again later.',
-                    'transaction_id': transaction_id
-                }), 500
+        except requests.exceptions.Timeout as e:
+            print(f"[ERROR] M-Pesa API timeout after 30 seconds: {str(e)}")
+            print(f"[ERROR] This may indicate M-Pesa service is slow or unavailable")
+            transaction.status = 'failed'
+            booking.status = 'cancelled'
+            db.session.commit()
+            return jsonify({
+                'success': False,
+                'error': 'M-Pesa service timeout. Please try again in a few minutes.',
+                'transaction_id': transaction_id
+            }), 500
+        except requests.exceptions.RequestException as e:
+            print(f"[ERROR] M-Pesa API request failed: {str(e)}")
+            transaction.status = 'failed'
+            booking.status = 'cancelled'
+            db.session.commit()
+            return jsonify({
+                'success': False,
+                'error': 'Failed to connect to M-Pesa. Please check your internet connection.',
+                'transaction_id': transaction_id
+            }), 500
+        
+        print(f"[PAYMENT] Step 4: Processing M-Pesa response...")
         
         if response.status_code == 200 and response_data.get('ResponseCode') == '0':
             # STK Push initiated successfully
-            transaction.checkout_request_id = response_data.get('CheckoutRequestID')
+            print(f"[SUCCESS] STK Push sent successfully!")
+            print(f"[SUCCESS] CheckoutRequestID: {response_data.get('CheckoutRequestID')}")
+            print(f"[SUCCESS] MerchantRequestID: {response_data.get('MerchantRequestID')}")
+            print(f"[SUCCESS] Customer should receive prompt on phone: {phone_number}")
             
-            # In sandbox mode, auto-complete the transaction immediately
+            transaction.checkout_request_id = response_data.get('CheckoutRequestID')
+            transaction.merchant_request_id = response_data.get('MerchantRequestID')
+            
+            # In sandbox mode, auto-complete payment immediately for fast testing
             if MPESA_ENVIRONMENT == 'sandbox':
-                print(f"[SANDBOX] Auto-completing transaction {transaction_id} after STK push")
+                print(f"[SANDBOX] Auto-completing payment immediately for fast UX")
                 transaction.status = 'completed'
                 transaction.mpesa_receipt_number = f'SIM{uuid.uuid4().hex[:10].upper()}'
                 booking.status = 'pending'
@@ -718,21 +665,28 @@ def book_driver_with_mpesa():
                     message=f'New booking request from {user.name}. Amount: KES {final_price:.2f} (KES {driver_amount:.2f} for you after fees)'
                 )
                 db.session.add(notification)
+                print(f"[SANDBOX] Payment completed instantly - Transaction: {transaction.mpesa_receipt_number}")
             
             db.session.commit()
             
             return jsonify({
                 'success': True,
-                'message': 'Check your phone to complete payment',
+                'message': 'Payment processed successfully!' if MPESA_ENVIRONMENT == 'sandbox' else 'Check your phone to complete payment.',
                 'transaction_id': transaction_id,
                 'booking_id': booking.id,
-                'checkout_request_id': transaction.checkout_request_id,
+                'checkout_request_id': response_data.get('CheckoutRequestID'),
                 'amount': final_price,
                 'simulated': MPESA_ENVIRONMENT == 'sandbox'
             }), 200
         else:
             # STK Push failed
-            error_message = response_data.get('errorMessage', 'Failed to initiate M-Pesa payment')
+            print(f"[ERROR] STK Push failed!")
+            print(f"[ERROR] ResponseCode: {response_data.get('ResponseCode')}")
+            print(f"[ERROR] ResponseDescription: {response_data.get('ResponseDescription')}")
+            print(f"[ERROR] ErrorCode: {response_data.get('errorCode')}")
+            print(f"[ERROR] ErrorMessage: {response_data.get('errorMessage')}")
+            
+            error_message = response_data.get('errorMessage') or response_data.get('ResponseDescription') or 'Failed to initiate M-Pesa payment'
             transaction.status = 'failed'
             booking.status = 'cancelled'
             db.session.commit()
@@ -927,6 +881,7 @@ def get_mpesa_access_token():
         
         url = f'{MPESA_API_BASE}/oauth/v1/generate?grant_type=client_credentials'
         print(f"Requesting M-Pesa access token from: {url}")
+        print(f"Using Consumer Key: {MPESA_CONSUMER_KEY[:10]}...{MPESA_CONSUMER_KEY[-4:]}")
         
         response = requests.get(
             url, 
@@ -934,11 +889,15 @@ def get_mpesa_access_token():
             timeout=30
         )
         
+        print(f"Token Response Status: {response.status_code}")
+        print(f"Token Response: {response.text}")
+        
         if response.status_code == 200:
             json_response = response.json()
             access_token = json_response.get('access_token')
             if access_token:
-                print("Successfully obtained M-Pesa access token")
+                print(f"Successfully obtained M-Pesa access token (length: {len(access_token)})")
+                print(f"Token preview: {access_token[:20]}...")
                 return access_token
             else:
                 print("No access token in response:", json_response)
@@ -955,6 +914,8 @@ def get_mpesa_access_token():
         return None
     except Exception as e:
         print(f"Unexpected error getting access token: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return None
 
 def generate_password_and_timestamp():
@@ -974,6 +935,22 @@ def initiate_b2c_payment(phone_number, amount, transaction_id, remarks="Withdraw
     Sends money from business account to customer phone
     """
     try:
+        print(f"\n{'='*60}")
+        print(f"Initiating B2C Payment")
+        print(f"{'='*60}")
+        print(f"Amount: KES {amount}")
+        print(f"Phone: {phone_number}")
+        print(f"Transaction ID: {transaction_id}")
+        print(f"Environment: {MPESA_ENVIRONMENT}")
+        
+        # Validate configuration
+        if not MPESA_SECURITY_CREDENTIAL or len(MPESA_SECURITY_CREDENTIAL) < 10:
+            print("ERROR: Security credential not configured properly")
+            return {
+                'success': False,
+                'error': 'B2C not configured. Please contact support.'
+            }
+        
         # Get access token
         access_token = get_mpesa_access_token()
         if not access_token:
@@ -1002,11 +979,58 @@ def initiate_b2c_payment(phone_number, amount, transaction_id, remarks="Withdraw
             'Occasion': transaction_id
         }
         
-        # Make API request
-        response = requests.post(url, json=payload, headers=headers, timeout=30)
-        response_data = response.json()
+        # Make API request with 30-second timeout (sandbox can be slow)
+        print(f"Sending B2C request to: {url}")
+        print(f"Authorization: Bearer {access_token[:15]}...{access_token[-10:] if len(access_token) > 25 else '***'}")
+        print(f"InitiatorName: {MPESA_INITIATOR_NAME}")
+        print(f"PartyA (Short Code): {MPESA_B2C_SHORT_CODE}")
+        print(f"PartyB (Phone): {phone_number}")
+        print(f"Amount: {int(amount)}")
+        print(f"SecurityCredential length: {len(MPESA_SECURITY_CREDENTIAL)}")
         
+        response = requests.post(url, json=payload, headers=headers, timeout=30)
+        
+        # Log response for debugging
+        print(f"B2C Response Status: {response.status_code}")
+        print(f"B2C Response Headers: {dict(response.headers)}")
+        print(f"B2C Response Body: {response.text}")
+        print(f"{'='*60}\n")
+        
+        # Try to parse JSON response
+        try:
+            response_data = response.json()
+        except ValueError as json_err:
+            print(f"Failed to parse JSON response: {json_err}")
+            print(f"Full response text: {response.text}")
+            return {
+                'success': False,
+                'error': f'M-Pesa returned an invalid response. Status: {response.status_code}'
+            }
+        
+        # Handle 401 Unauthorized - means credentials don't have B2C permissions
+        if response.status_code == 401:
+            print(f"✗ 401 Unauthorized: B2C credentials not authorized")
+            print(f"   The consumer key/secret don't have B2C permissions")
+            print(f"   Using STK Push credentials for B2C won't work")
+            
+            # In sandbox mode, we can simulate for testing
+            if MPESA_ENVIRONMENT == 'sandbox':
+                print(f"   Falling back to simulation mode for sandbox testing")
+                return {
+                    'success': False,
+                    'error': 'B2C_AUTH_FAILED',
+                    'simulate': True,
+                    'message': 'B2C authentication failed - using simulation mode'
+                }
+            else:
+                return {
+                    'success': False,
+                    'error': 'B2C not authorized. Please enable B2C permissions in your Daraja account or use B2C-specific credentials.'
+                }
+        
+        # Check if request was successful
         if response.status_code == 200 and response_data.get('ResponseCode') == '0':
+            print(f"✓ B2C payment initiated successfully!")
             return {
                 'success': True,
                 'conversation_id': response_data.get('ConversationID'),
@@ -1014,17 +1038,61 @@ def initiate_b2c_payment(phone_number, amount, transaction_id, remarks="Withdraw
                 'response_description': response_data.get('ResponseDescription')
             }
         else:
-            error_message = response_data.get('errorMessage') or response_data.get('ResponseDescription') or 'B2C payment failed'
+            # Extract detailed error information
+            error_code = response_data.get('errorCode', '')
+            error_message = response_data.get('errorMessage', '')
+            response_code = response_data.get('ResponseCode', '')
+            response_desc = response_data.get('ResponseDescription', '')
+            request_id = response_data.get('requestId', '')
+            
+            # Construct detailed error message
+            if error_message:
+                full_error = f"{error_message}"
+                if error_code:
+                    full_error += f" (Code: {error_code})"
+                    
+                # Special handling for common errors
+                if 'Invalid Access Token' in error_message or 'invalid access token' in error_message.lower():
+                    print(f"✗ Access token was rejected by M-Pesa B2C API")
+                    print(f"   This usually means the credentials are for STK Push, not B2C")
+                    print(f"   Or the app doesn't have B2C permissions enabled")
+                    full_error = "M-Pesa authentication failed. Please ensure B2C is enabled for your app."
+                    
+            elif response_desc:
+                full_error = f"{response_desc}"
+                if response_code:
+                    full_error += f" (Code: {response_code})"
+            else:
+                full_error = "B2C payment failed - unknown error"
+            
+            print(f"✗ B2C payment failed: {full_error}")
+            print(f"Request ID: {request_id}")
+            print(f"Full response: {response_data}")
+            
             return {
                 'success': False,
-                'error': error_message
+                'error': full_error
             }
             
-    except Exception as e:
-        print(f"B2C Payment Error: {str(e)}")
+    except requests.exceptions.Timeout:
+        print(f"B2C Payment Timeout: M-Pesa API took too long to respond")
         return {
             'success': False,
-            'error': f'Exception: {str(e)}'
+            'error': 'M-Pesa is temporarily slow. Please try again in a moment. Your money is safe.'
+        }
+    except requests.exceptions.RequestException as e:
+        print(f"B2C Payment Request Error: {str(e)}")
+        return {
+            'success': False,
+            'error': 'Unable to connect to M-Pesa. Please check your internet connection and try again.'
+        }
+    except Exception as e:
+        print(f"B2C Payment Error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return {
+            'success': False,
+            'error': f'An unexpected error occurred. Please try again later.'
         }
 
 # M-Pesa Daraja API Endpoints
@@ -1571,8 +1639,11 @@ def get_user(user_id):
     })
 @app.route('/api/user/payment-history/<int:user_id>', methods=['GET'])
 def payment_history(user_id):
+    """Get all payment transactions for a specific user"""
     # First check if user exists
-    user = User.query.get_or_404(user_id)
+    user = db.session.get(User, user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
     
     # Get all transactions for this user
     transactions = Transaction.query.filter_by(user_id=user_id).order_by(Transaction.created_at.desc()).all()
@@ -1583,24 +1654,29 @@ def payment_history(user_id):
         'type': transaction.type,
         'amount': transaction.amount,
         'status': transaction.status,
-        'created_at': transaction.created_at,
+        'created_at': transaction.created_at.isoformat() if transaction.created_at else None,
         'phone_number': transaction.phone_number,
         'mpesa_receipt_number': transaction.mpesa_receipt_number,
         'booking_id': transaction.booking_id
     } for transaction in transactions]
     
-    return jsonify({
-        'payments': payments
-    })
+    print(f"[PAYMENT HISTORY] User {user_id} has {len(payments)} transactions")
+    return jsonify({'payments': payments})
 
 # Order History
 @app.route('/api/user/order-history/<int:user_id>', methods=['GET'])
 def user_order_history(user_id):
-    orders = Booking.query.filter_by(user_id=user_id).all()
+    """Get all orders for a specific user"""
+    # Verify user exists
+    user = db.session.get(User, user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    orders = Booking.query.filter_by(user_id=user_id).order_by(Booking.created_at.desc()).all()
     orders_data = []
     for order in orders:
-        driver = Driver.query.get(order.driver_id) if order.driver_id else None
-        driver_user = User.query.get(driver.user_id) if driver else None
+        driver = db.session.get(Driver, order.driver_id) if order.driver_id else None
+        driver_user = db.session.get(User, driver.user_id) if driver else None
         orders_data.append({
             'booking_id': order.id,
             'driver_id': order.driver_id,
@@ -1616,12 +1692,19 @@ def user_order_history(user_id):
             'status': order.status,
             'created_at': order.created_at.isoformat() if order.created_at else None
         })
+    
+    print(f"[ORDER HISTORY] User {user_id} has {len(orders_data)} orders")
     return jsonify({'orders': orders_data})
 
 @app.route('/api/driver/order-history/<int:driver_id>', methods=['GET'])
 def driver_order_history(driver_id):
     """Get all orders for a specific driver (accepted, completed, cancelled)"""
-    orders = Booking.query.filter_by(driver_id=driver_id).all()
+    # Verify driver exists
+    driver = db.session.get(Driver, driver_id)
+    if not driver:
+        return jsonify({'error': 'Driver not found'}), 404
+    
+    orders = Booking.query.filter_by(driver_id=driver_id).order_by(Booking.created_at.desc()).all()
     orders_data = [{
         'booking_id': order.id,
         'user_id': order.user_id,
@@ -1635,6 +1718,8 @@ def driver_order_history(driver_id):
         'created_at': order.created_at.isoformat() if order.created_at else None,  # ISO format timestamp
         'payment_method': 'M-Pesa'  # Currently all payments are via M-Pesa
     } for order in orders]
+    
+    print(f"[ORDER HISTORY] Driver {driver_id} has {len(orders_data)} orders")
     return jsonify({'orders': orders_data})
 
 # Ratings and Reviews
@@ -2338,7 +2423,7 @@ def driver_withdraw():
         if not driver_id or not amount or not phone_number:
             return jsonify({'error': 'Driver ID, amount, and phone number are required'}), 400
         
-        driver = Driver.query.get(driver_id)
+        driver = db.session.get(Driver, driver_id)
         if not driver:
             return jsonify({'error': 'Driver not found'}), 404
         
@@ -2397,13 +2482,42 @@ def driver_withdraw():
         driver.earnings -= amount
         db.session.commit()
         
-        # Check if we should use real M-Pesa API or simulation
+        # In sandbox mode, always simulate withdrawals (B2C requires special permissions)
+        if MPESA_ENVIRONMENT == 'sandbox':
+            print(f"[SANDBOX] Simulating withdrawal of KES {amount} for faster testing")
+            transaction.status = 'completed'
+            transaction.mpesa_receipt_number = f'SIM-WTH-{uuid.uuid4().hex[:10].upper()}'
+            db.session.commit()
+            
+            # Notify driver
+            notification = Notification(
+                user_id=driver.user_id,
+                message=f'Withdrawal successful! KES {amount:.2f} sent to {phone_number[-10:]}'
+            )
+            db.session.add(notification)
+            db.session.commit()
+            
+            # Get updated pending escrow
+            held_escrows = Escrow.query.filter_by(driver_id=driver_id, status='held').all()
+            pending_escrow = sum(e.driver_amount for e in held_escrows)
+            
+            return jsonify({
+                'success': True,
+                'message': f'✅ Withdrawal of KES {amount:.2f} processed successfully!',
+                'transaction_id': transaction_id,
+                'remaining_earnings': driver.earnings,
+                'pending_in_escrow': pending_escrow,
+                'phone_number': phone_number,
+                'simulated': True
+            }), 200
+        
+        # Production mode - attempt real B2C
         use_real_api = MPESA_SECURITY_CREDENTIAL and len(MPESA_SECURITY_CREDENTIAL) > 10
         
         try:
             if use_real_api:
                 # Real M-Pesa B2C API call
-                print(f"Initiating real M-Pesa B2C withdrawal for KES {amount}")
+                print(f"[PRODUCTION] Initiating real M-Pesa B2C withdrawal for KES {amount}")
                 b2c_result = initiate_b2c_payment(
                     phone_number=phone_number,
                     amount=amount,
@@ -2431,7 +2545,7 @@ def driver_withdraw():
                     
                     return jsonify({
                         'success': True,
-                        'message': f'Withdrawal of KES {amount:.2f} is being processed',
+                        'message': f'✅ Withdrawal initiated! KES {amount:.2f} will be sent to {phone_number} shortly',
                         'transaction_id': transaction_id,
                         'status': 'pending',
                         'remaining_earnings': driver.earnings,

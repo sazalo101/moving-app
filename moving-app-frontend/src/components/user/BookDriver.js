@@ -324,7 +324,7 @@ const BookDriver = () => {
     }
   };
 
-  const pollPaymentStatus = async (txnId, maxAttempts = 45) => {
+  const pollPaymentStatus = async (txnId, maxAttempts = 20) => {
     let attempts = 0;
     
     const poll = async () => {
@@ -334,29 +334,29 @@ const BookDriver = () => {
       if (status === 'completed') {
         setIsPaymentProcessing(false);
         toast.success('✅ Payment successful! Your booking is confirmed.', { autoClose: 2000 });
-        toast.info('🔄 Redirecting to your orders...', { autoClose: 1000 });
+        toast.info('🔄 Redirecting to your orders...', { autoClose: 800 });
         setTimeout(() => {
           navigate('/user/orders');
-        }, 1000);
+        }, 800);
         return;
       } else if (status === 'failed') {
         setIsPaymentProcessing(false);
-        toast.error('Payment failed. Please try again.');
+        toast.error('❌ Payment failed. Please try again.');
         setBookingStep(3); // Go back to confirmation
         return;
       } else if (attempts < maxAttempts) {
-        setTimeout(poll, 2000); // Check every 2 seconds (faster)
+        setTimeout(poll, 1000); // Check every 1 second (faster)
       } else {
         setIsPaymentProcessing(false);
-        toast.warning('Payment is taking longer than expected. Please check your order history.');
+        toast.warning('⏱️ Payment is taking longer than expected. Please check your order history.');
         setTimeout(() => {
           navigate('/user/orders');
-        }, 2000);
+        }, 1500);
       }
     };
     
-    // Check immediately first, then start polling after 2 seconds
-    poll();
+    // Check immediately first, then start polling after 500ms
+    setTimeout(poll, 500);
   };
 
   const handleProceedToPayment = () => {
@@ -424,8 +424,12 @@ const BookDriver = () => {
       }
 
       // Show success message
-      toast.success(data.message || 'Check your phone to complete payment');
-      toast.info('📱 Enter your M-Pesa PIN on your phone', { autoClose: 8000 });
+      if (data.simulated) {
+        toast.success('✅ ' + (data.message || 'Payment processed successfully!'), { autoClose: 2000 });
+      } else {
+        toast.success(data.message || 'Check your phone to complete payment');
+        toast.info('📱 Enter your M-Pesa PIN on your phone', { autoClose: 6000 });
+      }
 
       // Start polling for payment status
       pollPaymentStatus(data.transaction_id);

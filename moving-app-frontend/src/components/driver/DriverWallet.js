@@ -114,6 +114,10 @@ const DriverWallet = () => {
     setIsWithdrawing(true);
 
     try {
+      // Set a timeout for the request (30 seconds)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+
       const response = await fetch(API_ENDPOINTS.DRIVER_WITHDRAW, {
         method: 'POST',
         headers: {
@@ -124,21 +128,40 @@ const DriverWallet = () => {
           amount: amount,
           phone_number: phoneNumber
         }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       const data = await response.json();
 
       if (response.ok && data.success) {
-        toast.success(data.message);
+        toast.success('💸 ' + data.message, {
+          position: "top-center",
+          autoClose: 5000,
+        });
         setWithdrawAmount('');
         setShowWithdrawForm(false);
         fetchDriverEarnings();
       } else {
-        toast.error(data.error || 'Withdrawal failed');
+        toast.error(data.error || 'Withdrawal failed', {
+          position: "top-center",
+          autoClose: 5000,
+        });
       }
     } catch (error) {
-      console.error('Withdrawal error:', error);
-      toast.error('Network error. Please try again.');
+      if (error.name === 'AbortError') {
+        toast.error('Request timed out. Please try again. Your funds are safe.', {
+          position: "top-center",
+          autoClose: 5000,
+        });
+      } else {
+        console.error('Withdrawal error:', error);
+        toast.error('Network error. Please try again.', {
+          position: "top-center",
+          autoClose: 4000,
+        });
+      }
     } finally {
       setIsWithdrawing(false);
     }
@@ -301,7 +324,7 @@ const DriverWallet = () => {
                   disabled={earnings < amount}
                   className={`btn quick-withdraw-btn ${earnings >= amount ? 'btn-success' : ''}`}
                 >
-                  Withdraw KES {amount.toLocaleString()}
+                  Withdraw {amount.toLocaleString()}
                 </button>
               ))}
               <button
@@ -332,40 +355,34 @@ const DriverWallet = () => {
             <form onSubmit={handleWithdraw} className="withdraw-form">
               <div className="form-group">
                 <label className="form-label">
-                  M-Pesa Phone Number
+                  💳 M-Pesa Phone Number
                 </label>
                 <div className="input-wrapper">
-                  <div className="input-icon">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                    </svg>
-                  </div>
                   <input
                     type="tel"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="form-input form-input-with-icon"
-                    placeholder="0712345678"
+                    className="form-input"
+                    placeholder="e.g., 0712345678 or 254712345678"
+                    pattern="^(0|254)?[17]\d{8}$"
+                    title="Enter a valid Safaricom number (07XX or 01XX format)"
                     required
                   />
                 </div>
-                <p className="form-hint">Format: 0712345678 or 254712345678</p>
+                <p className="form-hint">🇰🇪 Enter your Safaricom M-Pesa number</p>
               </div>
 
               <div className="form-group">
                 <label className="form-label">
-                  Withdrawal Amount (KES)
+                  💰 Withdrawal Amount (KES)
                 </label>
                 <div className="input-wrapper">
-                  <div className="input-icon-text">
-                    KES
-                  </div>
                   <input
                     type="number"
                     value={withdrawAmount}
                     onChange={(e) => setWithdrawAmount(e.target.value)}
-                    className="form-input form-input-with-currency"
-                    placeholder="Enter amount"
+                    className="form-input"
+                    placeholder="e.g., 500"
                     min="20"
                     max="50000"
                     step="10"
@@ -373,9 +390,9 @@ const DriverWallet = () => {
                   />
                 </div>
                 <div className="form-hint-row">
-                  <p className="form-hint">Min: KES 20 | Max: KES 50,000</p>
+                  <p className="form-hint">⚡ Min: KES 20 | Max: KES 50,000</p>
                   <p className="form-hint-available">
-                    Available: KES {earnings.toFixed(2)}
+                    ✅ Available: KES {earnings.toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -396,9 +413,9 @@ const DriverWallet = () => {
                 ) : (
                   <>
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
-                    Withdraw to M-Pesa
+                    💸 Withdraw to M-Pesa Now
                   </>
                 )}
               </button>
