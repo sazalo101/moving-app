@@ -247,8 +247,8 @@ function App() {
           theme="light"
           style={{ fontSize: '14px' }}
         />
+        <Footer />
       </Router>
-      <Footer /> {/* Footer is displayed on all pages */}
     </AuthProvider>
     </ThemeProvider>
   );

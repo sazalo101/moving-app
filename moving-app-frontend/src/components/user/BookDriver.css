@@ -164,19 +164,24 @@
 }
 
 .btn-secondary.filled {
-  background-color: #e67e22;
-  color: white;
+  background-color: var(--color-secondary);
+  color: var(--text-inverse);
 }
 
 .btn-back {
   background: none;
   border: none;
-  color: #e67e22;
-  font-weight: bold;
+  color: var(--color-secondary);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
-  padding: 10px 0;
+  padding: var(--spacing-sm) 0;
   display: flex;
   align-items: center;
+  transition: color var(--transition-fast);
+}
+
+.btn-back:hover {
+  color: var(--color-secondary-hover);
 }
 
 .btn-back:disabled {
@@ -185,24 +190,25 @@
 }
 
 .btn-confirm {
-  background-color: #4CAF50;
-  color: white;
+  background-color: var(--color-success);
+  color: var(--text-inverse);
   border: none;
-  padding: 12px 25px;
-  border-radius: 6px;
-  font-weight: bold;
-  font-size: 16px;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all var(--transition-base);
 }
 
 .btn-confirm:hover {
-  background-color: #45a049;
+  background-color: var(--color-success-dark);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-confirm:disabled {
@@ -213,26 +219,26 @@
 
 /* === Map Container === */
 .map-wrapper {
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-xl);
 }
 
 .map-container {
   height: 300px;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  border: 1px solid #ddd;
-  margin-bottom: 20px;
+  border: var(--border-width) solid var(--border-color);
+  margin-bottom: var(--spacing-xl);
   position: relative;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  transition: all var(--transition-base);
 }
 
 .map-container:hover {
   transform: scale(1.01);
-  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-lg);
 }
 
 .map-container.compact {
@@ -241,24 +247,25 @@
 
 /* === Trip Details === */
 .trip-details-card {
-  background-color: #f8f4e5;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  border-left: 4px solid #e67e22;
+  background-color: var(--bg-secondary);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--spacing-xl);
+  border-left: 4px solid var(--color-secondary);
 }
 
 .section-title {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 15px;
-  color: #444;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-lg);
+  color: var(--text-primary);
 }
 
 .section-subtitle {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 10px;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-md);
+  color: var(--text-primary);
 }
 
 .trip-details-flex {
@@ -267,54 +274,54 @@
 }
 
 .trip-detail-item {
-  margin-bottom: 5px;
+  margin-bottom: var(--spacing-xs);
 }
 
 .trip-detail-label {
-  font-weight: bold;
-  color: black;
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
 }
 
 .trip-detail-value {
-  color: black;
+  color: var(--text-secondary);
 }
 
 .price-display {
-  font-size: 28px;
-  font-weight: bold;
-  color: #e67e22;
-  background-color: #fff;
-  padding: 10px 15px;
-  border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-secondary);
+  background-color: var(--bg-primary);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
 }
 
 /* === Driver Cards === */
 .drivers-list {
-  margin-top: 15px;
+  margin-top: var(--spacing-lg);
 }
 
 .driver-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 15px;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--transition-base);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #fff;
+  background-color: var(--bg-primary);
 }
 
 .driver-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
   transform: translateY(-2px);
 }
 
 .driver-card.selected {
-  background-color: #fdf2e9;
-  border-color: #e67e22;
+  background-color: rgba(249, 115, 22, 0.05);
+  border-color: var(--color-secondary);
 }
 
 .driver-info {
@@ -327,8 +334,8 @@
   height: 60px;
   border-radius: 50%;
   overflow: hidden;
-  margin-right: 15px;
-  border: 2px solid #e67e22;
+  margin-right: var(--spacing-lg);
+  border: 2px solid var(--color-secondary);
 }
 
 .driver-avatar img {
@@ -342,40 +349,41 @@
 }
 
 .driver-name {
-  font-weight: bold;
-  font-size: 16px;
-  margin-bottom: 4px;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
+  margin-bottom: var(--spacing-xs);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-sm);
+  color: var(--text-primary);
 }
 
 .verified-badge {
-  background-color: #10b981;
-  color: white;
-  font-size: 11px;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-weight: 700;
+  background-color: var(--color-success);
+  color: var(--text-inverse);
+  font-size: var(--font-size-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-full);
+  font-weight: var(--font-weight-bold);
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--spacing-xs);
   box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
 }
 
 .unverified-badge {
-  background-color: #f3f4f6;
-  color: #6b7280;
-  font-size: 10px;
-  padding: 3px 8px;
-  border-radius: 10px;
-  font-weight: 600;
+  background-color: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  padding: 3px var(--spacing-sm);
+  border-radius: var(--radius-full);
+  font-weight: var(--font-weight-semibold);
 }
 
 .driver-vehicle {
-  color: #666;
-  font-size: 14px;
-  margin-bottom: 4px;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-xs);
 }
 
 .driver-rating {
@@ -384,18 +392,19 @@
 }
 
 .rating-star {
-  color: #f39c12;
-  margin-right: 5px;
+  color: var(--color-warning);
+  margin-right: var(--spacing-xs);
 }
 
 .rating-value {
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
 }
 
 .rating-trips {
-  color: #777;
-  font-size: 13px;
-  margin-left: 5px;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+  margin-left: var(--spacing-xs);
 }
 
 .driver-price-section {
@@ -403,41 +412,41 @@
 }
 
 .driver-price {
-  font-weight: bold;
-  font-size: 18px;
-  margin-bottom: 10px;
-  color: #e67e22;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-secondary);
 }
 
 /* === No Drivers Message === */
 .no-drivers {
-  color: #666;
+  color: var(--text-tertiary);
   font-style: italic;
   text-align: center;
-  padding: 20px;
+  padding: var(--spacing-xl);
 }
 
 /* === Confirmation Section === */
 .confirmation-container {
-  margin-bottom: 25px;
+  margin-bottom: var(--spacing-xl);
 }
 
 .confirmation-title {
-  font-size: 22px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  color: #444;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-xl);
+  color: var(--text-primary);
   text-align: center;
 }
 
 .confirmation-details {
   display: flex;
   justify-content: space-between;
-  background-color: #f8f4e5;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  border-left: 4px solid #e67e22;
+  background-color: var(--bg-secondary);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--spacing-xl);
+  border-left: 4px solid var(--color-secondary);
 }
 
 .confirmation-left {
@@ -445,7 +454,7 @@
 }
 
 .confirmation-section {
-  margin-bottom: 15px;
+  margin-bottom: var(--spacing-lg);
 }
 
 .confirmation-section:last-child {
@@ -453,10 +462,10 @@
 }
 
 .confirmation-section-title {
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 10px;
-  color: #555;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-md);
+  color: var(--text-secondary);
 }
 
 .driver-info-compact {
@@ -469,8 +478,8 @@
   height: 50px;
   border-radius: 50%;
   overflow: hidden;
-  margin-right: 10px;
-  border: 2px solid #e67e22;
+  margin-right: var(--spacing-md);
+  border: 2px solid var(--color-secondary);
 }
 
 .driver-avatar-compact img {
@@ -480,18 +489,19 @@
 }
 
 .driver-name-compact {
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
   margin-bottom: 2px;
+  color: var(--text-primary);
 }
 
 .driver-meta-compact {
-  font-size: 13px;
-  color: #666;
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
 }
 
 .confirmation-right {
   flex: 0 0 auto;
-  margin-left: 20px;
+  margin-left: var(--spacing-xl);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -500,47 +510,47 @@
 }
 
 .price-box {
-  background-color: #fff;
-  padding: 15px 20px;
-  border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 10px;
+  background-color: var(--bg-primary);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-md);
   min-width: 150px;
 }
 
 .price-label {
-  font-size: 14px;
-  color: #777;
-  margin-bottom: 5px;
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  margin-bottom: var(--spacing-xs);
 }
 
 .price-value {
-  font-size: 28px;
-  font-weight: bold;
-  color: #e67e22;
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-secondary);
 }
 
 .promo-applied {
-  background-color: #e8f5e9;
-  border: 1px solid #c8e6c9;
-  border-radius: 4px;
-  padding: 8px 12px;
-  margin-top: 5px;
-  font-size: 13px;
-  color: #2e7d32;
+  background-color: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-top: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-success-dark);
 }
 
 .promo-code {
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
 }
 
 /* === Promo Code Section === */
 .promo-section {
-  margin-bottom: 25px;
-  background-color: #fff;
-  padding: 15px;
-  border-radius: 8px;
-  border: 1px dashed #ddd;
+  margin-bottom: var(--spacing-xl);
+  background-color: var(--bg-primary);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--border-color);
 }
 
 .promo-input-group {
@@ -554,14 +564,19 @@
 }
 
 .promo-button {
-  background-color: #e67e22;
-  color: white;
+  background-color: var(--color-secondary);
+  color: var(--text-inverse);
   border: none;
-  padding: 0 20px;
-  border-top-right-radius: 6px;
-  border-bottom-right-radius: 6px;
+  padding: 0 var(--spacing-xl);
+  border-top-right-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
   cursor: pointer;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
+  transition: background-color var(--transition-fast);
+}
+
+.promo-button:hover {
+  background-color: var(--color-secondary-hover);
 }
 
 .promo-button:disabled {
@@ -573,28 +588,29 @@
 .action-buttons {
   display: flex;
   justify-content: space-between;
-  border-top: 1px solid #eee;
-  padding-top: 20px;
+  border-top: var(--border-width) solid var(--border-color);
+  padding-top: var(--spacing-xl);
 }
 
 /* === Booking Info === */
 .booking-info {
-  margin-top: 25px;
-  padding: 15px;
-  background-color: #f9f9f9;
-  border-radius: 6px;
-  font-size: 14px;
-  color: #666;
+  margin-top: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
 }
 
 .booking-info-title {
-  margin-bottom: 5px;
-  font-weight: bold;
+  margin-bottom: var(--spacing-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-secondary);
 }
 
 .booking-info-list {
-  padding-left: 20px;
-  margin-top: 5px;
+  padding-left: var(--spacing-xl);
+  margin-top: var(--spacing-xs);
 }
 
 .booking-info-list li {
@@ -608,34 +624,34 @@
 /* === Footer === */
 .book-driver-footer {
   text-align: center;
-  margin-top: 30px;
-  border-top: 1px solid #eee;
-  padding-top: 20px;
-  color: #888;
-  font-size: 14px;
+  margin-top: var(--spacing-2xl);
+  border-top: var(--border-width) solid var(--border-color);
+  padding-top: var(--spacing-xl);
+  color: var(--text-light);
+  font-size: var(--font-size-sm);
 }
 
 .footer-text {
-  margin-top: 5px;
+  margin-top: var(--spacing-xs);
 }
 
 /* === Responsive Design === */
 @media (max-width: 768px) {
   .book-driver-container {
-    padding: 15px;
+    padding: var(--spacing-md);
   }
 
   .book-driver-title {
-    font-size: 24px;
+    font-size: var(--font-size-2xl);
   }
 
   .step-indicator {
-    font-size: 14px;
-    padding: 10px 8px;
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-sm);
   }
 
   .booking-card {
-    padding: 20px;
+    padding: var(--spacing-lg);
   }
 
   .driver-card {
@@ -645,7 +661,7 @@
 
   .driver-price-section {
     text-align: left;
-    margin-top: 15px;
+    margin-top: var(--spacing-lg);
     width: 100%;
   }
 
@@ -654,7 +670,7 @@
   }
 
   .price-display {
-    margin-top: 15px;
+    margin-top: var(--spacing-lg);
     width: 100%;
     text-align: center;
   }
@@ -665,13 +681,13 @@
 
   .confirmation-right {
     margin-left: 0;
-    margin-top: 15px;
+    margin-top: var(--spacing-lg);
     width: 100%;
   }
 
   .action-buttons {
     flex-direction: column;
-    gap: 10px;
+    gap: var(--spacing-md);
   }
 
   .btn-confirm,
@@ -683,17 +699,17 @@
 
 /* === M-Pesa Payment Styles === */
 .payment-summary {
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 25px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
 }
 
 .payment-detail {
   display: flex;
   justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px solid #e0e0e0;
+  padding: var(--spacing-md) 0;
+  border-bottom: var(--border-width) solid var(--border-color);
 }
 
 .payment-detail:last-child {
@@ -701,36 +717,38 @@
 }
 
 .payment-detail span:first-child {
-  color: #666;
-  font-weight: 500;
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
 }
 
 .payment-detail span:last-child,
 .payment-detail strong {
-  color: #333;
-  font-weight: 600;
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
 }
 
 .mpesa-form {
-  margin: 25px 0;
+  margin: var(--spacing-xl) 0;
 }
 
 .payment-processing {
   text-align: center;
-  padding: 30px;
-  background: #fff3cd;
-  border-radius: 8px;
-  margin-top: 20px;
+  padding: var(--spacing-2xl);
+  background: rgba(245, 158, 11, 0.1);
+  border: var(--border-width) solid rgba(245, 158, 11, 0.2);
+  border-radius: var(--radius-lg);
+  margin-top: var(--spacing-xl);
+  color: var(--text-primary);
 }
 
 .spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #e67e22;
+  border: 4px solid var(--border-color);
+  border-top: 4px solid var(--color-secondary);
   border-radius: 50%;
   width: 40px;
   height: 40px;
   animation: spin 1s linear infinite;
-  margin: 0 auto 15px;
+  margin: 0 auto var(--spacing-lg);
 }
 
 @keyframes spin {
@@ -749,10 +767,10 @@
   }
 
   .driver-name {
-    font-size: 14px;
+    font-size: var(--font-size-sm);
   }
 
   .driver-vehicle {
-    font-size: 13px;
+    font-size: var(--font-size-sm);
   }
 }

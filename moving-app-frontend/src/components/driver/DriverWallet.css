@@ -214,39 +214,39 @@
 
 /* Quick Withdraw Section */
 .quick-withdraw-card {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.07);
-  padding: 24px;
-  transition: all 0.3s ease;
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-xl);
+  transition: all var(--transition-base);
 }
 
 .quick-withdraw-card:hover {
-  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-lg);
   transform: translateY(-2px);
 }
 
 .quick-withdraw-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0 0 6px 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--spacing-sm);
 }
 
 .quick-withdraw-title svg {
   width: 20px;
   height: 20px;
-  color: #2563eb;
+  color: var(--color-primary);
 }
 
 .quick-withdraw-subtitle {
-  font-size: 13px;
-  color: #6b7280;
-  margin: 0 0 20px 0;
-  font-weight: 500;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin: 0 0 var(--spacing-xl) 0;
+  font-weight: var(--font-weight-medium);
 }
 
 .quick-withdraw-buttons {
@@ -267,7 +267,7 @@
 }
 
 .quick-withdraw-btn.btn-success {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
@@ -277,49 +277,48 @@
 }
 
 .quick-withdraw-btn:disabled {
-  background: #f3f4f6;
-  color: #9ca3af;
+  background: var(--bg-tertiary);
+  color: var(--text-light);
   cursor: not-allowed;
   box-shadow: none;
-  border-color: #e5e7eb;
+  border-color: var(--border-color);
 }
 
 .custom-amount-toggle {
   width: 100%;
   padding: 12px 20px;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 14px;
-  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-  color: #374151;
-  border: 2px solid #d1d5db;
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-xs);
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--border-color) 100%);
+  color: var(--text-secondary);
+  border: 2px solid var(--border-color-dark);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--transition-base);
   letter-spacing: 0.3px;
   text-transform: uppercase;
-  font-size: 12px;
 }
 
 .custom-amount-toggle:hover {
-  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
-  border-color: #9ca3af;
+  background: linear-gradient(135deg, var(--border-color) 0%, var(--border-color-dark) 100%);
+  border-color: var(--text-light);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-md);
 }
 
 /* Withdraw Form */
 .withdraw-form-card {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.07);
-  padding: 24px;
-  transition: all 0.3s ease;
-  border: 2px solid #f3f4f6;
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-xl);
+  transition: all var(--transition-base);
+  border: 2px solid var(--bg-tertiary);
 }
 
 .withdraw-form-card:hover {
-  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-  border-color: #e5e7eb;
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-color);
 }
 
 .withdraw-form-card.hidden {
@@ -330,33 +329,33 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid #f3f4f6;
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 2px solid var(--bg-tertiary);
 }
 
 .withdraw-form-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0 0 6px 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--spacing-sm);
   letter-spacing: 0.3px;
 }
 
 .withdraw-form-title svg {
   width: 22px;
   height: 22px;
-  color: #10b981;
+  color: var(--color-success);
 }
 
 .withdraw-form-subtitle {
-  font-size: 13px;
-  color: #6b7280;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
   margin: 0;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 .withdraw-form {
@@ -372,13 +371,12 @@
 }
 
 .form-label {
-  font-size: 14px;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 12px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
   letter-spacing: 0.3px;
   text-transform: uppercase;
-  font-size: 11px;
   display: block;
   line-height: 1.5;
 }
@@ -401,8 +399,8 @@
 .input-icon svg {
   width: 20px;
   height: 20px;
-  color: #10b981;
-  transition: all 0.3s ease;
+  color: var(--color-success);
+  transition: all var(--transition-base);
 }
 
 .input-icon-text {
@@ -410,9 +408,9 @@
   left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  color: #10b981;
-  font-weight: 700;
-  font-size: 15px;
+  color: var(--color-success);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
   pointer-events: none;
   z-index: 1;
   min-width: 35px;
@@ -421,60 +419,60 @@
 .form-input {
   width: 100%;
   padding: 14px 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  background: #f9fafb;
-  color: #1f2937;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition-base);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
   box-sizing: border-box;
   display: block;
 }
 
 .form-input::placeholder {
-  color: #9ca3af;
-  font-weight: 400;
+  color: var(--text-light);
+  font-weight: var(--font-weight-normal);
   opacity: 0.8;
 }
 
 .form-input:hover {
-  border-color: #d1d5db;
-  background: #ffffff;
+  border-color: var(--border-color-dark);
+  background: var(--bg-primary);
 }
 
 .form-input:focus {
   outline: none;
-  border-color: #10b981;
-  background: #ffffff;
+  border-color: var(--color-success);
+  background: var(--bg-primary);
   box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15),
               0 4px 12px rgba(16, 185, 129, 0.1);
   transform: translateY(-1px);
 }
 
 .form-input:focus::placeholder {
-  color: #d1d5db;
+  color: var(--border-color-dark);
   opacity: 0.6;
 }
 
 .form-input:focus + .input-icon svg,
 .input-wrapper:focus-within .input-icon svg {
-  color: #059669;
+  color: var(--color-success-dark);
   transform: translateY(-50%) scale(1.1);
 }
 
 .form-input:invalid:not(:placeholder-shown) {
-  border-color: #ef4444;
+  border-color: var(--color-danger);
 }
 
 .form-input:invalid:not(:placeholder-shown):focus {
-  border-color: #dc2626;
+  border-color: var(--color-danger-dark);
   box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15),
               0 4px 12px rgba(239, 68, 68, 0.1);
 }
 
 .form-input:valid:not(:placeholder-shown) {
-  border-color: #10b981;
+  border-color: var(--color-success);
 }
 
 .form-input-with-icon {
@@ -486,10 +484,10 @@
 }
 
 .form-hint {
-  font-size: 12px;
-  color: #6b7280;
-  margin-top: 6px;
-  font-weight: 500;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin-top: var(--spacing-xs);
+  font-weight: var(--font-weight-medium);
   line-height: 1.5;
   display: block;
 }
@@ -504,32 +502,32 @@
 }
 
 .form-hint-available {
-  font-size: 12px;
-  font-weight: 700;
-  color: #10b981;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-success);
   background: rgba(16, 185, 129, 0.1);
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   white-space: nowrap;
 }
 
 .submit-btn {
   width: 100%;
-  background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+  background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 50%, #047857 100%);
   background-size: 200% 100%;
-  color: white;
+  color: var(--text-inverse);
   padding: 16px 24px;
-  border-radius: 12px;
-  font-weight: 700;
-  font-size: 15px;
+  border-radius: var(--radius-xl);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--transition-base);
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: var(--spacing-sm);
   position: relative;
   overflow: hidden;
   text-transform: uppercase;
@@ -566,8 +564,8 @@
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+  box-shadow: var(--shadow-sm);
+  background: linear-gradient(135deg, var(--text-light) 0%, var(--text-tertiary) 100%);
 }
 
 .submit-btn:disabled::before {
@@ -587,12 +585,12 @@
 }
 
 .insufficient-balance-alert {
-  background: #fef3c7;
-  border-left: 4px solid #f59e0b;
-  padding: 12px;
-  border-radius: 8px;
+  background: var(--color-warning-bg);
+  border-left: 4px solid var(--color-warning);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
   display: flex;
-  gap: 10px;
+  gap: var(--spacing-sm);
 }
 
 .alert-icon {
@@ -602,7 +600,7 @@
 .alert-icon svg {
   width: 16px;
   height: 16px;
-  color: #f59e0b;
+  color: var(--color-warning);
 }
 
 .alert-content {
@@ -610,48 +608,48 @@
 }
 
 .alert-text {
-  font-size: 12px;
-  color: #92400e;
+  font-size: var(--font-size-xs);
+  color: var(--color-warning-dark);
   margin: 0;
 }
 
 /* Withdrawal History */
 .withdrawal-history-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
-  margin-bottom: 24px;
+  margin-bottom: var(--spacing-xl);
 }
 
 .withdrawal-history-header {
-  padding: 20px;
-  border-bottom: 1px solid #e5e7eb;
-  background: linear-gradient(to right, #f9fafb, white);
+  padding: var(--spacing-lg);
+  border-bottom: var(--border-width) solid var(--border-color);
+  background: linear-gradient(to right, var(--bg-secondary), var(--bg-primary));
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
 .history-header-left h2 {
-  font-size: 18px;
-  font-weight: bold;
-  color: #1f2937;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
   margin: 0 0 4px 0;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-sm);
 }
 
 .history-header-left h2 svg {
   width: 18px;
   height: 18px;
-  color: #3b82f6;
+  color: var(--color-primary);
 }
 
 .history-header-left p {
-  font-size: 13px;
-  color: #6b7280;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
   margin: 0;
 }
 
@@ -660,70 +658,70 @@
 }
 
 .history-total-label {
-  font-size: 12px;
-  color: #6b7280;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
   margin: 0 0 4px 0;
 }
 
 .history-total-amount {
-  font-size: 20px;
-  font-weight: bold;
-  color: #10b981;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-success);
   margin: 0;
 }
 
 .withdrawal-empty-state {
   text-align: center;
-  padding: 48px 20px;
+  padding: var(--spacing-4xl) var(--spacing-lg);
 }
 
 .empty-state-icon {
   width: 64px;
   height: 64px;
-  background: #f3f4f6;
-  border-radius: 50%;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-full);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-md);
 }
 
 .empty-state-icon svg {
   width: 28px;
   height: 28px;
-  color: #9ca3af;
+  color: var(--text-light);
 }
 
 .empty-state-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #374151;
-  margin: 0 0 8px 0;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  margin: 0 0 var(--spacing-sm) 0;
 }
 
 .empty-state-description {
-  color: #6b7280;
-  margin: 0 0 20px 0;
-  font-size: 13px;
+  color: var(--text-tertiary);
+  margin: 0 0 var(--spacing-lg) 0;
+  font-size: var(--font-size-xs);
 }
 
 .empty-state-action {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--spacing-xs);
   padding: 10px 20px;
-  background: linear-gradient(to right, #10b981, #059669);
-  color: white;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 13px;
+  background: linear-gradient(to right, var(--color-success), var(--color-success-dark));
+  color: var(--text-inverse);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-xs);
   border: none;
   cursor: pointer;
-  transition: box-shadow 0.2s;
+  transition: box-shadow var(--transition-fast);
 }
 
 .empty-state-action:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .empty-state-action:disabled {
@@ -747,35 +745,35 @@
 }
 
 .withdrawal-table thead {
-  background: #f9fafb;
+  background: var(--bg-secondary);
 }
 
 .withdrawal-table th {
   padding: 12px 16px;
   text-align: left;
-  font-size: 11px;
-  font-weight: bold;
-  color: #6b7280;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .withdrawal-table tbody tr {
-  transition: background 0.2s;
-  border-bottom: 1px solid #f3f4f6;
+  transition: background var(--transition-fast);
+  border-bottom: var(--border-width) solid var(--bg-tertiary);
 }
 
 .withdrawal-table tbody tr:nth-child(even) {
-  background: #f9fafb;
+  background: var(--bg-secondary);
 }
 
 .withdrawal-table tbody tr:hover {
-  background: #f3f4f6;
+  background: var(--bg-tertiary);
 }
 
 .withdrawal-table td {
   padding: 12px 16px;
-  font-size: 13px;
+  font-size: var(--font-size-xs);
 }
 
 .table-cell-id {
@@ -787,58 +785,58 @@
 .table-cell-id svg {
   width: 14px;
   height: 14px;
-  color: #9ca3af;
+  color: var(--text-light);
 }
 
 .table-cell-id span {
   font-family: monospace;
-  color: #1f2937;
-  font-weight: 500;
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
 }
 
 .table-cell-amount {
-  font-weight: bold;
-  color: #1f2937;
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
 }
 
 .status-badge-table {
   display: inline-block;
   padding: 4px 10px;
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   font-size: 10px;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
   text-transform: uppercase;
 }
 
 .status-completed {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--color-success-bg);
+  color: var(--color-success-dark);
 }
 
 .status-pending {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--color-warning-bg);
+  color: var(--color-warning-dark);
 }
 
 .status-failed {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--color-danger-bg);
+  color: var(--color-danger-dark);
 }
 
 .table-cell-receipt {
   font-family: monospace;
-  color: #10b981;
-  font-weight: 600;
-  font-size: 12px;
+  color: var(--color-success);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-xs);
 }
 
 .table-cell-receipt-pending {
-  color: #9ca3af;
+  color: var(--text-light);
   font-style: italic;
 }
 
 .table-cell-date {
-  color: #6b7280;
+  color: var(--text-tertiary);
 }
 
 /* Info Cards */
@@ -856,100 +854,100 @@
 }
 
 .info-card-escrow {
-  background: linear-gradient(to bottom right, #fef3c7, #fde68a);
-  border-color: #fcd34d;
+  background: linear-gradient(to bottom right, var(--color-warning-bg), var(--color-warning-light));
+  border-color: var(--color-warning);
 }
 
 .info-card-instant {
-  background: linear-gradient(to bottom right, #dbeafe, #bfdbfe);
-  border-color: #93c5fd;
+  background: linear-gradient(to bottom right, var(--color-primary-bg), var(--color-primary-light));
+  border-color: var(--color-primary-light);
 }
 
 .info-card-secure {
-  background: linear-gradient(to bottom right, #d1fae5, #a7f3d0);
-  border-color: #6ee7b7;
+  background: linear-gradient(to bottom right, var(--color-success-bg), var(--color-success-light));
+  border-color: var(--color-success-light);
 }
 
 .info-card-support {
-  background: linear-gradient(to bottom right, #e9d5ff, #d8b4fe);
-  border-color: #c084fc;
+  background: linear-gradient(to bottom right, var(--color-accent-bg), var(--color-accent-light));
+  border-color: var(--color-accent-light);
 }
 
 .info-card-content {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: var(--spacing-sm);
 }
 
 .info-card-icon {
-  border-radius: 8px;
-  padding: 6px;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-xs);
   flex-shrink: 0;
 }
 
 .info-card-escrow .info-card-icon {
-  background: #f59e0b;
+  background: var(--color-warning);
 }
 
 .info-card-instant .info-card-icon {
-  background: #3b82f6;
+  background: var(--color-primary);
 }
 
 .info-card-secure .info-card-icon {
-  background: #10b981;
+  background: var(--color-success);
 }
 
 .info-card-support .info-card-icon {
-  background: #a855f7;
+  background: var(--color-accent);
 }
 
 .info-card-icon svg {
   width: 16px;
   height: 16px;
-  color: white;
+  color: var(--text-inverse);
 }
 
 .info-card-text h3 {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   margin: 0 0 4px 0;
 }
 
 .info-card-escrow h3 {
-  color: #78350f;
+  color: var(--color-warning-dark);
 }
 
 .info-card-instant h3 {
-  color: #1e3a8a;
+  color: var(--color-primary-dark);
 }
 
 .info-card-secure h3 {
-  color: #065f46;
+  color: var(--color-success-dark);
 }
 
 .info-card-support h3 {
-  color: #581c87;
+  color: var(--color-accent-dark);
 }
 
 .info-card-text p {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   margin: 0;
 }
 
 .info-card-escrow p {
-  color: #92400e;
+  color: var(--color-warning-dark);
 }
 
 .info-card-instant p {
-  color: #1e40af;
+  color: var(--color-primary-dark);
 }
 
 .info-card-secure p {
-  color: #047857;
+  color: var(--color-success-dark);
 }
 
 .info-card-support p {
-  color: #6b21a8;
+  color: var(--color-accent-dark);
 }
 
 /* Animations */

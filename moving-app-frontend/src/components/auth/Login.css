@@ -127,23 +127,7 @@ label[for="password"],
   text-decoration: underline;
 }
 
-/* === Moving Text Using ID === */
-#moving-text {
-  display: inline-block;
-  white-space: nowrap;
-  animation: moveRight 8s linear infinite;
-  color: var(--color-primary);
-}
 
-/* === Animation Keyframes === */
-@keyframes moveRight {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(100%);
-  }
-}
 
 /* === Mobile Responsive === */
 @media (max-width: 768px) {

@@ -38,6 +38,14 @@
   --color-info-light: #22d3ee;
   --color-info-dark: #0891b2;
   
+  /* Status Background Colors (translucent tints) */
+  --color-success-bg: #d1fae5;
+  --color-warning-bg: #fef3c7;
+  --color-danger-bg: #fee2e2;
+  --color-primary-bg: #dbeafe;
+  --color-accent-bg: #e9d5ff;
+  --color-info-bg: #cffafe;
+  
   /* Neutral Colors */
   --color-white: #ffffff;
   --color-gray-50: #f9fafb;
@@ -196,6 +204,14 @@
   --color-accent: #a78bfa;
   --color-accent-light: #c4b5fd;
   --color-accent-dark: #8b5cf6;
+  
+  /* Status Background Colors - Dark Mode (subdued) */
+  --color-success-bg: rgba(16, 185, 129, 0.15);
+  --color-warning-bg: rgba(245, 158, 11, 0.15);
+  --color-danger-bg: rgba(239, 68, 68, 0.15);
+  --color-primary-bg: rgba(59, 130, 246, 0.15);
+  --color-accent-bg: rgba(139, 92, 246, 0.15);
+  --color-info-bg: rgba(6, 182, 212, 0.15);
   
   /* Shadows - Dark with colored glows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);

@@ -44,7 +44,7 @@ const Login = () => {
 
   return (
     <div className="login-container">
-      <h2 className="login-title" id="moving-text">Login to Moving App</h2>
+      <h2 className="login-title">Login to Moving App</h2>
       <form onSubmit={handleSubmit} className="login-form">
         {/* Email Input */}
         <div className="form-group">

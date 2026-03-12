@@ -48,7 +48,7 @@
   box-shadow: var(--shadow-xl);
   padding: var(--spacing-2xl);
   margin-bottom: var(--spacing-2xl);
-  color: white;
+  color: var(--text-inverse);
   border: none;
 }
 
@@ -356,7 +356,7 @@
 .order-header {
   background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
   padding: var(--spacing-md);
-  color: white;
+  color: var(--text-inverse);
 }
 
 .order-body {
@@ -393,7 +393,7 @@
   background: var(--color-success);
   border-radius: 50%;
   padding: 4px;
-  color: white;
+  color: var(--text-inverse);
   display: inline-flex;
   box-shadow: var(--shadow-sm);
 }
@@ -402,7 +402,7 @@
   background: var(--color-danger);
   border-radius: 50%;
   padding: 4px;
-  color: white;
+  color: var(--text-inverse);
   display: inline-flex;
   box-shadow: var(--shadow-sm);
 }

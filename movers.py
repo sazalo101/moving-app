@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime 
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 import os
 import requests
@@ -743,6 +743,20 @@ def available_orders(driver_id=None):
 def accept_order(booking_id):
     booking = Booking.query.get_or_404(booking_id)
     driver = Driver.query.get_or_404(booking.driver_id)
+    
+    # Verify escrow exists before accepting
+    escrow = Escrow.query.filter_by(booking_id=booking.id).first()
+    if not escrow:
+        return jsonify({
+            'error': 'Cannot accept order: Payment not confirmed yet. Escrow record not found.',
+            'details': 'The customer\'s payment may still be processing. Please wait for payment confirmation.'
+        }), 400
+    
+    if escrow.status != 'held':
+        return jsonify({
+            'error': f'Cannot accept order: Escrow status is {escrow.status}, expected "held"'
+        }), 400
+    
     booking.status = 'accepted'
     db.session.commit()
 
@@ -762,14 +776,22 @@ def complete_order(booking_id):
     booking = Booking.query.get_or_404(booking_id)
     
     if booking.status != 'accepted':
-        return jsonify({'error': 'Only accepted orders can be completed'}), 400
+        return jsonify({
+            'error': 'Only accepted orders can be completed',
+            'current_status': booking.status
+        }), 400
     
     driver = Driver.query.get_or_404(booking.driver_id)
     
     # Get escrow record
     escrow = Escrow.query.filter_by(booking_id=booking.id).first()
     if not escrow:
-        return jsonify({'error': 'Escrow record not found'}), 404
+        return jsonify({
+            'error': 'Cannot complete order: Escrow record not found',
+            'details': 'This order was accepted without payment confirmation. Please contact support.',
+            'booking_id': booking_id,
+            'booking_status': booking.status
+        }), 400
     
     if escrow.status != 'held':
         return jsonify({'error': f'Escrow already {escrow.status}'}), 400
@@ -779,7 +801,7 @@ def complete_order(booking_id):
     driver.completed_orders += 1
     booking.status = 'completed'
     escrow.status = 'released'
-    escrow.released_at = datetime.utcnow()
+    escrow.released_at = datetime.now(timezone.utc)
     
     # Create transaction record for the escrow release
     escrow_release_transaction = Transaction(
@@ -2244,7 +2266,7 @@ def user_cancel_order(booking_id):
         user = User.query.get(booking.user_id)
         user.balance += escrow.amount
         escrow.status = 'refunded'
-        escrow.refunded_at = datetime.utcnow()
+        escrow.refunded_at = datetime.now(timezone.utc)
         
         # Create refund transaction record
         refund_transaction = Transaction(
@@ -2293,7 +2315,7 @@ def driver_cancel_order(booking_id):
         user = User.query.get(booking.user_id)
         user.balance += escrow.amount
         escrow.status = 'refunded'
-        escrow.refunded_at = datetime.utcnow()
+        escrow.refunded_at = datetime.now(timezone.utc)
         
         # Create refund transaction record
         refund_transaction = Transaction(
@@ -2629,7 +2651,7 @@ def submit_driver_verification():
     driver.profile_photo_url = data.get('profile_photo_url')
     
     driver.verification_status = 'under_review'
-    driver.submitted_at = datetime.utcnow()
+    driver.submitted_at = datetime.now(timezone.utc)
     driver.rejection_reason = None
     
     db.session.commit()
@@ -2724,7 +2746,7 @@ def verify_driver(driver_id):
         driver.verification_status = 'approved'
         driver.is_available = True  # Make driver available for bookings
         driver.verified_by = admin_id
-        driver.verified_at = datetime.utcnow()
+        driver.verified_at = datetime.now(timezone.utc)
         driver.rejection_reason = None
         message = f'Congratulations! Your driver account has been verified and approved. You can now accept bookings.'
     elif action == 'reject':
@@ -2732,7 +2754,7 @@ def verify_driver(driver_id):
         driver.verification_status = 'rejected'
         driver.is_available = False  # Keep driver unavailable
         driver.verified_by = admin_id
-        driver.verified_at = datetime.utcnow()
+        driver.verified_at = datetime.now(timezone.utc)
         driver.rejection_reason = rejection_reason
         message = f'Your driver verification was rejected. Reason: {rejection_reason}. Please resubmit with correct documents.'
     else:
