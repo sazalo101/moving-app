@@ -143,12 +143,22 @@ const UserDashboard = () => {
                   </span>
                 </div>
                 {booking.status === "accepted" && (
-                  <div>
+                  <div className="dashboard-booking-action">
                     <Link
                       to={`/user/track/${booking.booking_id}`}
                       className="dashboard-track-link"
                     >
                       Track Driver
+                    </Link>
+                  </div>
+                )}
+                {(booking.status === "accepted" || booking.status === "in_progress") && (
+                  <div className="dashboard-booking-action">
+                    <Link
+                      to={`/user/track-order/${booking.booking_id}`}
+                      className="dashboard-view-tracking-link"
+                    >
+                      📍 Track Order
                     </Link>
                   </div>
                 )}
@@ -167,6 +177,18 @@ const UserDashboard = () => {
           onClick={() => navigate('/user/book-driver')}
         >
           📦 Book a Mover
+        </button>
+        <button 
+          className="dashboard-book-btn"
+          onClick={() => navigate('/user/drivers-near-me')}
+        >
+          🗺️ Find Drivers Near Me
+        </button>
+        <button 
+          className="dashboard-book-btn"
+          onClick={() => navigate('/user/orders')}
+        >
+          📊 My Orders & Tracking
         </button>
         <button className="dashboard-support-btn" onClick={navigateToSupport}>
           Contact Support

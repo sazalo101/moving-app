@@ -21,6 +21,8 @@ import UserDashboard from "./components/user/UserDashboard";
 import BookDriver from "./components/user/BookDriver";
 import UserOrderHistory from "./components/user/UserOrderHistory";
 import TrackDriver from "./components/user/TrackDriver";
+import OrderTracking from "./components/user/OrderTracking";
+import DriversNearMe from "./components/user/DriversNearMe";
 import UserNotifications from "./components/user/UserNotifications";
 import UserTransactions from "./components/user/UserTransactions";
 import UserSupportTickets from "./components/user/UserSupportTickets";
@@ -85,6 +87,14 @@ function App() {
               }
             />
             <Route
+              path="/user/drivers-near-me"
+              element={
+                <ProtectedRoute allowedRoles={["user"]}>
+                  <DriversNearMe />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/user/orders"
               element={
                 <ProtectedRoute allowedRoles={["user"]}>
@@ -97,6 +107,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["user"]}>
                   <TrackDriver />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/user/track-order/:bookingId"
+              element={
+                <ProtectedRoute allowedRoles={["user"]}>
+                  <OrderTracking />
                 </ProtectedRoute>
               }
             />

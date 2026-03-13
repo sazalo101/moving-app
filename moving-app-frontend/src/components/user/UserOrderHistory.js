@@ -220,12 +220,20 @@ const UserOrderHistory = () => {
                     </Link>
                   )}
                   {order.status === 'completed' && (
-                    <button 
-                      className="action-btn action-btn-review"
-                      onClick={() => openReviewModal(order)}
-                    >
-                      Leave a Review
-                    </button>
+                    <div className="order-action-buttons">
+                      <Link
+                        to={`/user/track-order/${order.booking_id}`}
+                        className="action-btn action-btn-track-history"
+                      >
+                        📍 Track Order
+                      </Link>
+                      <button 
+                        className="action-btn action-btn-review"
+                        onClick={() => openReviewModal(order)}
+                      >
+                        ⭐ Leave a Review
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>

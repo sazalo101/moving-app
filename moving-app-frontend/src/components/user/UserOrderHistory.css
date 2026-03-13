@@ -250,6 +250,15 @@
   box-shadow: 0 4px 6px rgba(0,0,0,0.15);
 }
 
+.action-btn-track-history {
+  background: linear-gradient(to right, #10b981, #059669);
+  color: white;
+}
+
+.action-btn-track-history:hover {
+  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+}
+
 .action-btn-review {
   background: #fef3c7;
   color: #92400e;
@@ -257,6 +266,12 @@
 
 .action-btn-review:hover {
   background: #fde68a;
+}
+
+.order-action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 /* Responsive */

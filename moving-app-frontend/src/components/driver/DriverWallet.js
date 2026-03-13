@@ -290,15 +290,30 @@ const DriverWallet = () => {
                 </svg>
               </div>
               <div className="escrow-details">
-                <h3 className="escrow-title">You have funds in escrow</h3>
+                <h3 className="escrow-title">💰 KES {pendingEscrow.toFixed(2)} In Escrow</h3>
                 <p className="escrow-description">
-                  <strong>KES {pendingEscrow.toFixed(2)}</strong> from {pendingOrders} pending {pendingOrders === 1 ? 'order' : 'orders'} will be released to your available balance once you complete {pendingOrders === 1 ? 'the delivery' : 'the deliveries'}.
+                  You have <strong>{pendingOrders}</strong> active order{pendingOrders !== 1 ? 's' : ''} with funds waiting to be released.
                 </p>
                 <div className="escrow-info-box">
-                  <p>
-                    <span>How it works:</span> When customers book your services, payments are held securely in escrow. 
-                    After you complete the delivery, funds are automatically released to your available balance and you can withdraw them to M-Pesa.
-                  </p>
+                  <div className="escrow-step">
+                    <span className="step-number">1</span>
+                    <span className="step-text">Complete the delivery</span>
+                  </div>
+                  <div className="escrow-arrow">→</div>
+                  <div className="escrow-step">
+                    <span className="step-number">2</span>
+                    <span className="step-text">Mark order as completed</span>
+                  </div>
+                  <div className="escrow-arrow">→</div>
+                  <div className="escrow-step">
+                    <span className="step-number">3</span>
+                    <span className="step-text">Funds auto-release</span>
+                  </div>
+                  <div className="escrow-arrow">→</div>
+                  <div className="escrow-step">
+                    <span className="step-number">4</span>
+                    <span className="step-text">Withdraw to M-Pesa</span>
+                  </div>
                 </div>
               </div>
             </div>

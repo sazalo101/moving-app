@@ -192,6 +192,40 @@
   border-radius: var(--radius-md);
   padding: var(--spacing-md);
   border: var(--border-width) solid var(--color-warning);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  margin-top: var(--spacing-md);
+}
+
+.escrow-step {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-xs);
+  color: var(--color-warning-dark);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-warning-dark);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.escrow-arrow {
+  color: var(--color-warning-dark);
+  font-weight: 700;
+  opacity: 0.7;
 }
 
 .escrow-info-box p {

@@ -1,0 +1,777 @@
+/* User Escrow Management Styles */
+
+.user-escrow-management {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+:root {
+  --escrow-bg: #ffffff;
+  --escrow-text: #1f2937;
+  --escrow-border: #e5e7eb;
+  --escrow-shadow: rgba(0, 0, 0, 0.1);
+  --escrow-card-bg: #f9fafb;
+  --escrow-primary: #3b82f6;
+}
+
+:root.dark-mode {
+  --escrow-bg: #1f2937;
+  --escrow-text: #f3f4f6;
+  --escrow-border: #374151;
+  --escrow-shadow: rgba(0, 0, 0, 0.3);
+  --escrow-card-bg: #111827;
+  --escrow-primary: #60a5fa;
+}
+
+/* Header */
+.escrow-header {
+  background: var(--escrow-bg);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px var(--escrow-shadow);
+  margin-bottom: 30px;
+}
+
+.escrow-title-section {
+  max-width: 100%;
+}
+
+.escrow-title {
+  margin: 0 0 10px 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--escrow-text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.escrow-subtitle {
+  margin: 0;
+  font-size: 16px;
+  color: #6b7280;
+}
+
+:root.dark-mode .escrow-subtitle {
+  color: #d1d5db;
+}
+
+/* Summary Cards Grid */
+.escrow-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.summary-card {
+  background: var(--escrow-bg);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px var(--escrow-shadow);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border-left: 4px solid var(--escrow-primary);
+  transition: all 0.3s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px var(--escrow-shadow);
+}
+
+.total-card {
+  border-left-color: #6b7280;
+}
+
+.held-card {
+  border-left-color: #f59e0b;
+}
+
+.released-card {
+  border-left-color: #10b981;
+}
+
+.refunded-card {
+  border-left-color: #3b82f6;
+}
+
+.summary-icon {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.summary-content {
+  flex: 1;
+}
+
+.summary-label {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+:root.dark-mode .summary-label {
+  color: #9ca3af;
+}
+
+.summary-value {
+  margin: 5px 0 0 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--escrow-text);
+}
+
+.summary-count {
+  margin: 3px 0 0 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+:root.dark-mode .summary-count {
+  color: #9ca3af;
+}
+
+/* Filter Tabs */
+.escrow-filters {
+  margin-bottom: 30px;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 10px;
+  background: var(--escrow-bg);
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px var(--escrow-shadow);
+  flex-wrap: wrap;
+}
+
+.filter-tab {
+  padding: 10px 20px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: var(--escrow-card-bg);
+  color: var(--escrow-text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-tab:hover {
+  background: var(--escrow-border);
+}
+
+.filter-tab.active {
+  background: var(--escrow-primary);
+  color: white;
+  border-color: var(--escrow-primary);
+}
+
+/* Loading State */
+.escrow-loading {
+  background: var(--escrow-bg);
+  border-radius: 10px;
+  padding: 60px 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px var(--escrow-shadow);
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--escrow-border);
+  border-top: 4px solid var(--escrow-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.escrow-empty {
+  background: var(--escrow-bg);
+  border-radius: 10px;
+  padding: 60px 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px var(--escrow-shadow);
+}
+
+.empty-icon {
+  font-size: 60px;
+  margin-bottom: 20px;
+}
+
+.escrow-empty h3 {
+  margin: 0 0 10px 0;
+  color: var(--escrow-text);
+  font-size: 20px;
+}
+
+.escrow-empty p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+:root.dark-mode .escrow-empty p {
+  color: #9ca3af;
+}
+
+/* Orders List Container */
+.escrow-orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Order Card */
+.escrow-order-card {
+  background: var(--escrow-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px var(--escrow-shadow);
+  transition: all 0.3s ease;
+}
+
+.escrow-order-card:hover {
+  box-shadow: 0 6px 16px var(--escrow-shadow);
+  transform: translateY(-2px);
+}
+
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid var(--escrow-border);
+  background: var(--escrow-card-bg);
+}
+
+.order-info-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.booking-number {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--escrow-primary);
+}
+
+.driver-verify-badge {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--escrow-text);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.escrow-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(59, 130, 246, 0.1);
+  border: 2px solid var(--escrow-primary);
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.status-icon {
+  font-size: 16px;
+}
+
+.status-text {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Order Details Grid */
+.order-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  padding: 20px;
+  border-bottom: 1px solid var(--escrow-border);
+}
+
+.detail-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.location-item {
+  grid-column: 1 / -1;
+}
+
+.detail-icon {
+  font-size: 24px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.detail-content {
+  flex: 1;
+}
+
+.detail-label {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+:root.dark-mode .detail-label {
+  color: #9ca3af;
+}
+
+.detail-value {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--escrow-text);
+}
+
+/* Location Display */
+.location-from,
+.location-to {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.location-label {
+  font-size: 11px;
+  color: #6b7280;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+:root.dark-mode .location-label {
+  color: #9ca3af;
+}
+
+.location-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--escrow-text);
+  word-break: break-word;
+}
+
+.location-arrow {
+  text-align: center;
+  margin: 10px 0;
+  color: var(--escrow-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Status Badge */
+.booking-status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 6px;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Escrow Breakdown */
+.escrow-breakdown {
+  padding: 20px;
+  background: var(--escrow-card-bg);
+  border-bottom: 1px solid var(--escrow-border);
+}
+
+.breakdown-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+}
+
+.breakdown-label {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+:root.dark-mode .breakdown-label {
+  color: #9ca3af;
+}
+
+.breakdown-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--escrow-text);
+}
+
+.breakdown-value.primary {
+  color: var(--escrow-primary);
+  font-size: 16px;
+}
+
+.breakdown-value.fee {
+  color: #f59e0b;
+}
+
+.breakdown-divider {
+  height: 1px;
+  background: var(--escrow-border);
+  margin: 8px 0;
+}
+
+.breakdown-item.total {
+  padding-top: 8px;
+  border-top: 1px solid var(--escrow-border);
+}
+
+.breakdown-item.total .breakdown-value {
+  color: #10b981;
+  font-size: 16px;
+}
+
+/* Status Timeline */
+.status-timeline {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  padding: 20px;
+  background: var(--escrow-card-bg);
+  border-bottom: 1px solid var(--escrow-border);
+}
+
+.timeline-step {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+
+.timeline-step.active {
+  opacity: 1;
+}
+
+.timeline-marker {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--escrow-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px;
+  font-weight: 700;
+  color: var(--escrow-text);
+  background: var(--escrow-card-bg);
+  transition: all 0.3s ease;
+}
+
+.timeline-step.active .timeline-marker {
+  border-color: #10b981;
+  background: #10b981;
+  color: white;
+}
+
+.timeline-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--escrow-text);
+}
+
+.timeline-time {
+  margin: 5px 0 0 0;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+:root.dark-mode .timeline-time {
+  color: #9ca3af;
+}
+
+/* Status Message */
+.status-message {
+  display: flex;
+  gap: 15px;
+  padding: 15px 20px;
+  border-left: 4px solid #f59e0b;
+  background: rgba(245, 158, 11, 0.05);
+  margin: 0;
+}
+
+.message-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.message-text {
+  flex: 1;
+}
+
+.message-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--escrow-text);
+}
+
+.message-detail {
+  margin: 5px 0 0 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+:root.dark-mode .message-detail {
+  color: #9ca3af;
+}
+
+/* Driver Info Card */
+.driver-info-card {
+  padding: 20px;
+  border-top: 1px solid var(--escrow-border);
+}
+
+.driver-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.driver-badge {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.vehicle-emoji {
+  font-size: 28px;
+}
+
+.driver-details {
+  flex: 1;
+}
+
+.driver-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--escrow-text);
+}
+
+.driver-vehicle {
+  margin: 3px 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+:root.dark-mode .driver-vehicle {
+  color: #9ca3af;
+}
+
+.driver-phone {
+  margin: 5px 0 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--escrow-primary);
+}
+
+.driver-verification {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.verified-badge {
+  padding: 6px 12px;
+  background: #10b981;
+  color: white;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Info Section */
+.escrow-info-section {
+  background: var(--escrow-bg);
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 2px 8px var(--escrow-shadow);
+  margin-top: 30px;
+}
+
+.escrow-info-section h3 {
+  margin: 0 0 25px 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--escrow-text);
+}
+
+.info-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.info-card {
+  display: flex;
+  gap: 15px;
+  padding: 20px;
+  background: var(--escrow-card-bg);
+  border-radius: 10px;
+  border-left: 4px solid var(--escrow-primary);
+}
+
+.info-icon {
+  font-size: 32px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.info-content h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--escrow-text);
+}
+
+.info-content p {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+:root.dark-mode .info-content p {
+  color: #9ca3af;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .escrow-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .order-details-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .status-timeline {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .user-escrow-management {
+    padding: 10px;
+  }
+
+  .escrow-header {
+    padding: 20px;
+  }
+
+  .escrow-title {
+    font-size: 24px;
+  }
+
+  .escrow-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .order-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .order-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .info-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .driver-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .driver-verification {
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .escrow-header {
+    padding: 15px;
+  }
+
+  .escrow-title {
+    font-size: 20px;
+  }
+
+  .filter-tabs {
+    flex-direction: column;
+  }
+
+  .filter-tab {
+    width: 100%;
+    text-align: center;
+  }
+
+  .status-timeline {
+    gap: 8px;
+  }
+
+  .timeline-marker {
+    width: 35px;
+    height: 35px;
+    font-size: 13px;
+  }
+
+  .order-details-grid {
+    gap: 10px;
+    padding: 15px;
+  }
+}
