@@ -68,8 +68,9 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="dashboard-container">
-      <h1 className="dashboard-title">Admin Dashboard</h1>
+    <div className="admin-dashboard">
+      <div className="dashboard-container">
+        <h1 className="dashboard-title">Admin Dashboard</h1>
       
       {/* Stats Cards */}
       <div className="stats-grid">
@@ -145,6 +146,7 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };

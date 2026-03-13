@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import API_ENDPOINTS from '../../config/api';
 import DriverLocationTracker from './DriverLocationTracker';
 import './DriverPages.css';
+import './DriverDashboard.css';
 
 const DriverDashboard = () => {
   // State variables
@@ -134,9 +135,9 @@ const DriverDashboard = () => {
   if (isLoading) {
     return (
       <div className="loading-container">
-        <div style={{ textAlign: 'center' }}>
+        <div className="loading-content">
           <div className="loading-spinner"></div>
-          <p style={{ marginTop: '16px', color: '#4b5563', fontWeight: '500', fontSize: '18px' }}>
+          <p className="loading-text">
             Loading dashboard...
           </p>
         </div>
@@ -151,23 +152,17 @@ const DriverDashboard = () => {
       {/* Header */}
       <div className="dashboard-header">
         <div className="dashboard-container">
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '16px'
-          }}>
+          <div className="header-content">
             <div>
-              <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: '#111827', margin: 0 }}>
+              <h1 className="header-title">
                 Driver Dashboard
               </h1>
-              <p style={{ marginTop: '4px', fontSize: '13px', color: '#6b7280' }}>
+              <p className="header-subtitle">
                 Welcome back! Manage your rides and earnings
               </p>
             </div>
             <button onClick={fetchDriverData} className="btn btn-primary">
-              <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               Refresh
@@ -179,47 +174,30 @@ const DriverDashboard = () => {
       <div className="dashboard-container">
         {/* Verification Alert */}
         {verificationStatus !== 'approved' && (
-          <div className="card" style={{
-            background: verificationStatus === 'rejected' ? '#fef2f2' : '#fef3c7',
-            borderLeft: `4px solid ${verificationStatus === 'rejected' ? '#ef4444' : '#f59e0b'}`
-          }}>
-            <div style={{ display: 'flex', alignItems: 'start', gap: '12px' }}>
-              <div style={{ flexShrink: 0, color: verificationStatus === 'rejected' ? '#dc2626' : '#d97706' }}>
-                <svg style={{ width: '22px', height: '22px' }} fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002  0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
+          <div className={`verification-alert ${verificationStatus === 'rejected' ? 'rejected' : 'pending'}`}>
+            <div className="alert-content">
+              <div className="verification-alert-icon">
+                {verificationStatus === 'pending' && '⚠️'}
+                {verificationStatus === 'under_review' && '🔍'}
+                {verificationStatus === 'rejected' && '❌'}
               </div>
-              <div style={{ flex: 1 }}>
-                <h3 style={{
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  marginBottom: '8px',
-                  color: verificationStatus === 'rejected' ? '#7f1d1d' : '#78350f'
-                }}>
-                  {verificationStatus === 'pending' && '⚠️ Account Verification Required'}
-                  {verificationStatus === 'under_review' && '🔍 Verification Under Review'}
-                  {verificationStatus === 'rejected' && '❌ Verification Rejected'}
+              <div className="alert-message">
+                <h3>
+                  {verificationStatus === 'pending' && 'Account Verification Required'}
+                  {verificationStatus === 'under_review' && 'Verification Under Review'}
+                  {verificationStatus === 'rejected' && 'Verification Rejected'}
                 </h3>
-                <p style={{
-                  fontSize: '14px',
-                  marginBottom: '12px',
-                  color: verificationStatus === 'rejected' ? '#991b1b' : '#92400e'
-                }}>
+                <p>
                   {verificationStatus === 'pending' && 'You need to submit verification documents to start accepting orders.'}
                   {verificationStatus === 'under_review' && 'Your verification documents are being reviewed by our admin team.'}
                   {verificationStatus === 'rejected' && 'Your verification was rejected. Please resubmit with correct documents.'}
                 </p>
                 <Link 
                   to="/driver/verification"
-                  className="btn"
-                  style={{
-                    background: verificationStatus === 'rejected' ? '#ef4444' : '#f59e0b',
-                    color: 'white',
-                    textDecoration: 'none'
-                  }}
+                  className={`btn ${verificationStatus === 'rejected' ? 'btn-danger' : 'btn-warning'}`}
                 >
                   {verificationStatus === 'pending' ? 'Submit Documents' : 'View Status'}
-                  <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
@@ -230,35 +208,30 @@ const DriverDashboard = () => {
 
         {/* Driver Status Card */}
         <div className="status-card">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="status-card-content">
+            <div className="status-info">
               <div className={isAvailable ? 'status-indicator-available' : 'status-indicator-unavailable'}>
-                <svg style={{ width: '20px', height: '20px', color: isAvailable ? '#059669' : '#dc2626' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div>
-                <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827', margin: 0 }}>
+                <h2 className="status-title">
                   Driver Status
                   {verificationStatus === 'approved' ? (
-                    <span style={{ marginLeft: '12px', padding: '4px 10px', background: '#10b981', color: 'white', borderRadius: '6px', fontSize: '12px', fontWeight: '600' }}>✓ VERIFIED</span>
+                    <span className="badge-verified">✓ VERIFIED</span>
                   ) : (
-                    <span style={{ marginLeft: '12px', padding: '4px 10px', background: '#ef4444', color: 'white', borderRadius: '6px', fontSize: '12px', fontWeight: '600' }}>UNVERIFIED</span>
+                    <span className="badge-unverified">UNVERIFIED</span>
                   )}
                 </h2>
-                <p style={{
-                  fontSize: '18px',
-                  fontWeight: '600',
-                  marginTop: '4px',
-                  color: isAvailable ? '#059669' : '#dc2626'
-                }}>
+                <p className={`status-text ${isAvailable ? 'status-available' : 'status-unavailable'}`}>
                   {isAvailable ? 'Available for Orders' : 'Unavailable'}
                 </p>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div className="status-actions">
               <button onClick={updateLocation} className="btn btn-primary">
-                <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
@@ -270,14 +243,14 @@ const DriverDashboard = () => {
               >
                 {isAvailable ? (
                   <>
-                    <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                     Go Offline
                   </>
                 ) : (
                   <>
-                    <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                     </svg>
                     Go Online
@@ -290,22 +263,21 @@ const DriverDashboard = () => {
 
         {/* Wallet Summary Card */}
         <div className="wallet-summary">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+          <div className="wallet-header">
             <div>
-              <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <svg style={{ width: '22px', height: '22px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <h2>
+                <svg className="icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>
                 Driver Wallet
               </h2>
-              <p style={{ color: 'rgba(255,255,255,0.9)' }}>Your earnings and escrow balance</p>
+              <p>Your earnings and escrow balance</p>
             </div>
             <Link
               to="/driver/wallet"
-              className="btn"
-              style={{ background: 'white', color: '#10b981', textDecoration: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+              className="btn btn-primary wallet-link"
             >
-              <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Full Wallet
@@ -313,12 +285,12 @@ const DriverDashboard = () => {
           </div>
 
           {/* Money Flow Visualization */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
+          <div className="wallet-metrics">
             {/* Available Balance */}
             <div className="wallet-metric">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                <div style={{ background: 'rgba(255,255,255,0.3)', borderRadius: '6px', padding: '6px',  display: 'inline-flex' }}>
-                  <svg style={{ width: '18px', height: '18px', color: 'white' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="wallet-metric-header">
+                <div className="wallet-metric-icon">
+                  <svg className="icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
@@ -330,9 +302,9 @@ const DriverDashboard = () => {
 
             {/* Pending in Escrow */}
             <div className="wallet-metric">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                <div style={{ background: 'rgba(255,255,255,0.3)', borderRadius: '6px', padding: '6px', display: 'inline-flex' }}>
-                  <svg style={{ width: '18px', height: '18px', color: 'white' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="wallet-metric-header">
+                <div className="wallet-metric-icon">
+                  <svg className="icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
@@ -344,9 +316,9 @@ const DriverDashboard = () => {
 
             {/* Total Potential */}
             <div className="wallet-metric">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                <div style={{ background: 'rgba(255,255,255,0.3)', borderRadius: '6px', padding: '6px', display: 'inline-flex' }}>
-                  <svg style={{ width: '18px', height: '18px', color: 'white' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="wallet-metric-header">
+                <div className="wallet-metric-icon">
+                  <svg className="icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                   </svg>
                 </div>
@@ -359,14 +331,14 @@ const DriverDashboard = () => {
 
           {/* Escrow Explanation */}
           {pendingOrders > 0 && (
-            <div style={{ marginTop: '24px', background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', borderRadius: '8px', padding: '16px', border: '1px solid rgba(255,255,255,0.2)' }}>
-              <div style={{ display: 'flex', alignItems: 'start', gap: '12px' }}>
-                <svg style={{ width: '20px', height: '20px', color: '#fcd34d', flexShrink: 0, marginTop: '2px' }} fill="currentColor" viewBox="0 0 20 20">
+            <div className="escrow-explanation">
+              <div className="escrow-content">
+                <svg className="icon-md" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
                 <div>
-                  <p style={{ fontWeight: '600', fontSize: '14px' }}>About Escrow</p>
-                  <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.9)', marginTop: '4px' }}>
+                  <p className="escrow-title">About Escrow</p>
+                  <p>
                     When customers book your service, payment is held in escrow. After you complete delivery, funds are automatically released to your available balance for withdrawal.
                   </p>
                 </div>
@@ -384,8 +356,8 @@ const DriverDashboard = () => {
         <div className="stats-grid">
           {/* Available Orders */}
           <div className="stat-card">
-            <div className="stat-icon-amber">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="stat-icon stat-icon-amber">
+              <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
@@ -483,88 +455,58 @@ const DriverDashboard = () => {
 
         {/* Recent Available Orders */}
         {availableOrders.length > 0 && (
-          <div className="card">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <svg style={{ width: '22px', height: '22px', color: '#f59e0b' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="orders-section">
+            <div className="orders-header">
+              <h2>
+                <svg className="icon-lg orders-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Recent Available Orders
               </h2>
-              <Link to="/driver/orders" className="btn btn-primary" style={{ textDecoration: 'none' }}>
+              <Link to="/driver/orders" className="btn btn-primary">
                 View All
-                <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                 </svg>
               </Link>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className="orders-list">
               {availableOrders.slice(0, 3).map((order) => (
-                <div key={order.booking_id} style={{
-                  background: '#f9fafb',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  padding: '16px',
-                  transition: 'all 0.2s'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px', flexWrap: 'wrap', gap: '12px' }}>
-                    <div>
-                      <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#111827', margin: 0, marginBottom: '4px' }}>
-                        Booking #{order.booking_id}
-                      </h3>
-                      <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
-                        Customer: {order.customer_name}
-                      </p>
+                <div key={order.booking_id} className="order-item">
+                  <div className="order-header">
+                    <div className="order-info">
+                      <h3>Booking #{order.booking_id}</h3>
+                      <p>Customer: {order.customer_name}</p>
                       {order.customer_phone && (
-                        <p style={{ fontSize: '13px', color: '#2563eb', margin: 0, marginTop: '2px' }}>
+                        <p className="customer-phone">
                           📞 {order.customer_phone}
                         </p>
                       )}
                     </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <span style={{
-                        padding: '6px 12px',
-                        background: '#fef3c7',
-                        color: '#92400e',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        display: 'block'
-                      }}>
-                        Your Earnings: KES {(order.price * 0.9).toFixed(2)}
-                      </span>
-                      <span style={{ fontSize: '11px', color: '#6b7280', marginTop: '4px', display: 'block' }}>
-                        Total: KES {order.price.toFixed(2)} (10% fee)
-                      </span>
+                    <div className="order-earnings">
+                      <p className="order-earnings-amount">KES {(order.price * 0.9).toFixed(2)}</p>
+                      <p className="order-earnings-total">Total: KES {order.price.toFixed(2)} (10% fee)</p>
                     </div>
                   </div>
-                  <div style={{ marginBottom: '12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'start', gap: '8px', marginBottom: '8px' }}>
-                      <svg style={{ width: '18px', height: '18px', color: '#10b981', flexShrink: 0, marginTop: '2px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ fontSize: '13px', color: '#6b7280', margin: 0, marginBottom: '2px' }}>From</p>
-                        <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: 0 }}>{order.pickup_location}</p>
+                  <div className="order-route">
+                    <div className="location-item">
+                      <div className="location-marker pickup">📍</div>
+                      <div className="location-info">
+                        <p>From</p>
+                        <address>{order.pickup_location}</address>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'start', gap: '8px' }}>
-                      <svg style={{ width: '18px', height: '18px', color: '#ef4444', flexShrink: 0, marginTop: '2px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ fontSize: '13px', color: '#6b7280', margin: 0, marginBottom: '2px' }}>To</p>
-                        <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: 0 }}>{order.dropoff_location}</p>
+                    <div className="location-item">
+                      <div className="location-marker dropoff">📍</div>
+                      <div className="location-info">
+                        <p>To</p>
+                        <address>{order.dropoff_location}</address>
                       </div>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '12px', borderTop: '1px solid #e5e7eb' }}>
-                    <span style={{ fontSize: '13px', color: '#6b7280' }}>
-                      Distance: {order.distance.toFixed(2)} km
-                    </span>
-                    <span style={{ fontSize: '13px', color: '#6b7280' }}>
+                  <div className="order-footer">
+                    <span>Distance: {order.distance.toFixed(2)} km</span>
+                    <span>
                       {new Date(order.created_at).toLocaleDateString()} {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
@@ -572,8 +514,8 @@ const DriverDashboard = () => {
               ))}
             </div>
             {availableOrders.length > 3 && (
-              <div style={{ marginTop: '16px', textAlign: 'center' }}>
-                <Link to="/driver/orders" style={{ color: '#2563eb', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>
+              <div className="orders-more">
+                <Link to="/driver/orders">
                   View {availableOrders.length - 3} more available {availableOrders.length - 3 === 1 ? 'order' : 'orders'} →
                 </Link>
               </div>
@@ -585,11 +527,11 @@ const DriverDashboard = () => {
         <div className="quick-actions">
           <Link to="/driver/orders" className="action-card">
             <div className="action-icon action-icon-blue">
-              <svg style={{ width: '22px', height: '22px', color: '#2563eb' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
             </div>
-            <div>
+            <div className="action-content">
               <h3>Available Orders</h3>
               <p>View and accept new orders</p>
             </div>
@@ -597,11 +539,11 @@ const DriverDashboard = () => {
 
           <Link to="/driver/wallet" className="action-card">
             <div className="action-icon action-icon-green">
-              <svg style={{ width: '22px', height: '22px', color: '#059669' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
               </svg>
             </div>
-            <div>
+            <div className="action-content">
               <h3>Wallet & Withdrawals</h3>
               <p>Manage earnings & withdraw</p>
             </div>
@@ -609,11 +551,11 @@ const DriverDashboard = () => {
 
           <Link to="/driver/order-history" className="action-card">
             <div className="action-icon action-icon-purple">
-              <svg style={{ width: '22px', height: '22px', color: '#9333ea' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <div>
+            <div className="action-content">
               <h3>Order History</h3>
               <p>View completed deliveries</p>
             </div>

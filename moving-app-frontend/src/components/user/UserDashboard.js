@@ -78,8 +78,9 @@ const UserDashboard = () => {
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-welcome">
+    <div className="user-dashboard">
+      <div className="dashboard-container">
+        <div className="dashboard-welcome">
         <h1 className="dashboard-welcome-title">Welcome Back!</h1>
         <p className="dashboard-welcome-email">{currentUser?.email}</p>
         <p className="dashboard-welcome-subtitle">Here's an overview of your moving activities</p>
@@ -171,6 +172,7 @@ const UserDashboard = () => {
           Contact Support
         </button>
       </div>
+    </div>
     </div>
   );
 };

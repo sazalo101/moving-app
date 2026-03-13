@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import API_ENDPOINTS from '../../config/api';
+import './AvailableOrders.css';
 import './DriverPages.css';
 
 const AvailableOrders = () => {

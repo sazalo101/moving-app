@@ -1,11 +1,11 @@
 /* Admin Dashboard Container */
-.dashboard-container {
+.admin-dashboard .dashboard-container {
   max-width: 1280px;
   margin: 0 auto;
   padding: var(--spacing-2xl);
 }
 
-.dashboard-title {
+.admin-dashboard .dashboard-title {
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-bold);
   margin-bottom: var(--spacing-2xl);
@@ -13,14 +13,14 @@
 }
 
 /* Loading State */
-.loading-container {
+.admin-dashboard .loading-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 400px;
 }
 
-.loader {
+.admin-dashboard .loader {
   width: 48px;
   height: 48px;
   border: 4px solid var(--color-gray-200);
@@ -36,14 +36,14 @@
 }
 
 /* Stats Grid */
-.stats-grid {
+.admin-dashboard .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: var(--spacing-xl);
   margin-bottom: var(--spacing-2xl);
 }
 
-.stat-card {
+.admin-dashboard .stat-card {
   background-color: var(--bg-primary);
   border-radius: var(--radius-xl);
   padding: var(--spacing-xl);
@@ -72,14 +72,14 @@
   margin-bottom: var(--spacing-sm);
 }
 
-.stat-extra {
+.admin-dashboard .stat-extra {
   display: block;
   font-size: var(--font-size-sm);
   color: var(--text-light);
   margin-top: var(--spacing-sm);
 }
 
-.stat-link {
+.admin-dashboard .stat-link {
   display: inline-block;
   margin-top: var(--spacing-md);
   font-size: var(--font-size-sm);
@@ -95,20 +95,20 @@
 }
 
 /* Activity Grid */
-.activity-grid {
+.admin-dashboard .activity-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: var(--spacing-xl);
 }
 
-.activity-card {
+.admin-dashboard .activity-card {
   background-color: var(--bg-primary);
   border-radius: var(--radius-xl);
   padding: var(--spacing-xl);
   box-shadow: var(--shadow-base);
 }
 
-.card-header {
+.admin-dashboard .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -123,7 +123,7 @@
   color: var(--text-primary);
 }
 
-.pending-badge {
+.admin-dashboard .pending-badge {
   background-color: var(--color-warning-light);
   color: var(--color-warning-dark);
   padding: 0.25rem 0.75rem;
@@ -133,7 +133,7 @@
 }
 
 /* Booking List */
-.booking-list {
+.admin-dashboard .booking-list {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -156,24 +156,24 @@
   background-color: var(--bg-secondary);
 }
 
-.booking-id {
+.admin-dashboard .booking-id {
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   margin-bottom: var(--spacing-xs);
 }
 
-.booking-info {
+.admin-dashboard .booking-info {
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
 }
 
-.booking-price {
+.admin-dashboard .booking-price {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-success);
 }
 
-.no-data {
+.admin-dashboard .no-data {
   text-align: center;
   padding: var(--spacing-2xl);
   color: var(--text-light);
@@ -181,7 +181,7 @@
 }
 
 /* Ticket Info */
-.ticket-info {
+.admin-dashboard .ticket-info {
   padding: var(--spacing-xl);
   background-color: var(--color-warning-light);
   border-radius: var(--radius-lg);
@@ -194,14 +194,14 @@
   margin-bottom: var(--spacing-sm);
 }
 
-.ticket-description {
+.admin-dashboard .ticket-description {
   font-size: var(--font-size-sm);
   color: var(--color-warning-dark);
   font-weight: var(--font-weight-normal);
   margin-bottom: var(--spacing-lg);
 }
 
-.primary-btn {
+.admin-dashboard .primary-btn {
   display: inline-block;
   background-color: var(--color-primary);
   color: var(--text-inverse);
@@ -221,7 +221,7 @@
 }
 
 /* Quick Links */
-.quick-links {
+.admin-dashboard .quick-links {
   margin-top: var(--spacing-xl);
 }
 
@@ -232,13 +232,13 @@
   margin-bottom: var(--spacing-lg);
 }
 
-.link-grid {
+.admin-dashboard .link-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: var(--spacing-md);
 }
 
-.link-box {
+.admin-dashboard .link-box {
   display: block;
   background-color: var(--bg-secondary);
   padding: var(--spacing-lg);
@@ -261,6 +261,7 @@
 }
 
 /* Responsive Design */
+.admin-dashboard
 @media (max-width: 768px) {
   .dashboard-container {
     padding: var(--spacing-lg);
